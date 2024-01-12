@@ -1,0 +1,7 @@
+.rootLayout {
+    height: 100vh;
+    background: pink;
+}
+.main {
+    display: flex;
+}
