@@ -2,17 +2,27 @@ export const sidebarLinks = [
     {
       imgURL: "",
       route: "/",
-      label: "Home",
+      label: "Dashboard",
     },
     {
       imgURL: "",
       route: "/page1",
-      label: "Page 1",
+      label: "Workouts",
     },
     {
       imgURL: "",
       route: "/page2",
-      label: "Page 2",
+      label: "Clients",
+    },
+    {
+      imgURL: "",
+      route: "/settings",
+      label: "Settings",
+    },
+    {
+      imgURL: "",
+      route: "/logout",
+      label: "Logout",
     }
   ];
   

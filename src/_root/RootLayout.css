@@ -6,5 +6,18 @@
     height: 100%;
     background: white;
     color: black;
-    
+}
+.workout-container {
+    background: #0A0A0A;
+    width: 100%;
+}
+.workout-content{
+    background: white;
+    margin-top: 70px;
+    height: 100%;
+    border-top-left-radius: 50px;  
+    border-top-right-radius: 50px;
+}
+.workout-content h1{
+    padding: 50px;
 }

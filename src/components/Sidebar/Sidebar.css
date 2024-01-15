@@ -1,15 +1,17 @@
 .sidebar {
-    width: 20%;
-    background: #030637;
+    width: 12%;
+    background: #0A0A0A;
 }
 .sidebar ul {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 20px;
+    margin-top: 127px;
+    width: 100%;
 }
 .sidebar ul li {
-    padding: 15px 50px;;
+    width: 100%;
+    padding: 15px 40px;
     border-radius: 10px;
     list-style-type: none;
     color: white;
