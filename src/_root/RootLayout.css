@@ -1,7 +1,10 @@
 .rootLayout {
     height: 100vh;
-    background: pink;
 }
 .main {
     display: flex;
+    height: 100%;
+    background: white;
+    color: black;
+    
 }

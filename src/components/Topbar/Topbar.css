@@ -1,0 +1,13 @@
+.topbar {
+    background: #0A0A0A;
+    display: flex;
+    overflow: hidden;
+    height: 100px;
+}
+.topbar img {
+    width: 170px;
+    object-fit: cover;
+    max-width: 100%;
+    max-height: 100%;
+    margin-left: 70px;
+}
