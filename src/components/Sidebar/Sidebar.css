@@ -5,13 +5,13 @@
 .sidebar ul {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: start;
     margin-top: 127px;
     width: 100%;
 }
 .sidebar ul li {
     width: 100%;
-    padding: 15px 40px;
+    padding: 15px 20px;
     border-radius: 10px;
     list-style-type: none;
     color: white;

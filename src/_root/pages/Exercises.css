@@ -1,0 +1,11 @@
+input {
+    margin-left: 5px;
+    padding: 10px;
+}
+.exercise-form {
+    padding-top: 30px;
+    padding-left: 30px;
+}
+.exercise {
+    padding: 5px 40px;
+}

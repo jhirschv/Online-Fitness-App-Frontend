@@ -4,9 +4,9 @@ import './Topbar.css'
 const Topbar = () => {
   return (
     <div className='topbar'>
-      <img className="main-logo"src='../../public/assets/images/TrainerZ-logo.svg' alt="My SVG" />
+      <img className="main-logo"src='/assets/images/TrainerZ-logo.svg' alt="My SVG" />
       <div className="right-topbar">
-        <img className="logout-icon" src='../../public/assets/icons/logout (1).png' alt="My SVG" />
+        <img className="logout-icon" src='/assets/icons/logout (1).png' alt="My SVG" />
         <p>Logout</p>
       </div>
       

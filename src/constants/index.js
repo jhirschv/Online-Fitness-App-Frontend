@@ -11,6 +11,11 @@ export const sidebarLinks = [
     },
     {
       imgURL: "",
+      route: "/exercises",
+      label: "Exercises",
+    },
+    {
+      imgURL: "",
       route: "/page2",
       label: "Clients",
     },

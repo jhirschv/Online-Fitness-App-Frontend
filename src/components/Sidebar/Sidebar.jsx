@@ -10,7 +10,7 @@ const SideBar = () => {
       <ul>
       {sidebarLinks.map((link) => {
         return (
-          <NavLink to={link.route}>
+          <NavLink key={link.label} to={link.route}>
               <li key={link.label}>
               {link.label}
               </li>
