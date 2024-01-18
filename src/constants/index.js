@@ -6,6 +6,11 @@ export const sidebarLinks = [
     },
     {
       imgURL: "",
+      route: "/createWorkout",
+      label: "Create Workout",
+    },
+    {
+      imgURL: "",
       route: "/page1",
       label: "Workouts",
     },

@@ -14,7 +14,7 @@ const SideBar = () => {
               <li key={link.label}>
               {link.label}
               </li>
-            </NavLink>
+          </NavLink>
       )})}
       </ul>
     </div>

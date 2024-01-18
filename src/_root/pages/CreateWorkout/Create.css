@@ -1,0 +1,16 @@
+.create-workout-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    border-radius: 75px;
+    background-color: white;
+    margin-top: 30px;
+}
+.workout-display-container {
+    flex: 1;
+    padding: 30px;
+}
+.add-exercise-container {
+    flex: 1;
+    padding: 30px;
+}
