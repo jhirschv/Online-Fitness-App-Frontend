@@ -6,21 +6,73 @@ import Axios from 'axios'
 const CreateWorkout = () => {
 
   const [workoutExercises, setWorkoutExercises] = useState([])
+  const [exercises, setExercises] = useState([]);
+  const [workoutName, setWorkoutName] = useState('')
+  const [exercise, setExercise] = useState("")
 
-  const handleClick = (exerciseName) => {
+  const clickToAddExercise = (exerciseName) => {
     if (!workoutExercises.includes(exerciseName)) {
       setWorkoutExercises([...workoutExercises, exerciseName]);
     }
       console.log(workoutExercises)
   }
+  const createWorkout = async (event) => {
+    event.preventDefault();
 
-  const createWorkout = () => {
-    
+    const workoutData = {
+        name: workoutName,
+        exercises: workoutExercises, 
+    };
+
+    try {
+        const response = await fetch('http://localhost:8000/workout_create/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(workoutData),
+        });
+
+        if (response.ok) {
+            const responseData = await response.json();
+            console.log(responseData);
+            setWorkoutExercises([])
+            setWorkoutName('')
+            // Handle successful response
+        } else {
+            // Handle errors
+            console.error('Failed to create workout');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+  };
+  const createExercise = async (event) => {
+    event.preventDefault()
+    try {
+        const response = await Axios.post('http://localhost:8000/exercise_create/', {
+            name: exercise
+        })
+        console.log(response.data)
+        fetchExercises()
+        setExercise('');
+    } catch (error) {
+        console.error('There was an error!', error)
+    }
   }
+  const fetchExercises = () => {
+    Axios.get('http://localhost:8000/exercises/').then((res) => {
+      setExercises(res.data)
+      console.log('pinging')
+  })  
+  }
+  useEffect(() => {
+    fetchExercises()
+  }, []);
 
   let workoutExerciseList = workoutExercises.map(exercise => {
     return (
-      <div className="exercise">
+      <div key={exercise} className="exercise">
         <p key={exercise}>{exercise}</p>
         <div>
           <label>Sets</label>
@@ -31,55 +83,13 @@ const CreateWorkout = () => {
           <input className='notes-input' type='text'/>
         </div>
       </div>   
-      )})
-
-  const [exercises, setExercises] = useState([]);
-
-  const fetchExercises = () => {
-    Axios.get('http://localhost:8000/exercises/').then((res) => {
-      setExercises(res.data)
-      console.log('pinging')
-  })  
-  }
-
-  useEffect(() => {
-    fetchExercises()
-    }, []);
+  )})
 
   let exerciseList = exercises.map(thing => {
     return (
-        <p onClick={() => handleClick(thing.name)} key={thing.name} className="exercise">{thing.name}</p>
+        <p onClick={() => clickToAddExercise(thing.name)} key={thing.name} className="exercise">{thing.name}</p>
     )
-    })
-
-  const [name, setName] = useState("")
-
-  const handleSubmit = async (event) => {
-      event.preventDefault()
-      try {
-          const response = await Axios.post('http://localhost:8000/exercise_create/', {
-              name
-          })
-          console.log(response.data)
-          fetchExercises()
-          setName('');
-      } catch (error) {
-          console.error('There was an error!', error)
-      }
-  }
-
-  
-
-  /* const [exercise, setExercise] = useState('');
-  const [exercises, setExercises] = useState([]);
-
-  const handleSubmit = (event) => {
-    event.preventDefault(); // Prevents page reload on form submit
-    if (exercise) {
-      setExercises([...exercises, exercise]); // Add new exercise to the list
-      setExercise(''); // Reset the input field
-    }
-  }; */
+  })
 
   return (
     <div className='workout-container'>
@@ -87,7 +97,7 @@ const CreateWorkout = () => {
         <div className="workout-display-container" >
           <form onSubmit={createWorkout}>
             <label>Enter Workout Name</label>
-            <input type="text" />
+            <input type="text" value={workoutName} onChange={e => setWorkoutName(e.target.value)}/>
             <div>
               {workoutExerciseList}
             </div>
@@ -95,9 +105,9 @@ const CreateWorkout = () => {
           </form>
         </div>
         <div className="add-exercise-container">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={createExercise}>
             <label>Enter New Exercise</label>
-            <input type="text" value={name} onChange={e => setName(e.target.value)}/>
+            <input type="text" value={exercise} onChange={e => setExercise(e.target.value)}/>
             <input type="submit" />
           </form>
           <h1>Click To Add</h1>
