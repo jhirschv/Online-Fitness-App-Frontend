@@ -14,3 +14,19 @@
     flex: 1;
     padding: 30px;
 }
+.exercise {
+    background: darkblue;
+    color: white;
+    margin: 5px;
+    border-radius: 10px;
+}
+.exercise div {
+    margin: 10px
+}
+.sets-input {
+    width: 65px;
+    margin-right: 10px;
+}
+.reps-input {
+    width: 65px;
+}
