@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import Axios from 'axios'
 import { Link } from 'react-router-dom'
 
@@ -11,7 +11,6 @@ export default function Workouts() {
   const fetchWorkouts = () => {
     Axios.get('http://localhost:8000/workouts/').then((res) => {
       setWorkouts(res.data)
-      console.log(res.data)
   })  
   }
 
