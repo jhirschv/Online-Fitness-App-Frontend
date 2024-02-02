@@ -1,21 +1,21 @@
-import { useState, useEffect } from 'react'
-import './App.css'
 import Workouts from './_root/pages/Workouts';
-import Workout from './_root/pages/Workout/Workout';
+import Workout from './_root/pages/Workout';
 import PrivateRoute from './utils/PrivateRoute'
-import CreateWorkout from './_root/pages/CreateWorkout/CreateWorkout';
+import CreateWorkout from './_root/pages/CreateWorkout';
 import Clients from './_root/pages/Clients';
 import Register from './_root/pages/Register';
-import Login from './_root/pages/Login';
+import SigninForm from './_auth/Forms/SigninForm';
 import Exercises from './_root/pages/Exercises';
 import RootLayout from './_root/RootLayout'
-import { Routes, Route, BrowserRouter } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from "@/components/theme-provider"
 
 
 function App() {
 
   return (
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <AuthProvider>
         <Routes>
           <Route element={<RootLayout />}>
@@ -29,9 +29,10 @@ function App() {
             </Route>
           </Route>
           <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<SigninForm />} />
         </Routes>
       </AuthProvider>
+    </ThemeProvider>
   )
 }
 

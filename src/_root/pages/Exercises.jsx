@@ -1,6 +1,5 @@
 import React from 'react'
 import { useState, useEffect } from 'react';
-import "./Exercises.css";
 import Axios from 'axios'
 
 const Exercises = () => {
