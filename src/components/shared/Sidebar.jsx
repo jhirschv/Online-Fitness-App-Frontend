@@ -26,7 +26,7 @@ const SideBar = () => {
           <NavLink>
             <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md">
               <FontAwesomeIcon size="lg" className="mr-3" icon={faSquarePlus}/>
-              New Program
+              New Program cats
             </li>
           </NavLink>
           
