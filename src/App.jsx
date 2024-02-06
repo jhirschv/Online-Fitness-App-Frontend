@@ -1,11 +1,9 @@
-import Workouts from './_root/pages/Workouts';
-import Workout from './_root/pages/Workout';
+import YourWorkouts from './_root/pages/YourPrograms';
 import PrivateRoute from './utils/PrivateRoute'
-import CreateWorkout from './_root/pages/CreateWorkout';
+import CreateWorkout from './_root/pages/CreateProgram';
 import Clients from './_root/pages/Clients';
-import Register from './_root/pages/Register';
 import SigninForm from './_auth/Forms/SigninForm';
-import Exercises from './_root/pages/Exercises';
+import Exercises from './_root/pages/ExerciseLibrary';
 import RootLayout from './_root/RootLayout'
 import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
@@ -20,15 +18,12 @@ function App() {
         <Routes>
           <Route element={<RootLayout />}>
             <Route element={<PrivateRoute />}>
-              <Route index element={<h1>Dashboard</h1>} />
-              <Route path="createWorkout" element={<CreateWorkout />} />  
-              <Route path="/Workout/:id" element={<Workout />} />
-              <Route path="/page1" element={<Workouts />} />
+              <Route index element={<CreateWorkout />} />  
+              <Route path="/yourWorkouts" element={<YourWorkouts />} />
               <Route path="/page2" element={<Clients />} />
               <Route path="/exercises" element={<Exercises />} />
             </Route>
           </Route>
-          <Route path="/register" element={<Register />} />
           <Route path="/login" element={<SigninForm />} />
         </Routes>
       </AuthProvider>

@@ -1,36 +1,31 @@
 export const sidebarLinks = [
     {
-      imgURL: "",
+      icon: "faPlus",
       route: "/",
-      label: "Dashboard",
+      label: "Create New Program",
     },
     {
-      imgURL: "",
-      route: "/createWorkout",
-      label: "Create Workout",
+      icon: "",
+      route: "/yourWorkouts",
+      label: "Programs",
     },
     {
-      imgURL: "",
-      route: "/page1",
-      label: "Workouts",
-    },
-    {
-      imgURL: "",
+      icon: "",
       route: "/exercises",
-      label: "Exercises",
+      label: "Exercise Library",
     },
     {
-      imgURL: "",
+      icon: "",
       route: "/page2",
       label: "Clients",
     },
     {
-      imgURL: "",
+      icon: "",
       route: "/settings",
       label: "Settings",
     },
     {
-      imgURL: "",
+      icon: "",
       route: "/logout",
       label: "Logout",
     }

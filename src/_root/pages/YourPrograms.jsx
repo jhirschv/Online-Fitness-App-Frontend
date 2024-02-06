@@ -4,7 +4,7 @@ import Axios from 'axios'
 import { Link } from 'react-router-dom'
 
 
-export default function Workouts() {
+export default function YourWorkouts() {
 
   const [workouts, setWorkouts] = useState([]);
 

@@ -2,20 +2,16 @@ import React from 'react'
 import { useContext } from 'react';
 import AuthContext from '../../context/AuthContext';
 import { Link } from "react-router-dom";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 
 const Topbar = () => {
-  let { user, logoutUser } = useContext(AuthContext)
+  //let { user, logoutUser } = useContext(AuthContext)
 
   return (
-    <div  className="w-full h-16 flex items-center px-4">
-        <Link to="/">Home</Link>
-        <span> | </span>
-        {user ? (
-            <p onClick={logoutUser}>Logout</p>
-        ) : (
-            <Link to="/login" >Login</Link>
-        )}
-        {user && <p>Hello {user.username}!</p>}
+    <div  className="w-full h-16 flex items-center justify-between px-4 border">
+        <Link to="/" className="ml-4 text-2xl font-bold">Home</Link>
+        <FontAwesomeIcon icon={faRightFromBracket} size="xl mr-4"/>
     </div>
   )
 }

@@ -91,28 +91,8 @@ const CreateWorkout = () => {
   })
 
   return (
-    <div className='workout-container'>
-      <div className='create-workout-container'>
-        <div className="workout-display-container" >
-          <form onSubmit={createWorkout}>
-            <label>Enter Workout Name</label>
-            <input type="text" value={workoutName} onChange={e => setWorkoutName(e.target.value)}/>
-            <div>
-              {workoutExerciseList}
-            </div>
-            <input type="submit" value='Create Workout'/>
-          </form>
-        </div>
-        <div className="add-exercise-container">
-          <form onSubmit={createExercise}>
-            <label>Enter New Exercise</label>
-            <input type="text" value={exercise} onChange={e => setExercise(e.target.value)}/>
-            <input type="submit" />
-          </form>
-          <h1>Click To Add</h1>
-          {exerciseList}
-        </div>       
-      </div>
+    <div className="p-8">
+      <h1 className="text-xl">Create Workout</h1>
     </div>
     
   )
