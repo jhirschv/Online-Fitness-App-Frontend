@@ -9,7 +9,7 @@ import { faDumbbell, faUserGroup, faGear } from '@fortawesome/free-solid-svg-ico
 
 const SideBar = () => {
   return (
-    <nav className="flex h-full w-1/6 pt-6 pl-4 border">
+    <nav className="flex h-full w-1/6 pt-6 pl-4">
       <div className="w-5/6">
         <ul className="flex flex-col gap-1">
 

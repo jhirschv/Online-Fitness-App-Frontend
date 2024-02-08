@@ -4,13 +4,20 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useNavigate } from 'react-router-dom';
 
 const CreateProgram = () => {
 
+
+  let navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate('/create');
+  };
+
   return (
-    <div className="w-full">
-      <div className="h-full flex justify-center items-center">
-        <Card className="w-[350px]">
+    <div className="w-full h-full flex justify-center">
+        <Card className="w-[450px] h-[300px] mt-32">
           <CardHeader>
             <CardTitle>Create New Program</CardTitle>
           </CardHeader>
@@ -21,14 +28,17 @@ const CreateProgram = () => {
                   <Label htmlFor="name">Name</Label>
                   <Input id="name" placeholder="Name of your program" />
                 </div>
+                <div className="flex flex-col space-y-1.5">
+                  <Label htmlFor="description">Description</Label>
+                  <Input id="description" placeholder="Optional" />
+                </div>
               </div>
             </form>
           </CardContent>
           <CardFooter className="flex justify-between">
-            <Button>Create</Button>
+            <Button className='bg-secondary text-secondary-foreground' onClick={handleClick}>Create</Button>
           </CardFooter>
         </Card>
-      </div>
     </div>
     
   )
