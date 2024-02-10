@@ -21,7 +21,10 @@ import {
     CardTitle,
   } from "@/components/ui/card"
   import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-  import { faArrowLeft, faEllipsis  } from '@fortawesome/free-solid-svg-icons';
+  import { faArrowLeft, faXmark, faCircleChevronLeft, faPenToSquare, faEllipsis, faFileVideo } from '@fortawesome/free-solid-svg-icons';
+  faCircleLeft
+  import { faCircleLeft } from '@fortawesome/free-regular-svg-icons';
+
   import {
     Select,
     SelectContent,
@@ -39,10 +42,103 @@ import {
   import { Search } from "lucide-react"
   import { useNavigate } from 'react-router-dom';
   import axios from 'axios';
+  import { Button } from "@/components/ui/button"
+  import { useTheme } from '@/components/theme-provider';
+  import { Textarea } from "@/components/ui/textarea"
+  import { Label } from "@/components/ui/label"
+
+  
 
 const Create = () => {
+    const { theme } = useTheme();
+  
+  // Determine the background color class based on the theme
+    const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
 
+    const [workoutExercises, setWorkoutExercises] = useState([])
     const [exercises, setExercises] = useState([]);
+    const [visibleTextareas, setVisibleTextareas] = useState({});
+
+    const clickToAddExercise = (name) => {
+        if (!workoutExercises.includes(name)) {
+          setWorkoutExercises([...workoutExercises, name]);
+        } else {
+            console.log("already included")
+        }
+      }
+
+      let workoutExerciseList = workoutExercises.map(exercise => {
+        
+        return (
+            <Card key={exercise} className='relative mt-1 mb-1'> 
+            <div className='absolute top-2 right-4'>
+                <Popover>
+                    <PopoverTrigger><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
+                    <PopoverContent>Place content for the popover here.</PopoverContent>
+                </Popover>
+            </div> 
+            
+            <CardContent className="py-4 flex justify-between items-center">
+                <p className='w-1/4'>{exercise}</p>
+
+                <div className='flex items-center ml-10'>
+                <Select>
+                    <SelectTrigger className="w-[80px] focus:ring-0 focus:ring-offset-0">
+                        <SelectValue placeholder="sets" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectGroup>
+                            <SelectLabel>sets</SelectLabel>
+                            <SelectItem value="1">1</SelectItem>
+                            <SelectItem value="2">2</SelectItem>
+                            <SelectItem value="3">3</SelectItem>
+                            <SelectItem value="4">4</SelectItem>
+                            <SelectItem value="5">5</SelectItem>
+                            <SelectItem value="6">6</SelectItem>
+                            <SelectItem value="7">7</SelectItem>
+                            <SelectItem value="8">8</SelectItem>
+                            <SelectItem value="9">9</SelectItem>
+                            <SelectItem value="10">10</SelectItem>
+                        </SelectGroup>
+                    </SelectContent>
+                </Select>
+                <FontAwesomeIcon className='m-3' icon={faXmark} />
+                <Select>
+                    <SelectTrigger className="w-[80px] focus:ring-0 focus:ring-offset-0">
+                        <SelectValue placeholder="reps" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectGroup>
+                            <SelectLabel>sets</SelectLabel>
+                            <SelectItem value="1">1</SelectItem>
+                            <SelectItem value="2">2</SelectItem>
+                            <SelectItem value="3">3</SelectItem>
+                            <SelectItem value="4">4</SelectItem>
+                            <SelectItem value="5">5</SelectItem>
+                            <SelectItem value="6">6</SelectItem>
+                            <SelectItem value="7">7</SelectItem>
+                            <SelectItem value="8">8</SelectItem>
+                            <SelectItem value="9">9</SelectItem>
+                            <SelectItem value="10">10</SelectItem>
+                        </SelectGroup>
+                    </SelectContent>
+                </Select>
+                </div>        
+                <div className='flex flex-col'>
+                    <FontAwesomeIcon size='xl' onClick={() => {setVisibleTextareas(prev => ({...prev, [exercise]: !prev[exercise]}))}} icon={faPenToSquare} />
+                    <p className='text-xs mt-1'>Add Note</p>
+                </div>   
+                <div className='flex flex-col mr-2'>
+                    <FontAwesomeIcon size="xl"icon={faFileVideo} />   
+                    <p className='text-xs mt-1'>Add Video</p>
+                </div>
+                        
+            </CardContent>   
+            <CardFooter className='p-0'>
+                {visibleTextareas[exercise] && <div className='w-full mb-2 mx-6'><Label>Note</Label><Textarea className='min-h-[20px] h-10 overflow-y-auto resize-none'/></div>}
+            </CardFooter>                     
+        </Card>
+          )})
 
     useEffect(() => {
         const options = {
@@ -50,7 +146,7 @@ const Create = () => {
           url: 'https://exercisedb.p.rapidapi.com/exercises/equipment/barbell',
           params: {limit: '50'},
           headers: {
-            'X-RapidAPI-Key': 'e1b32c3a83msh346e8bfab8e7057p1dd446jsnf5b1b4e06fba',
+            'X-RapidAPI-Key': 'cats :)',
             'X-RapidAPI-Host': 'exercisedb.p.rapidapi.com'
           }
         };
@@ -80,74 +176,19 @@ const Create = () => {
     
 
     return (
-        <div className='w-full flex bg-popover border rounded-lg p-4'>
+        <div className={`w-full flex ${backgroundColorClass} border rounded-lg p-4`}>
             <div className='w-3/5 mb-12'>
                 
                 <Card className='h-full mr-4'>
-                    <FontAwesomeIcon onClick={handleClick} className='ml-2 mt-3' size='xl' icon={faArrowLeft} />
+                    <FontAwesomeIcon onClick={handleClick} className='ml-6 mt-4' size='xl' icon={faCircleLeft}/>
                     <CardHeader>
                         <CardTitle className='font-bold'>Workout Name</CardTitle>
                         <CardDescription>Workout Description</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <p className='mb-2'>Exercises</p>
-                        <Card className='relative'> 
-                            <div className='absolute top-2 right-4'>
-                                <Popover>
-                                    <PopoverTrigger><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
-                                    <PopoverContent>Place content for the popover here.</PopoverContent>
-                                </Popover>
-                            </div> 
-                            
-                            <CardContent className="mt-5 flex">
-                                <p className='mt-3'>Back Squat</p>
-
-                                <div className='flex items-center ml-10'>
-                                <Select>
-                                    <SelectTrigger className="w-[80px] focus:ring-0 focus:ring-offset-0">
-                                        <SelectValue placeholder="sets" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectGroup>
-                                            <SelectLabel>sets</SelectLabel>
-                                            <SelectItem value="cat">1</SelectItem>
-                                            <SelectItem value="cat">2</SelectItem>
-                                            <SelectItem value="cat">3</SelectItem>
-                                            <SelectItem value="cat">4</SelectItem>
-                                            <SelectItem value="cat">5</SelectItem>
-                                            <SelectItem value="cat">6</SelectItem>
-                                            <SelectItem value="cat">7</SelectItem>
-                                            <SelectItem value="cat">8</SelectItem>
-                                            <SelectItem value="cat">9</SelectItem>
-                                            <SelectItem value="cat">10</SelectItem>
-                                        </SelectGroup>
-                                    </SelectContent>
-                                </Select>
-                                <h1 className='m-3 font-bold'>X</h1>
-                                <Select>
-                                    <SelectTrigger className="w-[80px] focus:ring-0 focus:ring-offset-0">
-                                        <SelectValue placeholder="reps" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectGroup>
-                                            <SelectLabel>reps</SelectLabel>
-                                            <SelectItem value="cat">1</SelectItem>
-                                            <SelectItem value="cat">2</SelectItem>
-                                            <SelectItem value="cat">3</SelectItem>
-                                            <SelectItem value="cat">4</SelectItem>
-                                            <SelectItem value="cat">5</SelectItem>
-                                            <SelectItem value="cat">6</SelectItem>
-                                            <SelectItem value="cat">7</SelectItem>
-                                            <SelectItem value="cat">8</SelectItem>
-                                            <SelectItem value="cat">9</SelectItem>
-                                            <SelectItem value="cat">10</SelectItem>
-                                        </SelectGroup>
-                                    </SelectContent>
-                                </Select>
-
-                                </div>                            
-                            </CardContent>                        
-                        </Card>
+                        {workoutExerciseList}
+                        {workoutExerciseList.length > 0 ? <Button className='mt-2'>Create Workout</Button> : <div className='h-full w-full flex flex-col justify-center items-center'><h1 className="mt-24 text-xl">Click To Add Exercises</h1></div>}
                     </CardContent>
                 </Card>
             </div>
@@ -163,7 +204,7 @@ const Create = () => {
                         <h4 className="mb-4 text-xl font-bold leading-none">Add Exercises</h4>
                         {exercises.map((name)=> {
                             return (
-                                <div key={name}>
+                                <div onClick={() => clickToAddExercise(name)} key={name}>
                                     <div className="text-sm">{name}</div>
                                     <Separator className="my-2" />
                                 </div>
