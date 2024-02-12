@@ -41,11 +41,12 @@ import {
   } from "@/components/ui/popover"
   import { Search } from "lucide-react"
   import { useNavigate } from 'react-router-dom';
-  import axios from 'axios';
+  import Axios from 'axios';
   import { Button } from "@/components/ui/button"
   import { useTheme } from '@/components/theme-provider';
   import { Textarea } from "@/components/ui/textarea"
   import { Label } from "@/components/ui/label"
+
 
   
 
@@ -59,6 +60,15 @@ const Create = () => {
     const [exercises, setExercises] = useState([]);
     const [visibleTextareas, setVisibleTextareas] = useState({});
 
+    const fetchExercises = () => {
+        Axios.get('http://localhost:8000/exercises/').then((res) => {
+          setExercises(res.data)
+      })  
+      }
+      useEffect(() => {
+        fetchExercises()
+      }, []);
+
     const clickToAddExercise = (name) => {
         if (!workoutExercises.includes(name)) {
           setWorkoutExercises([...workoutExercises, name]);
@@ -70,7 +80,7 @@ const Create = () => {
       let workoutExerciseList = workoutExercises.map(exercise => {
         
         return (
-            <Card key={exercise} className='relative mt-1 mb-1'> 
+            <Card key={exercise} className='relative mt-1 mb-1 mr-3'> 
             <div className='absolute top-2 right-4'>
                 <Popover>
                     <PopoverTrigger><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
@@ -140,7 +150,7 @@ const Create = () => {
         </Card>
           )})
 
-    useEffect(() => {
+    /* useEffect(() => {
         const options = {
           method: 'GET',
           url: 'https://exercisedb.p.rapidapi.com/exercises/equipment/barbell',
@@ -162,11 +172,7 @@ const Create = () => {
         }
     
         fetchData();
-      }, []);
-
-      useEffect(() => {
-        console.log(exercises); // This will log the updated state
-      }, [exercises]);
+      }, []); */
 
     let navigate = useNavigate();
 
@@ -177,7 +183,7 @@ const Create = () => {
 
     return (
         <div className={`w-full flex ${backgroundColorClass} border rounded-lg p-4`}>
-            <div className='w-3/5 mb-12'>
+            <div className='w-3/5 h-full'>
                 
                 <Card className='h-full mr-4'>
                     <FontAwesomeIcon onClick={handleClick} className='ml-6 mt-4' size='xl' icon={faCircleLeft}/>
@@ -187,9 +193,13 @@ const Create = () => {
                     </CardHeader>
                     <CardContent>
                         <p className='mb-2'>Exercises</p>
-                        {workoutExerciseList}
-                        {workoutExerciseList.length > 0 ? <Button className='mt-2'>Create Workout</Button> : <div className='h-full w-full flex flex-col justify-center items-center'><h1 className="mt-24 text-xl">Click To Add Exercises</h1></div>}
-                    </CardContent>
+                        <ScrollArea className="h-[400px] w-full rounded-md">
+                            <div>
+                                {workoutExerciseList}
+                            </div>
+                        </ScrollArea>
+                        <Button className='mt-6'>Create Workout</Button>
+                   </CardContent>
                 </Card>
             </div>
 
@@ -202,10 +212,10 @@ const Create = () => {
                 <ScrollArea className="h-96 w-full rounded-md border bg-background">
                     <div className="p-4">
                         <h4 className="mb-4 text-xl font-bold leading-none">Add Exercises</h4>
-                        {exercises.map((name)=> {
+                        {exercises.map((exercise)=> {
                             return (
-                                <div onClick={() => clickToAddExercise(name)} key={name}>
-                                    <div className="text-sm">{name}</div>
+                                <div onClick={() => clickToAddExercise(exercise.name)} key={exercise.name}>
+                                    <div className="text-sm">{exercise.name}</div>
                                     <Separator className="my-2" />
                                 </div>
                             )

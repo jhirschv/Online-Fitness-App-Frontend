@@ -19,7 +19,7 @@ const Topbar = () => {
   //let { user, logoutUser } = useContext(AuthContext)
 
   return (
-    <div  className="w-full h-16 flex items-center justify-between px-4">
+    <div  className="w-full h-16 flex items-center justify-between p-6">
         <Link to="/" className="ml-4 text-2xl font-bold">Home</Link>
         <div className='flex items-center'>
           <DropdownMenu>
