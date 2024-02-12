@@ -2,7 +2,7 @@ import YourWorkouts from './_root/pages/YourPrograms';
 import PrivateRoute from './utils/PrivateRoute'
 import CreateProgram from './_root/pages/CreateProgram';
 import Clients from './_root/pages/Clients';
-import SigninForm from './_auth/Forms/SigninForm';
+import SigninForm from './_auth/SigninForm';
 import Exercises from './_root/pages/ExerciseLibrary';
 import RootLayout from './_root/RootLayout'
 import { Routes, Route } from 'react-router-dom';

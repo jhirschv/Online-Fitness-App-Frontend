@@ -16,11 +16,11 @@ import { useTheme } from "@/components/theme-provider"
 
 const Topbar = () => {
   const { setTheme } = useTheme()
-  //let { user, logoutUser } = useContext(AuthContext)
+  let { user, logoutUser } = useContext(AuthContext)
 
   return (
     <div  className="w-full h-16 flex items-center justify-between p-6">
-        <Link to="/" className="ml-4 text-2xl font-bold">Home</Link>
+        <Link to="/" className="ml-4 text-2xl font-bold">Hi! {user.username[0].toUpperCase()+user.username.slice(1)}</Link>
         <div className='flex items-center'>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -42,7 +42,7 @@ const Topbar = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <FontAwesomeIcon icon={faRightFromBracket} className='ml-4' size="xl"/>
+          <FontAwesomeIcon icon={faRightFromBracket} onClick={logoutUser} className='ml-4' size="xl"/>
         </div>
         
     </div>

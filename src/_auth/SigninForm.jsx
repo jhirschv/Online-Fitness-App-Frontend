@@ -1,4 +1,6 @@
 import React from 'react'
+import {useContext} from 'react'
+import AuthContext from '../context/AuthContext'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -12,38 +14,11 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-/* import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
- 
-const formSchema = z.object({
-  username: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
-  }),
-})
- 
-
-  // 1. Define your form.
-  const form = useForm({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      username: "",
-    },
-  })
-
-  function onSubmit(values) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values)
-  } */
-  //let {loginUser} = useContext(AuthContext)
 
 export function SigninForm() {
 
-  function loginUser (event) {
-    event.preventDefault()
-    console.log('user signed in')
-  }
+  let {loginUser} = useContext(AuthContext)
+
   return (
     <div className="bg-deafult h-screen flex items-center justify-center gap-x-4">
         <Card className="w-[350px]">
@@ -53,18 +28,18 @@ export function SigninForm() {
         </CardHeader>
         <CardContent>
           <form onSubmit={loginUser}>
-              <div className="grid w-full items-center gap-4">
-                <div className="flex flex-col space-y-1.5">
-                  <Label htmlFor="name">Username</Label>
-                  <Input id="name" placeholder="Username" />
-                </div>
-                <div className="flex flex-col space-y-1.5">
-                  <Label htmlFor="framework">Password</Label>
-                  <Input id="name" placeholder="Password" />
-                </div>
-                <Button type="submit">Sign in</Button>
+            <div className="grid w-full items-center gap-4">
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="name">Username</Label>
+                <Input type="text" name="username" placeholder="Enter username"/>
               </div>
-            </form>
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="framework">Password</Label>
+                <Input type="password" name="password" placeholder="enter password"/>
+              </div>
+              <Button type="submit">Sign in</Button>
+            </div>
+          </form>
         </CardContent>
       </Card>
       </div>
