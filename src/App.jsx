@@ -1,4 +1,4 @@
-import YourWorkouts from './_root/pages/YourPrograms';
+import Programs from './_root/pages/Programs';
 import PrivateRoute from './utils/PrivateRoute'
 import CreateProgram from './_root/pages/CreateProgram';
 import Clients from './_root/pages/Clients';
@@ -21,7 +21,7 @@ function App() {
             <Route element={<PrivateRoute />}>
               <Route index element={<CreateProgram />} />  
               <Route path="create" element={<Create />} />  
-              <Route path="/yourWorkouts" element={<YourWorkouts />} />
+              <Route path="/programs" element={<Programs />} />
               <Route path="/page2" element={<Clients />} />
               <Route path="/exercises" element={<Exercises />} />
             </Route>

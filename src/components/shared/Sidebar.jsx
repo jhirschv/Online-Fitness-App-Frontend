@@ -23,14 +23,14 @@ const SideBar = () => {
             </li>
           </NavLink>
           
-          <NavLink>
+          <NavLink  to="/">
             <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md">
               <FontAwesomeIcon size="lg" className="mr-3" icon={faSquarePlus}/>
               New Program
             </li>
           </NavLink>
           
-          <NavLink>
+          <NavLink  to="/programs">
             <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md">
               <FontAwesomeIcon className="mr-3" icon={faFolder} />
               Programs
