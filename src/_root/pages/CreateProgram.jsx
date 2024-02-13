@@ -5,8 +5,13 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '@/components/theme-provider';
 
 const CreateProgram = () => {
+
+  const { theme } = useTheme();
+  
+  const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
 
 
   let navigate = useNavigate();
@@ -16,8 +21,8 @@ const CreateProgram = () => {
   };
 
   return (
-    <div className="w-full h-full flex justify-center">
-        <Card className="w-[450px] h-[300px] mt-32">
+    <div className={`w-full flex justify-center items-center ${backgroundColorClass} border rounded-lg p-4`}>
+        <Card className="w-[450px] h-[300px]">
           <CardHeader>
             <CardTitle>Create New Program</CardTitle>
           </CardHeader>

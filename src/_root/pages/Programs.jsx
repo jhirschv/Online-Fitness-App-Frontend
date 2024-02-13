@@ -1,8 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+  } from "@/components/ui/card"
+import { useTheme } from '@/components/theme-provider';
 
 
 export default function YourWorkouts() {
+
+    const { theme } = useTheme();
+  
+    const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
 
     const [programs, setPrograms] = useState([]);
 
@@ -15,8 +28,33 @@ export default function YourWorkouts() {
 
 
     return (
-        <div>
+        <div className={`w-full flex flex-col items-center ${backgroundColorClass} border rounded-lg p-4`}>
+            <h1 className='text-3xl font-bold pb-6'>Programs</h1>
+            <div className='grid grid-cols-4 gap-4 w-full' >
             {programs.map(program => (
+                <div>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>{program.name}</CardTitle>
+                            <CardDescription>{program.description}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                        </CardContent>
+                        <CardFooter>
+                            <p>Creator: {program.creator.username[0].toUpperCase() + program.creator.username.slice(1)}</p>
+                        </CardFooter>
+                    </Card>
+                </div>
+            ))}
+            
+        </div>
+        </div>
+        
+    )
+ 
+}
+
+{/* {programs.map(program => (
                 <div key={program.id}>
                 <h1>{program.name}</h1>
                 <p>{program.description}</p>
@@ -39,9 +77,4 @@ export default function YourWorkouts() {
                     </div>
                 ))}
                 </div>
-            ))}
-        </div>
-    )
- 
-}
-
+            ))} */}

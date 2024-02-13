@@ -22,7 +22,7 @@ function App() {
               <Route index element={<CreateProgram />} />  
               <Route path="create" element={<Create />} />  
               <Route path="/programs" element={<Programs />} />
-              <Route path="/page2" element={<Clients />} />
+              <Route path="/clients" element={<Clients />} />
               <Route path="/exercises" element={<Exercises />} />
             </Route>
           </Route>

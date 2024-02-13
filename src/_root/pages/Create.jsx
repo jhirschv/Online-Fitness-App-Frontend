@@ -150,30 +150,6 @@ const Create = () => {
         </Card>
           )})
 
-    /* useEffect(() => {
-        const options = {
-          method: 'GET',
-          url: 'https://exercisedb.p.rapidapi.com/exercises/equipment/barbell',
-          params: {limit: '50'},
-          headers: {
-            'X-RapidAPI-Key': 'cats :)',
-            'X-RapidAPI-Host': 'exercisedb.p.rapidapi.com'
-          }
-        };
-    
-        async function fetchData() {
-          try {
-            const response = await axios.request(options);
-            const names = response.data.map(exercise => exercise.name);
-            setExercises(names)
-          } catch (error) {
-            console.error(error);
-          }
-        }
-    
-        fetchData();
-      }, []); */
-
     let navigate = useNavigate();
 
     const handleClick = () => {
@@ -183,22 +159,22 @@ const Create = () => {
 
     return (
         <div className={`w-full flex ${backgroundColorClass} border rounded-lg p-4`}>
-            <div className='w-3/5 h-full'>
+            <div className='w-3/5'>
                 
-                <Card className='h-full mr-4'>
-                    <FontAwesomeIcon onClick={handleClick} className='ml-6 mt-4' size='xl' icon={faCircleLeft}/>
+                <Card className='mr-4 h-full flex flex-col'>
+                    <FontAwesomeIcon onClick={handleClick} className=' self-start ml-6 mt-4' size='xl' icon={faCircleLeft}/>
                     <CardHeader>
                         <CardTitle className='font-bold'>Workout Name</CardTitle>
                         <CardDescription>Workout Description</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <p className='mb-2'>Exercises</p>
-                        <ScrollArea className="h-[400px] w-full rounded-md">
+                        <ScrollArea className="h-full w-full rounded-md">
                             <div>
                                 {workoutExerciseList}
                             </div>
                         </ScrollArea>
-                        <Button className='mt-6'>Create Workout</Button>
+                        <Button className='bg-secondary text-secondary-foreground mt-6'>Create Workout</Button>
                    </CardContent>
                 </Card>
             </div>
