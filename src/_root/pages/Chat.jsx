@@ -1,7 +1,7 @@
 import React from 'react'
 import { useTheme } from '@/components/theme-provider';
 
-const ExerciseLibrary = () => {
+const Chat = () => {
     const { theme } = useTheme();
 
     // Determine the background color class based on the theme
@@ -9,9 +9,9 @@ const ExerciseLibrary = () => {
 
     return (
         <div className={`w-full ${backgroundColorClass} border rounded-lg p-4`}>
-            <div>Exercise Library</div>
+            <div>Chat</div>
         </div>
     )
 }
 
-export default ExerciseLibrary
+export default Chat

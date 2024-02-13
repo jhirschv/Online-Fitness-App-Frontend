@@ -32,7 +32,7 @@ export default function YourWorkouts() {
             <h1 className='text-3xl font-bold pb-6'>Programs</h1>
             <div className='grid grid-cols-4 gap-4 w-full' >
             {programs.map(program => (
-                <div>
+                <div key={program.id}>
                     <Card>
                         <CardHeader>
                             <CardTitle>{program.name}</CardTitle>

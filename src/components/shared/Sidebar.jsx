@@ -4,7 +4,7 @@ import { NavLink } from 'react-router-dom'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSquarePlus, faFolder } from '@fortawesome/free-regular-svg-icons';
-import { faDumbbell, faUserGroup, faGear } from '@fortawesome/free-solid-svg-icons';
+import { faDumbbell, faChartLine, faComments, faUserGroup, faGear } from '@fortawesome/free-solid-svg-icons';
 
 
 const SideBar = () => {
@@ -37,7 +37,7 @@ const SideBar = () => {
             </li>
           </NavLink>
           
-          <NavLink> 
+          <NavLink to='exerciseLibrary'> 
             <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md">
               <FontAwesomeIcon className="mr-3" icon={faDumbbell} />
               Exercise Library
@@ -50,8 +50,22 @@ const SideBar = () => {
               Clients
             </li>
           </NavLink>
+
+          <NavLink to='/Progress'> 
+            <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md">
+              <FontAwesomeIcon className="mr-3" icon={faChartLine} />
+              Progress
+            </li>
+          </NavLink>
+
+          <NavLink to='/Chat'> 
+            <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md">
+              <FontAwesomeIcon className="mr-3" icon={faComments} />
+              Chat
+            </li>
+          </NavLink>
           
-          <NavLink> 
+          <NavLink to='/settings'> 
             <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md">
               <FontAwesomeIcon className="mr-3" icon={faGear} />
               Settings
