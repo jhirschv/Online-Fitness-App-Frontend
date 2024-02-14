@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../../services/apiClient';
 import {
     Card,
     CardContent,
@@ -8,7 +8,9 @@ import {
     CardHeader,
     CardTitle,
   } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { useTheme } from '@/components/theme-provider';
+import { useNavigate } from 'react-router-dom';
 
 
 export default function YourWorkouts() {
@@ -18,37 +20,52 @@ export default function YourWorkouts() {
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
 
     const [programs, setPrograms] = useState([]);
+    const navigate = useNavigate();
+
+    const handleProgramClick = (programId) => {
+        navigate(`/programs/${programId}`); // Navigate to program details page
+    };
+
 
     useEffect(() => {
-        fetch('http://localhost:8000/programs/')  // Adjust the URL based on your actual API endpoint
-        .then(response => response.json())
-        .then(data => setPrograms(data))
-        .catch(error => console.error('Error fetching data:', error));
+        apiClient.get('/user_programs/') // Make sure the endpoint matches your Django URL configuration
+        .then(response => {
+            setPrograms(response.data);
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
     }, []);
 
-
     return (
-        <div className={`w-full flex flex-col items-center ${backgroundColorClass} border rounded-lg p-4`}>
-            <h1 className='text-3xl font-bold pb-6'>Programs</h1>
-            <div className='grid grid-cols-4 gap-4 w-full' >
-            {programs.map(program => (
-                <div key={program.id}>
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>{program.name}</CardTitle>
-                            <CardDescription>{program.description}</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                        </CardContent>
-                        <CardFooter>
-                            <p>Creator: {program.creator.username[0].toUpperCase() + program.creator.username.slice(1)}</p>
-                        </CardFooter>
-                    </Card>
+
+        <div className={`w-full ${backgroundColorClass} border rounded-lg p-4`}>
+            <Card className='h-full w-full'>
+                <div>
+                    <h1 className='text-center text-3xl font-bold p-6'>Programs</h1>
+                    <div className='grid grid-cols-4 gap-4 w-full mx-4' >
+                    {programs.map(program => (
+                        <div key={program.id} onClick={() => handleProgramClick(program.id)}>
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>{program.name}</CardTitle>
+                                    <CardDescription>{program.description}</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                </CardContent>
+                                <CardFooter>
+                                    <p>Creator: {program.creator.username[0].toUpperCase() + program.creator.username.slice(1)}</p>
+                                </CardFooter>
+                            </Card>
+                        </div>
+                    ))}
+                    
+                    </div>
                 </div>
-            ))}
-            
+                <Button onClick={()=>navigate('/create')} className='m-4 bg-muted-foreground'>Create New Program</Button>
+            </Card>
         </div>
-        </div>
+        
         
     )
  

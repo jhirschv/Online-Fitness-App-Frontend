@@ -174,7 +174,7 @@ const Create = () => {
                                 {workoutExerciseList}
                             </div>
                         </ScrollArea>
-                        <Button className='bg-secondary text-secondary-foregroundmt-6'>Create Workout</Button>
+                        <Button className='bg-muted-foreground mt-6'>Create Workout</Button>
                    </CardContent>
                 </Card>
             </div>

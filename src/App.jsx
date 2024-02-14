@@ -12,6 +12,7 @@ import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from "@/components/theme-provider"
 import Create from './_root/pages/Create';
+import ProgramDetails from './_root/pages/ProgramDetails';
 
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
             <Route element={<PrivateRoute />}>
               <Route path="create" element={<Create />} />  
               <Route index element={<Programs />} />
+              <Route path="/programs/:programId" element={<ProgramDetails />} />
               <Route path="/clients" element={<Clients />} />
               <Route path="/Progress" element={<Progress />} />
               <Route path="/Chat" element={<Chat />} />
