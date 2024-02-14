@@ -16,11 +16,13 @@ import { useTheme } from "@/components/theme-provider"
 
 const Topbar = () => {
   const { setTheme } = useTheme()
+  const { theme } = useTheme();
+  const fontColor = theme === 'dark' ? 'text-muted-foreground' : 'text-primary';
   let { user, logoutUser } = useContext(AuthContext)
 
   return (
     <div  className="w-full h-16 flex items-center justify-between p-6">
-        <Link to="/" className="ml-4 text-2xl font-bold">Hi! {user.username[0].toUpperCase()+user.username.slice(1)}</Link>
+        <div className='flex font-bold text-3xl ml-4'><h1>Train.</h1><h1 className={`${fontColor}`}>io</h1></div>
         <div className='flex items-center'>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

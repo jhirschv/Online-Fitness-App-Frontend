@@ -22,9 +22,8 @@ function App() {
         <Routes>
           <Route element={<RootLayout />}>
             <Route element={<PrivateRoute />}>
-              <Route index element={<CreateProgram />} />  
               <Route path="create" element={<Create />} />  
-              <Route path="/programs" element={<Programs />} />
+              <Route index element={<Programs />} />
               <Route path="/clients" element={<Clients />} />
               <Route path="/Progress" element={<Progress />} />
               <Route path="/Chat" element={<Chat />} />

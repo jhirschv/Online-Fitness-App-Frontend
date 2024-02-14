@@ -4,7 +4,7 @@ import { NavLink } from 'react-router-dom'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSquarePlus, faFolder } from '@fortawesome/free-regular-svg-icons';
-import { faDumbbell, faChartLine, faComments, faUserGroup, faGear } from '@fortawesome/free-solid-svg-icons';
+import { faDumbbell, faPersonRunning, faChartLine, faWandMagicSparkles, faComments, faUserGroup, faGear } from '@fortawesome/free-solid-svg-icons';
 
 
 const SideBar = () => {
@@ -22,15 +22,15 @@ const SideBar = () => {
               Profile
             </li>
           </NavLink>
-          
-          <NavLink  to="/">
+
+          <NavLink  to="/Train">
             <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md">
-              <FontAwesomeIcon size="lg" className="mr-3" icon={faSquarePlus}/>
-              New Program
+              <FontAwesomeIcon  size='lg' className="mr-3" icon={faPersonRunning} />
+              Train!
             </li>
           </NavLink>
           
-          <NavLink  to="/programs">
+          <NavLink  to="/">
             <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md">
               <FontAwesomeIcon className="mr-3" icon={faFolder} />
               Programs

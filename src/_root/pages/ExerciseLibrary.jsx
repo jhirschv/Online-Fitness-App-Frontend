@@ -1,5 +1,13 @@
 import React from 'react'
 import { useTheme } from '@/components/theme-provider';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+  } from "@/components/ui/card"
 
 const ExerciseLibrary = () => {
     const { theme } = useTheme();
@@ -9,7 +17,9 @@ const ExerciseLibrary = () => {
 
     return (
         <div className={`w-full ${backgroundColorClass} border rounded-lg p-4`}>
-            <div>Exercise Library</div>
+            <Card className='h-full w-full flex flex-col items-center'>
+              Exercise Library
+            </Card>
         </div>
     )
 }
