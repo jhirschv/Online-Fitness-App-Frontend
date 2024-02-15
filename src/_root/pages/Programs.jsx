@@ -43,7 +43,7 @@ export default function YourWorkouts() {
             <Card className='h-full w-full'>
                 <div>
                     <h1 className='text-center text-3xl font-bold p-6'>Programs</h1>
-                    <div className='grid grid-cols-4 gap-4 w-full mx-4' >
+                    <div className='grid grid-cols-4 gap-4 w-full p-4' >
                     {programs.map(program => (
                         <div key={program.id} onClick={() => handleProgramClick(program.id)}>
                             <Card>

@@ -36,16 +36,6 @@ const SideBar = () => {
               Programs
             </li>
           </NavLink>
-          
-          <NavLink to='exerciseLibrary'> 
-            <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md">
-              <FontAwesomeIcon className="mr-3" icon={faDumbbell} />
-              <div className='flex flex-col'> 
-                <div>Exercise</div>
-                <div>Library</div>
-              </div>
-            </li>
-          </NavLink>
          
           <NavLink to='/clients'> 
             <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md">

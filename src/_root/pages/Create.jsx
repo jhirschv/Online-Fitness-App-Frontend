@@ -145,7 +145,10 @@ const Create = () => {
                         
             </CardContent>   
             <CardFooter className='p-0'>
-                {visibleTextareas[exercise] && <div className='w-full mb-2 mx-6'><Label>Note</Label><Textarea className='min-h-[20px] h-10 overflow-y-auto resize-none'/></div>}
+                {visibleTextareas[exercise] && 
+                <div className='w-full mb-2 mx-6'>
+                    <Label>Note</Label><Textarea className='min-h-[20px] h-10 overflow-y-auto resize-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-0' spellcheck="false"/>
+                </div>}
             </CardFooter>                     
         </Card>
           )})
@@ -169,7 +172,7 @@ const Create = () => {
                     </CardHeader>
                     <CardContent>
                         <p className='mb-2'>Exercises</p>
-                        <ScrollArea className="h-full w-full rounded-md">
+                        <ScrollArea className="h-96 w-full rounded-md">
                             <div>
                                 {workoutExerciseList}
                             </div>
