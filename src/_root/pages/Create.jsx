@@ -60,6 +60,7 @@ const Create = () => {
     const [exercises, setExercises] = useState([]);
     const [visibleTextareas, setVisibleTextareas] = useState({});
 
+
     const fetchExercises = () => {
         Axios.get('http://localhost:8000/exercises/').then((res) => {
           setExercises(res.data)
