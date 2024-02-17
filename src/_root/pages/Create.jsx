@@ -22,7 +22,6 @@ import {
   } from "@/components/ui/card"
   import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
   import { faArrowLeft, faXmark, faCircleChevronLeft, faPenToSquare, faEllipsis, faFileVideo } from '@fortawesome/free-solid-svg-icons';
-  faCircleLeft
   import { faCircleLeft } from '@fortawesome/free-regular-svg-icons';
 
   import {

@@ -8,9 +8,14 @@ import {
     CardHeader,
     CardTitle,
   } from "@/components/ui/card"
-
+  import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+  } from "@/components/ui/popover"
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Separator } from "@/components/ui/separator"
 import {
 AlertDialog,
 AlertDialogAction,
@@ -22,7 +27,8 @@ AlertDialogHeader,
 AlertDialogTitle,
 AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-  
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEllipsis} from '@fortawesome/free-solid-svg-icons';
 import { Button } from "@/components/ui/button"
 import { useTheme } from '@/components/theme-provider';
 import { useNavigate } from 'react-router-dom';
@@ -60,7 +66,15 @@ export default function YourWorkouts() {
             console.error('Error fetching data:', error);
         });
     }
-
+    function deleteProgram(programId) {
+        apiClient.delete(`/programs/${programId}/`) // Use the DELETE method to request program deletion
+        .then(() => {
+            setPrograms(currentPrograms => currentPrograms.filter(program => program.id !== programId)); // Remove the deleted program from the state
+        })
+        .catch(error => {
+            console.error('Error deleting the program:', error);
+        });
+    }
     const [programs, setPrograms] = useState([]);
 
     useEffect(() => {
@@ -86,9 +100,16 @@ export default function YourWorkouts() {
                     <h1 className='text-center text-3xl font-bold p-6'>Programs</h1>
                     <div className='grid grid-cols-4 gap-4 w-full p-4' >
                     {programs.map(program => (
-                        <div key={program.id} onClick={() => handleProgramClick(program.id)}>
+                        <div key={program.id}>
                             <Card>
-                                <CardHeader>
+                                <CardHeader className='relative'>
+                                    <div className='absolute top-2 right-4'>
+                                        <Popover>
+                                            <PopoverTrigger><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
+                                            <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md' >
+                                                <Button onClick={() => deleteProgram(program.id)} className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>Delete Program</Button></PopoverContent>
+                                        </Popover>
+                                    </div> 
                                     <CardTitle>{program.name}</CardTitle>
                                     <CardDescription>{program.description}</CardDescription>
                                 </CardHeader>
@@ -96,6 +117,7 @@ export default function YourWorkouts() {
                                 </CardContent>
                                 <CardFooter>
                                     <p>Creator: {program.creator.username[0].toUpperCase() + program.creator.username.slice(1)}</p>
+                                    <Button className='ml-4'onClick={() => handleProgramClick(program.id)}>View Program</Button>
                                 </CardFooter>
                             </Card>
                         </div>
