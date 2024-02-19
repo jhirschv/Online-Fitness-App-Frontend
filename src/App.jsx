@@ -1,4 +1,5 @@
 import Programs from './_root/pages/Programs';
+import Train from './_root/pages/Train';
 import PrivateRoute from './utils/PrivateRoute'
 import CreateProgram from './_root/pages/CreateProgram';
 import Clients from './_root/pages/Clients';
@@ -27,6 +28,7 @@ function App() {
               <Route index element={<Programs />} />
               <Route path="/programs/:programId" element={<ProgramDetails />} />
               <Route path="/clients" element={<Clients />} />
+              <Route path="/train" element={<Train />} />
               <Route path="/Progress" element={<Progress />} />
               <Route path="/Chat" element={<Chat />} />
               <Route path="/exerciseLibrary" element={<ExerciseLibrary />} />

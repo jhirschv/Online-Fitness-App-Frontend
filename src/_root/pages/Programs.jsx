@@ -27,6 +27,16 @@ AlertDialogHeader,
 AlertDialogTitle,
 AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import {
+    Table,
+    TableBody,
+    TableCaption,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableFooter,
+    TableRow,
+    } from "@/components/ui/table"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEllipsis} from '@fortawesome/free-solid-svg-icons';
 import { Button } from "@/components/ui/button"
@@ -98,36 +108,42 @@ export default function YourWorkouts() {
             <Card className='h-full w-full'>
                 <div>
                     <h1 className='text-center text-3xl font-bold p-6'>Programs</h1>
-                    <div className='grid grid-cols-4 gap-4 w-full p-4' >
-                    {programs.map(program => (
-                        <div key={program.id}>
-                            <Card>
-                                <CardHeader className='relative'>
-                                    <div className='absolute top-2 right-4'>
-                                        <Popover>
-                                            <PopoverTrigger><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
-                                            <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md' >
-                                                <Button onClick={() => deleteProgram(program.id)} className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>Delete Program</Button></PopoverContent>
-                                        </Popover>
-                                    </div> 
-                                    <CardTitle>{program.name}</CardTitle>
-                                    <CardDescription>{program.description}</CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                </CardContent>
-                                <CardFooter>
-                                    <p>Creator: {program.creator.username[0].toUpperCase() + program.creator.username.slice(1)}</p>
-                                    <Button className='ml-4'onClick={() => handleProgramClick(program.id)}>View Program</Button>
-                                </CardFooter>
-                            </Card>
-                        </div>
-                    ))}
-                    
+                    <div className='w-full p-4'>
+                    <div className="rounded-md border">
+                    <Table>
+                        <TableHeader>
+                        <TableRow>
+                            <TableHead className="w-[100p">Name</TableHead>
+                            <TableHead>Descritpion</TableHead>
+                            <TableHead>Creator</TableHead>
+                        </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                        {programs.map((program) => (
+                            <TableRow className='relative' onClick={() => handleProgramClick(program.id)}>
+                             
+                            <TableCell key={program.name}>{program.name}</TableCell>
+                            <TableCell className="font-medium">{program.description}</TableCell>
+                            <TableCell>{program.creator.username[0].toUpperCase() + program.creator.username.slice(1)}
+                            <div className='absolute top-0 right-4' onClick={(event) => event.stopPropagation()}>
+                                <Popover>
+                                    <PopoverTrigger className='p-4'><FontAwesomeIcon size='lg' icon={faEllipsis} /></PopoverTrigger>
+                                    <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md' >
+                                        <Button onClick={() => deleteProgram(program.id)} className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>Delete Program</Button></PopoverContent>
+                                </Popover>
+                            </div> 
+                            </TableCell>
+                            </TableRow>
+                        ))}
+                        </TableBody>
+                    </Table>
+                    </div>
+
                     </div>
                 </div>
                 <AlertDialog>
                     <AlertDialogTrigger className='ml-4 h-10 px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50'>
-                        Create Program
+                        Create New Program
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                         <AlertDialogHeader>

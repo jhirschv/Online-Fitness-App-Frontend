@@ -23,7 +23,7 @@ const SideBar = () => {
             </li>
           </NavLink>
 
-          <NavLink  to="/Train">
+          <NavLink  to="/train">
             <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md">
               <FontAwesomeIcon  size='lg' className="mr-3" icon={faPersonRunning} />
               Train!

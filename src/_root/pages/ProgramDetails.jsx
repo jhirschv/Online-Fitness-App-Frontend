@@ -81,30 +81,28 @@ const ProgramDetails = () => {
   return (
 
     <div className={`w-full ${backgroundColorClass} border rounded-lg p-4`}>
-            <Card className='h-full w-full flex flex-col items-center'>
-              <div className='mt-12'>
-                <h1 className='text-xl font-bold'>{program.name}</h1>
+            <Card className='h-full w-full flex flex-col'>
+              <div className='p-6 flex flex-col justify-center items-center'>
+                <h1 className='text-2xl font-bold'>{program.name}</h1>
                 <p className='text-sm text-muted-foreground'>Description: {program.description}</p>
+              </div>
+
+              <div className='grid grid-cols-4 gap-4 px-4'>
                 {program.phases.map((phase, phaseIndex) => (
                   <div key={phase.id}>
-                    <h3 className='text-lg font-bold'>Phase {phase.name}: {phase.weeks} weeks</h3>
-                    {phase.workouts.map((workout, workoutIndex) => (
-                      <div key={workout.id}>
-                        <h4>Workout {workoutIndex + 1}: {workout.name}</h4>
-                        <ul>
-                          {workout.workout_exercises.map((we, weIndex) => (
-                            <li key={we.id}>
-                              {we.exercise.name} - Sets: {we.sets}, Reps: {we.reps}{we.note ? `, Note: ${we.note}` : ''}{we.video ? `, Video: ${we.video}` : ''}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
+                    <Card>
+                    <CardHeader>
+                      <CardTitle>{phase.name}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p>Duration: {phase.weeks} weeks</p>
+                    </CardContent>
+                  </Card>
                   </div>
                 ))}
-                {phases.length > 0 ? <p>phase</p> : 
+              </div>
                 <AlertDialog>
-                    <AlertDialogTrigger className='ml-4 h-10 px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50'>
+                    <AlertDialogTrigger className='mt-4 w-24 ml-4 h-10 px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50'>
                         Add Phase
                     </AlertDialogTrigger>
                     <AlertDialogContent>
@@ -138,8 +136,7 @@ const ProgramDetails = () => {
                         <AlertDialogAction onClick={createPhase}>Create Phase</AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>
-                </AlertDialog>}
-              </div>
+                </AlertDialog>
             </Card>
         </div>
     
