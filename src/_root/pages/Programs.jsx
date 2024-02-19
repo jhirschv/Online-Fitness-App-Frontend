@@ -107,7 +107,7 @@ export default function YourWorkouts() {
         <div className={`w-full ${backgroundColorClass} border rounded-lg p-4`}>
             <Card className='h-full w-full'>
                 <div>
-                    <h1 className='text-center text-3xl font-bold p-6'>Programs</h1>
+                    <h1 className='text-center text-2xl font-bold p-6'>Programs</h1>
                     <div className='w-full p-4'>
                     <div className="rounded-md border">
                     <Table>

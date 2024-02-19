@@ -14,6 +14,8 @@ import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from "@/components/theme-provider"
 import Create from './_root/pages/Create';
 import ProgramDetails from './_root/pages/ProgramDetails';
+import PhaseDetails from './_root/pages/Workouts';
+import WorkoutDetails from './_root/pages/WorkoutDetails';
 
 
 function App() {
@@ -27,6 +29,8 @@ function App() {
               <Route path="create" element={<Create />} />  
               <Route index element={<Programs />} />
               <Route path="/programs/:programId" element={<ProgramDetails />} />
+              <Route path="/programs/phases/:phaseId" element={<PhaseDetails />} />
+              <Route path="/workout/:workoutId" element={<WorkoutDetails />} />
               <Route path="/clients" element={<Clients />} />
               <Route path="/train" element={<Train />} />
               <Route path="/Progress" element={<Progress />} />

@@ -4,6 +4,7 @@ import apiClient from '../../services/apiClient';
 import { useTheme } from '@/components/theme-provider';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { useNavigate } from 'react-router-dom';
 import {
   Card,
   CardContent,
@@ -12,6 +13,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import {
   Select,
   SelectContent,
@@ -32,11 +38,17 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEllipsis} from '@fortawesome/free-solid-svg-icons';
+import { Button } from "@/components/ui/button"
 
 const ProgramDetails = () => {
-
   const { theme } = useTheme();
   const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
+  const navigate = useNavigate();
+
+  const { programId } = useParams();
+  const [program, setProgram] = useState(null);
 
   const [phaseName, setPhaseName] = useState('')
   const [weeks, setWeeks] = useState('')
@@ -55,20 +67,35 @@ const ProgramDetails = () => {
         weeks: weeks 
     };
 
-    apiClient.post('/phases/', phaseData) // Pass programData as the payload in the POST request
+    apiClient.post('/phases/', phaseData) 
     .then(response => {
-        setPhases(currentPhases => [...currentPhases, response.data]); // Update your state or context with the response
+      const updatedProgram = { ...program };
+
+      if (!updatedProgram.phases) {
+          updatedProgram.phases = [];
+      }
+      updatedProgram.phases.push(response.data);
+
+      setProgram(updatedProgram);
+      setPhaseName("")
+      setWeeks("")
     })
     .catch(error => {
         console.error('Error fetching data:', error);
     });
+  }
+  function deletePhase(phaseId) {
+    apiClient.delete(`/phases/${phaseId}/`) // Use the DELETE method to request program deletion
+    .then(() => {
+      setProgram(currentProgram => ({
+        ...currentProgram,
+        phases: currentProgram.phases.filter(phase => phase.id !== phaseId)
+      }));
+    })
+    .catch(error => {
+        console.error('Error deleting the phase:', error);
+    });
 }
-  
-  const { programId } = useParams();
-  const [program, setProgram] = useState(null);
-  const [phases, setPhases] = useState([])
-
-  
 
   useEffect(() => {
     apiClient.get(`/user_programs/${programId}/`)
@@ -77,6 +104,11 @@ const ProgramDetails = () => {
   }, [programId]);
 
   if (!program) return <div>Loading...</div>;
+
+  function handlePhaseClick(phaseId) {
+    navigate(`/programs/phases/${phaseId}`);
+  }
+  
 
   return (
 
@@ -90,9 +122,16 @@ const ProgramDetails = () => {
               <div className='grid grid-cols-4 gap-4 px-4'>
                 {program.phases.map((phase, phaseIndex) => (
                   <div key={phase.id}>
-                    <Card>
-                    <CardHeader>
+                    <Card onClick={() => handlePhaseClick(phase.id)}>
+                    <CardHeader className='relative'>
                       <CardTitle>{phase.name}</CardTitle>
+                      <div className='absolute top-0 right-0' onClick={(event) => event.stopPropagation()}>
+                          <Popover>
+                              <PopoverTrigger className='px-2 pb-2'><FontAwesomeIcon size='lg' icon={faEllipsis} /></PopoverTrigger>
+                              <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md' >
+                                  <Button onClick={() => deletePhase(phase.id)} className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>Delete Phase</Button></PopoverContent>
+                          </Popover>
+                      </div> 
                     </CardHeader>
                     <CardContent>
                       <p>Duration: {phase.weeks} weeks</p>
