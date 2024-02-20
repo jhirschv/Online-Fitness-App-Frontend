@@ -21,7 +21,7 @@ import {
     CardTitle,
   } from "@/components/ui/card"
   import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-  import { faArrowLeft, faXmark, faCircleChevronLeft, faPenToSquare, faEllipsis, faFileVideo } from '@fortawesome/free-solid-svg-icons';
+  import { faArrowLeft, faXmark, faAngleLeft, faCircleChevronLeft, faPenToSquare, faEllipsis, faFileVideo } from '@fortawesome/free-solid-svg-icons';
   import { faCircleLeft } from '@fortawesome/free-regular-svg-icons';
 
   import {
@@ -165,13 +165,15 @@ const Create = () => {
             <div className='w-3/5'>
                 
                 <Card className='mr-4 h-full flex flex-col'>
-                    <FontAwesomeIcon onClick={handleClick} className=' self-start ml-6 mt-4' size='xl' icon={faCircleLeft}/>
-                    <CardHeader>
-                        <CardTitle className='font-bold'>Workout Name</CardTitle>
-                        <CardDescription>Workout Description</CardDescription>
+                    <CardHeader className='flex flex-row items=center justify-between'>
+                        <div>
+                            <CardTitle className='font-semibold'>Lower Body 1</CardTitle>
+                            <CardDescription>16 Week Undulating &gt; Phase 3</CardDescription>
+                        </div>
+                        <FontAwesomeIcon onClick={handleClick} size="xl" icon={faAngleLeft} />
+                        
                     </CardHeader>
                     <CardContent>
-                        <p className='mb-2'>Exercises</p>
                         <ScrollArea className="h-96 w-full rounded-md">
                             <div>
                                 {workoutExerciseList}
