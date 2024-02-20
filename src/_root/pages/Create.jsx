@@ -156,7 +156,7 @@ const Create = () => {
     let navigate = useNavigate();
 
     const handleClick = () => {
-        navigate('/');
+        navigate('/program_overview/1');
     };
     
 
