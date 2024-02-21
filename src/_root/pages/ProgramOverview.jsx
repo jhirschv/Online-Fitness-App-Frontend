@@ -82,13 +82,14 @@ const ProgramOverview = () => {
                             <CardContent className="space-y-2">
                             <Table className='h-full'>
                                 <TableHeader>
-                                <TableRow>
+                                <TableRow className='relative'>
                                     <TableHead className="w-[100px]">Exercise</TableHead>
                                     <TableHead>Sets x Reps</TableHead>
                                     <TableHead>Note</TableHead>
+                                    <TableHead onClick={handleProgramClick} className='absolute right-0 pb-0.5 flex items-center'><p className='mr-2'>Edit Workout</p><FontAwesomeIcon size="lg" icon={faPenToSquare} /></TableHead>
                                 </TableRow>
                                 </TableHeader>
-                                <TableBody onClick={handleProgramClick}>
+                                <TableBody>
                                     <TableRow>
                                         <TableCell className="font-medium w-36">Back Squat</TableCell>
                                         <TableCell>5 x 5</TableCell>
