@@ -9,6 +9,14 @@ import {
     CardTitle,
   } from "@/components/ui/card"
   import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+  } from "@/components/ui/select"
+
+  import {
     Popover,
     PopoverContent,
     PopoverTrigger,
@@ -38,7 +46,7 @@ import {
     TableRow,
     } from "@/components/ui/table"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEllipsis} from '@fortawesome/free-solid-svg-icons';
+import { faEllipsis, faPlus} from '@fortawesome/free-solid-svg-icons';
 import { Button } from "@/components/ui/button"
 import { useTheme } from '@/components/theme-provider';
 import { useNavigate } from 'react-router-dom';
@@ -107,13 +115,51 @@ export default function YourWorkouts() {
         <div className={`w-full ${backgroundColorClass} border rounded-lg p-4`}>
             <Card className='h-full w-full'>
                 <div>
-                    <h1 className='text-center text-2xl font-semibold p-6'>Programs</h1>
-                    <div className='w-full p-4'>
+                    <div className='flex justify-between items-center'>
+                        <div className='px-6 pt-6 pb-2'>
+                            <h1 className='text-2xl font-semibold '>Programs</h1>
+                            <p className='text-sm text-muted-foreground'>Create, customize, and share programs here</p>
+                        </div>
+                    
+                    
+                    <AlertDialog>
+                        <AlertDialogTrigger className='flex items-center mr-4 h-10 px-4 py-2 bg-muted border text-primary-foreground hover:bg-background inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50'>
+                         <FontAwesomeIcon size='sm' className='mt-1 mr-1' icon={faPlus} />Create New Program
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                            <AlertDialogTitle>Create Program</AlertDialogTitle>
+                            <Label htmlFor="programName">Name</Label><Input onChange={handleNameInputChange} value={programName} autoComplete="off" id="programName" />
+                            <Label htmlFor="description">Description</Label><Input onChange={handleDescriptionInputChange} value={programDescription} autoComplete="off" id="description" />
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                            <AlertDialogCancel onClick={resetForm}>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={createProgram}>Continue</AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                    </div>
+                    <div className='flex flex-col w-full px-4 pb-4'>
+                        <div className='flex items-center justify-end pb-2 space-x-2 w-full'>
+                            <Label htmlFor="sort">Sort by:</Label>
+
+                            <Select className='self-end focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-none focus-visible:ring-offset-0' id='sort'>
+                                <SelectTrigger className="w-[180px]">
+                                    <SelectValue placeholder="Recently Updated" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="recentlyUpdated">Recently Updated</SelectItem>
+                                    <SelectItem value="newest">Newest</SelectItem>
+                                    <SelectItem value="oldest">Oldest</SelectItem>
+                                    <SelectItem value="name">Name</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                     <div className="rounded-md border">
                     <Table>
                         <TableHeader>
                         <TableRow>
-                            <TableHead className="w-[100p">Name</TableHead>
+                            <TableHead>Name</TableHead>
                             <TableHead>Descritpion</TableHead>
                             <TableHead>Creator</TableHead>
                         </TableRow>
@@ -123,7 +169,7 @@ export default function YourWorkouts() {
                             <TableRow className='relative' onClick={() => handleProgramClick(program.id)}>
                              
                             <TableCell key={program.name}>{program.name}</TableCell>
-                            <TableCell className="font-medium">{program.description}</TableCell>
+                            <TableCell className="font-medium p-6">{program.description}</TableCell>
                             <TableCell>{program.creator.username[0].toUpperCase() + program.creator.username.slice(1)}
                             <div className='absolute top-0 right-4' onClick={(event) => event.stopPropagation()}>
                                 <Popover>
@@ -141,22 +187,7 @@ export default function YourWorkouts() {
 
                     </div>
                 </div>
-                <AlertDialog>
-                    <AlertDialogTrigger className='ml-4 h-10 px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50'>
-                        Create New Program
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                        <AlertDialogTitle>Create Program</AlertDialogTitle>
-                        <Label htmlFor="programName">Name</Label><Input onChange={handleNameInputChange} value={programName} autoComplete="off" id="programName" />
-                        <Label htmlFor="description">Description</Label><Input onChange={handleDescriptionInputChange} value={programDescription} autoComplete="off" id="description" />
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                        <AlertDialogCancel onClick={resetForm}>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={createProgram}>Continue</AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
+                
             </Card>
         </div>
         

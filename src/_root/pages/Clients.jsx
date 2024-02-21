@@ -76,7 +76,7 @@ const Clients = () => {
         <div className={`w-full ${backgroundColorClass} border rounded-lg p-4`}>
             <Card>
                 <CardHeader>
-                    <CardTitle className='text-2xl font-semibold text-center'>Clients</CardTitle>
+                    <CardTitle className='text-2xl font-semibold'>Clients</CardTitle>
                 </CardHeader>
                 <CardContent className='w-full'>
                     <Table className='border'>

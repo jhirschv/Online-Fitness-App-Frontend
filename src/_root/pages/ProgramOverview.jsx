@@ -25,6 +25,7 @@ import { faPenToSquare, faCirclePlus, faPaperPlane} from '@fortawesome/free-soli
 import { faShareFromSquare } from '@fortawesome/free-regular-svg-icons';
 import { useTheme } from '@/components/theme-provider';
 import { useNavigate } from 'react-router-dom';
+import { Badge } from '@/components/ui/badge'
 
 const ProgramOverview = () => {
     const { theme } = useTheme();
@@ -40,11 +41,11 @@ const ProgramOverview = () => {
             <div className='p-6 flex justify-between items-center'>
                 <div className='flex'>
                     <h1 className='text-2xl font-semibold'>16 Week Strength Program</h1>
-                    <Button className='ml-4'>Active</Button>
+                    <Badge variant='secondary' className='ml-4 text-xs'>Active</Badge>
                 </div>
                 <Button variant='outline'>Assign Clients</Button>
             </div>
-            <div className='flex w-full px-6 h-28'>
+            <div className='flex w-full px-8 h-20'>
                 <div className='flex flex-col justify-center items-center flex-1 border bg-primary hover:bg-primary-darker'><p className='text-xl font-semibold'>Accumulation</p><p className='text-sm'>4 Weeks</p></div>
                 <div className='flex flex-col justify-center items-center flex-1 border bg-primary hover:bg-primary-darker'><p className='text-xl font-semibold'>Intensificaition</p><p className='text-sm'>4 Weeks</p></div>
                 <div className='flex flex-col justify-center items-center flex-1 border bg-primary hover:bg-primary-darker'><p className='text-xl font-semibold'>Accumulation</p><p className='text-sm'>4 Weeks</p></div>
