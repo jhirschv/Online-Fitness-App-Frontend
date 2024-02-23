@@ -132,7 +132,7 @@ const ProgramOverview = () => {
             <div className='flex flex-col'>
                 <div className='flex w-full px-6 h-20'>
                 {program && program.phases && program.phases.map((block, phaseIndex) => (
-                <div key={block.id} onClick={() => setPhase(block)} className={`flex flex-col justify-center items-center flex-1 border ${block.id === (phase?.id) ? 'bg-primary' : 'bg-background'} ${phase?.id !== block.id && 'hover:bg-primary-darker'} transition duration-300 ease-in-out`}><p className='text-xl font-semibold'>{block.name}</p><p className='text-sm'>{block.weeks} Weeks</p></div>
+                <div key={block.id} onClick={() => setPhase(block)} className={`flex flex-col justify-center items-center flex-1 border ${theme === 'light' && block.id === (phase?.id) ? 'text-background' : 'text-foreground'} ${block.id === (phase?.id) ? 'bg-primary' : 'bg-background'} ${phase?.id !== block.id && 'hover:bg-primary-darker'} transition duration-300 ease-in-out`}><p className='text-xl font-semibold'>{block.name}</p><p className='text-sm'>{block.weeks} Weeks</p></div>
             ))}
                 </div>
                 
@@ -175,8 +175,8 @@ const ProgramOverview = () => {
                                                     workout.workout_exercises.map((lift) => (
                                                         <TableRow key={lift.id}>
                                                             <TableCell className="w-1/3 font-medium">{lift.exercise.name}</TableCell>
-                                                            <TableCell >5 x 5</TableCell>
-                                                            <TableCell>Build up to a heavy top set</TableCell>
+                                                            <TableCell >{lift.sets} x {lift.reps}</TableCell>
+                                                            <TableCell>{lift.note}</TableCell>
                                                         </TableRow>
                                                     ))
                                                 ) : (
@@ -198,7 +198,7 @@ const ProgramOverview = () => {
                     </Card>
                 ) : (
                     <Card className='flex justify-center items-center px-2 h-[97%]'>
-                        <h1 className='text-2xl font-semibold text-muted-foreground'>Click Phase To View</h1>
+                        <h1 className='text-2xl font-semibold text-muted-foreground'>No Phases Added</h1>
                     </Card>
                 )}
                 
