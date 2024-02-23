@@ -166,7 +166,7 @@ export default function YourWorkouts() {
                         </TableHeader>
                         <TableBody>
                         {programs.map((program) => (
-                            <TableRow className='relative' onClick={() => handleProgramClick(program.id)}>
+                            <TableRow key={program.id} className='relative' onClick={() => handleProgramClick(program.id)}>
                              
                             <TableCell key={program.name}>{program.name}</TableCell>
                             <TableCell className="font-medium p-6">{program.description}</TableCell>

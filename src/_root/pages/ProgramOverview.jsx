@@ -7,6 +7,11 @@ import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+  } from "@/components/ui/popover"
+import {
     Card,
     CardContent,
     CardDescription,
@@ -24,8 +29,28 @@ import {
     TableFooter,
     TableRow,
     } from "@/components/ui/table"
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+    } from "@/components/ui/select"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+    } from "@/components/ui/alert-dialog"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPenToSquare, faCirclePlus, faPlus, faPaperPlane} from '@fortawesome/free-solid-svg-icons';
+import { faPenToSquare, faEllipsis, faCirclePlus, faPlus, faPaperPlane} from '@fortawesome/free-solid-svg-icons';
 import { faShareFromSquare } from '@fortawesome/free-regular-svg-icons';
 import { useTheme } from '@/components/theme-provider';
 import { useNavigate } from 'react-router-dom';
@@ -41,10 +66,12 @@ const ProgramOverview = () => {
     const [program, setProgram] = useState(null);
     const [phase, setPhase] = useState(null)
     const [defaultTabValue, setDefaultTabValue] = useState('');
+    const numColumns = phase && phase.workouts ? (phase.workouts.length > 12 ? 12 : phase.workouts.length) : 1;
+    const tabsListClassName = `grid w-full grid-cols-${numColumns}`;
 
     useEffect(() => {
         if (phase && phase.workouts && phase.workouts.length > 0) {
-          setDefaultTabValue(phase.workouts[0].name);
+          setDefaultTabValue(phase.workouts[0].id);
         } else {
           setDefaultTabValue(''); // Reset or set to a default/fallback value if no workouts
         }
@@ -52,6 +79,11 @@ const ProgramOverview = () => {
 
     const [phaseName, setPhaseName] = useState('')
     const [weeks, setWeeks] = useState('')
+    const [workoutName, setWorkoutName] = useState('')
+
+    const handleWorkoutNameChange = (event) => {
+        setWorkoutName(event.target.value)
+    }
 
     const handlePhaseNameChange = (event) => {
         setPhaseName(event.target.value);
@@ -60,6 +92,42 @@ const ProgramOverview = () => {
     setWeeks(value);
 
     };
+
+    function createWorkout() {
+        const workoutData = {
+            phase: phase.id,
+            name: workoutName,
+        };
+    
+        apiClient.post('/workouts/', workoutData) 
+        .then(response => {
+            const newWorkout = response.data; 
+
+            setPhase(prevPhase => {
+
+                const updatedWorkouts = [...prevPhase.workouts, newWorkout];
+                return { ...prevPhase, workouts: updatedWorkouts };
+            });
+
+            setProgram(prevProgram => {
+                const updatedPhases = prevProgram.phases.map(p => {
+                    if (p.id === phase.id) {
+                        const updatedWorkouts = [...p.workouts, newWorkout];
+                        return { ...p, workouts: updatedWorkouts };
+                    }
+                    return p; 
+                });
+                return { ...prevProgram, phases: updatedPhases };
+            });
+            setWorkoutName("");
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
+        }
+
+
+
     function createPhase() {
     const phaseData = {
         program: programId,
@@ -127,12 +195,59 @@ const ProgramOverview = () => {
                     <h1 className='text-2xl font-semibold'>16 Week Strength Program</h1>
                     <Badge variant='secondary' className='ml-4 text-xs'>Active</Badge>
                 </div>
-                <Button variant='outline'><FontAwesomeIcon className='mr-1' icon={faPlus} />Add Phase</Button>
+
+                <AlertDialog>
+                    <AlertDialogTrigger>
+                        <div className="h-10 px-4 py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
+                            <FontAwesomeIcon className='mr-1' icon={faPlus} />Training Block</div>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                        <AlertDialogTitle>Create Phase</AlertDialogTitle>
+                        <Label htmlFor="programName">Name</Label><Input value={phaseName} onChange={handlePhaseNameChange} autoComplete="off" id="programName" />
+                        <Label htmlFor="select">Weeks</Label>
+                        <Select value={weeks} onValueChange={handleWeekChange} id='select'>
+                          <SelectTrigger className="w-[80px] focus:ring-0 focus:ring-offset-0">
+                              <SelectValue placeholder="weeks" />
+                          </SelectTrigger>
+                          <SelectContent>
+                              <SelectGroup>
+                                  <SelectLabel>Weeks</SelectLabel>
+                                  <SelectItem value="1">1</SelectItem>
+                                  <SelectItem value="2">2</SelectItem>
+                                  <SelectItem value="3">3</SelectItem>
+                                  <SelectItem value="4">4</SelectItem>
+                                  <SelectItem value="5">5</SelectItem>
+                                  <SelectItem value="6">6</SelectItem>
+                                  <SelectItem value="7">7</SelectItem>
+                                  <SelectItem value="8">8</SelectItem>
+                                  <SelectItem value="9">9</SelectItem>
+                                  <SelectItem value="10">10</SelectItem>
+                              </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={createPhase}>Create Phase</AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+                
             </div>
             <div className='flex flex-col'>
                 <div className='flex w-full px-6 h-20'>
                 {program && program.phases && program.phases.map((block, phaseIndex) => (
-                <div key={block.id} onClick={() => setPhase(block)} className={`flex flex-col justify-center items-center flex-1 border ${theme === 'light' && block.id === (phase?.id) ? 'text-background' : 'text-foreground'} ${block.id === (phase?.id) ? 'bg-primary' : 'bg-background'} ${phase?.id !== block.id && 'hover:bg-primary-darker'} transition duration-300 ease-in-out`}><p className='text-xl font-semibold'>{block.name}</p><p className='text-sm'>{block.weeks} Weeks</p></div>
+                <div key={block.id} onClick={() => setPhase(block)} className={`relative flex flex-col justify-center items-center flex-1 border ${theme === 'light' && block.id === (phase?.id) ? 'text-background' : 'text-foreground'} ${block.id === (phase?.id) ? 'bg-primary' : 'bg-background'} ${phase?.id !== block.id && 'hover:bg-primary-darker'} transition duration-300 ease-in-out`}><p className='text-xl font-semibold'>{block.name}</p><p className='text-sm'>{block.weeks} Weeks</p>
+                <div onClick={(event) => event.stopPropagation()} className='absolute top-0 right-2'>
+                    <Popover>
+                        <PopoverTrigger className='pb-2 pl-2'><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
+                        <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md'>
+                            <Button onClick={() => deletePhase(block.id)} className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>Delete Phase</Button>
+                            </PopoverContent>
+                    </Popover>
+                </div>
+            </div>
             ))}
                 </div>
                 
@@ -142,23 +257,55 @@ const ProgramOverview = () => {
                     <Card className='px-2 h-[97%]'>
                         <div className='flex justify-between items-center'>
                             <h1 className='p-4 text-xl font-semibold'>{phase.name}</h1>
-                            <Button variant='outline'>
-                                <FontAwesomeIcon className='mr-1' icon={faPlus} /> Add Workout
-                            </Button>
+
+
+
+
+                            <AlertDialog>
+                                <AlertDialogTrigger>
+                                    <div className="h-10 px-4 py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
+                                        <FontAwesomeIcon className='mr-1' icon={faPlus} /> Workout</div>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                    <AlertDialogTitle>Create Workout</AlertDialogTitle>
+                                    <Label htmlFor="programName">Name</Label><Input value={workoutName} onChange={handleWorkoutNameChange} autoComplete="off" id="workoutName" />
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction onClick={createWorkout}>Create Workout</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                         </div>
                         {phase && phase.workouts && phase.workouts.length > 0 ? (
                             <Tabs key={defaultTabValue} defaultValue={defaultTabValue} className="w-full rounded-sm">
                                 <div className='flex items-center'>
-                                <TabsList className={`grid w-full ${phase && phase.workouts ? `grid-cols-${phase.workouts.length > 12 ? 12 : phase.workouts.length}` : 'grid-cols-1'}`}>
+                                <TabsList className={'flex w-full'}>
                                     
                                     {phase && phase.workouts && phase.workouts.map((workout, index)=> (
                                         
-                                        <TabsTrigger key={workout.id} value={workout.name}>{workout.name}</TabsTrigger>
+                                        <TabsTrigger className='flex-1' key={workout.id} value={workout.id}>{workout.name}</TabsTrigger>
                                     ))}
                                 </TabsList>
                                 </div>
                             {phase && phase.workouts && phase.workouts.map((workout, index) => (
-                                <TabsContent key={workout.id} value={workout.name}>
+                                <TabsContent key={workout.id} value={workout.id}>
                                     <Card className='border-none h-80'>
                                         <CardContent className="space-y-2">
                                             <Table className='h-full'>
