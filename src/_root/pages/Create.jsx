@@ -257,7 +257,7 @@ const Create = () => {
                 </div>     
                  
                 <div className='flex flex-col'>
-                    <FontAwesomeIcon onClick={() => {setVisibleTextareas(prev => ({...prev, [exercise]: !prev[exercise]}))}} size='lg' icon={faPenToSquare} />
+                    <FontAwesomeIcon onClick={() => {setVisibleTextareas(prev => ({...prev, [exercise.id]: !prev[exercise.id]}))}} size='lg' icon={faPenToSquare} />
                     <p className='text-xs mt-1'>Add Note</p>
                 </div>   
                 <div className='flex flex-col mr-2'>
@@ -276,7 +276,7 @@ const Create = () => {
             </CardContent>
             }   
             <CardFooter className='p-0'>
-                {visibleTextareas[exercise] && 
+                {visibleTextareas[exercise.id] && 
                 <div className='w-full mb-2 mx-6'>
                     <Label>Note</Label><Textarea className='min-h-[20px] h-10 overflow-y-auto resize-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-0' spellcheck="false"/>
                 </div>}
