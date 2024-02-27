@@ -95,6 +95,7 @@ const ProgramOverview = () => {
         const workoutData = {
             phase: phase.id,
             name: workoutName,
+            workout_exercises: []
         };
     
         apiClient.post('/workouts/', workoutData) 
@@ -118,7 +119,6 @@ const ProgramOverview = () => {
                 return { ...prevProgram, phases: updatedPhases };
             });
             setWorkoutName("");
-            navigate(`/create/${phase.id}/${response.data.id}`, { state: { program } });
         })
         .catch(error => {
             console.error('Error fetching data:', error);

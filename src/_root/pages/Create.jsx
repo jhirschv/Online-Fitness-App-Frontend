@@ -62,10 +62,13 @@ const Create = () => {
     const [visibleTextareas, setVisibleTextareas] = useState({});
     const [phase, setPhase] = useState({});
     const [editMode, setEditMode] = useState(true)
+    
 
     const { phaseId, workoutId } = useParams();
     let location = useLocation();
     let program = location.state.program;
+
+    
 
     useEffect(() => {
         apiClient.get(`/workouts/${workoutId}/`)
@@ -106,7 +109,26 @@ const Create = () => {
             console.error('Failed to update workout:', error);
         });
     }
+    
+    const handleSetsChange = (exerciseId, newSets) => {
+        const updatedExercises = workoutExercises.map(exerciseDetail => {
+          if (exerciseDetail.exercise.id === exerciseId) {
+            return { ...exerciseDetail, sets: newSets };
+          }
+          return exerciseDetail;
+        });
+        setWorkoutExercises(updatedExercises);
+      };
 
+    const handleRepsChange = (exerciseId, newReps) => {
+        const updatedExercises = workoutExercises.map(exerciseDetail => {
+          if (exerciseDetail.exercise.id === exerciseId) {
+            return { ...exerciseDetail, reps: newReps };
+          }
+          return exerciseDetail;
+        });
+        setWorkoutExercises(updatedExercises);
+      };
     
     function updateWorkout() {
         console.log(workoutExercises)
@@ -116,8 +138,8 @@ const Create = () => {
                 id,
                 workout: workoutId,
                 exercise_id: exercise.id, 
-                sets: sets === "" ? 0 : parseInt(sets, 10), // Convert to integer or use null
-                reps: reps === "" ? 0 : parseInt(reps, 10), 
+                sets,
+                reps,
                 note,
                 video,
             })),
@@ -187,9 +209,11 @@ const Create = () => {
 
                  
                 <div className='flex items-center ml-10'>
-                <Select>
+                <Select  value={sets > 0 ? sets.toString() : ''}
+                onValueChange={(newValue) => handleSetsChange(exercise.id, parseInt(newValue, 10))}
+                id={`sets-${exercise.id}`}>
                     <SelectTrigger className="w-[80px] focus:ring-0 focus:ring-offset-0">
-                        <SelectValue placeholder={`${sets? sets : 'sets'}`} />
+                        <SelectValue placeholder='sets' />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectGroup>
@@ -208,7 +232,9 @@ const Create = () => {
                     </SelectContent>
                 </Select>
                 <FontAwesomeIcon className='m-3' icon={faXmark} />
-                <Select>
+                <Select value={reps > 0 ? reps.toString() : ''}
+                 onValueChange={(newValue) => handleRepsChange(exercise.id, parseInt(newValue, 10))}
+                 id={`reps-${exercise.id}`}>
                     <SelectTrigger className="w-[80px] focus:ring-0 focus:ring-offset-0">
                         <SelectValue placeholder={`${reps? reps : 'reps'}`} />
                     </SelectTrigger>
