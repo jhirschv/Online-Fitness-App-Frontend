@@ -27,7 +27,7 @@ function App() {
         <Routes>
           <Route element={<RootLayout />}>
             <Route element={<PrivateRoute />}>
-              <Route path="create" element={<Create />} />  
+              <Route path="create/:phaseId/:workoutId" element={<Create />} />  
               <Route index element={<Programs />} />
               <Route path="/programs/:programId" element={<ProgramDetails />} />
               <Route path="/program_overview/:programId" element={<ProgramOverview />} />

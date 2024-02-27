@@ -1,5 +1,8 @@
 import React from 'react'
 import { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import apiClient from '../../services/apiClient';
 import {
     Command,
     CommandEmpty,
@@ -51,14 +54,84 @@ import {
 
 const Create = () => {
     const { theme } = useTheme();
-  
-  // Determine the background color class based on the theme
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
 
+    const [workout, setWorkout] = useState()
     const [workoutExercises, setWorkoutExercises] = useState([])
     const [exercises, setExercises] = useState([]);
     const [visibleTextareas, setVisibleTextareas] = useState({});
+    const [phase, setPhase] = useState({});
+    const [editMode, setEditMode] = useState(true)
 
+    const { phaseId, workoutId } = useParams();
+    let location = useLocation();
+    let program = location.state.program;
+
+    useEffect(() => {
+        apiClient.get(`/workouts/${workoutId}/`)
+            .then(response => {
+                setWorkout(response.data)
+                setWorkoutExercises(response.data.workout_exercises)
+                console.log(response.data.workout_exercises)
+                })
+            
+            .catch(error => console.error('Error:', error));
+        }, [workoutId]);
+
+    useEffect(() => {
+        apiClient.get(`/phases/${phaseId}/`)
+            .then(response => {
+                setPhase(response.data)
+                })
+            
+            .catch(error => console.error('Error:', error));
+        }, [workoutId]);
+
+
+    function createWorkoutExercise(exerciseId) {
+        const newWorkoutExercise = {
+            exercise_id: exerciseId,
+            sets: null,
+            reps: null,
+            note: "",
+            video: null,
+            workout: workoutId, 
+        };
+
+        apiClient.put(`/workout_exercises/6/`, newWorkoutExercise) 
+        .then(response => {
+            console.log('Workout updated successfully:', response.data);
+        })
+        .catch(error => {
+            console.error('Failed to update workout:', error);
+        });
+    }
+
+    
+    function updateWorkout() {
+        console.log(workoutExercises)
+        const workoutData = {
+            id: workoutId,
+            workout_exercises: workoutExercises.map(({id, exercise, sets, reps, note, video}) => ({
+                id,
+                workout: workoutId,
+                exercise_id: exercise.id, 
+                sets: sets === "" ? 0 : parseInt(sets, 10), // Convert to integer or use null
+                reps: reps === "" ? 0 : parseInt(reps, 10), 
+                note,
+                video,
+            })),
+            name: workout.name,
+            phase: phase.id
+        }
+        apiClient.put(`/workouts/${workoutId}/`, workoutData) 
+        .then(response => {
+            console.log('Workout updated successfully:', response.data);
+        })
+        .catch(error => {
+            console.error('Failed to update workout:', error);
+        });
+        }
 
     const fetchExercises = () => {
         Axios.get('http://localhost:8000/exercises/').then((res) => {
@@ -69,32 +142,54 @@ const Create = () => {
         fetchExercises()
       }, []);
 
-    const clickToAddExercise = (name) => {
-        if (!workoutExercises.includes(name)) {
-          setWorkoutExercises([...workoutExercises, name]);
+    const clickToAddExercise = (exerciseToAdd) => {
+
+        const isAlreadyIncluded = workoutExercises.some(
+            (exerciseDetail) => exerciseDetail.exercise.id === exerciseToAdd.id
+        );
+        if (!isAlreadyIncluded) {
+            const newExerciseDetail = {
+                exercise: exerciseToAdd,
+                sets: "", 
+                reps: "", 
+                note: "",
+                video: null,
+                workout: workoutId, 
+            };
+
+        setWorkoutExercises([...workoutExercises, newExerciseDetail]);
+        console.log(workoutExercises)
         } else {
-            console.log("already included")
+            console.log("already included");
         }
       }
 
-      let workoutExerciseList = workoutExercises.map(exercise => {
-        
+    let navigate = useNavigate();
+
+    function goBack() {
+        navigate(-1);
+    }
+
+    let workoutExerciseList = workoutExercises.map(exerciseDetail => {
+        const { exercise, sets, reps } = exerciseDetail;
         return (
-            <Card key={exercise} className='relative mt-1 mb-1 mr-3'> 
+            <Card key={exercise.id} className='relative mt-1 mb-1 mr-3'> 
+            {editMode ? 
             <div className='absolute top-2 right-4'>
                 <Popover>
                     <PopoverTrigger><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
                     <PopoverContent>Place content for the popover here.</PopoverContent>
                 </Popover>
-            </div> 
-            
-            <CardContent className="py-4 flex justify-between items-center">
-                <p className='w-1/4'>{exercise}</p>
+            </div> : <></>}
+            {editMode ?
+            <CardContent className="h-20 py-4 flex justify-between items-center">
+                <p className='w-1/4 font-semibold'>{exercise.name}</p>
 
+                 
                 <div className='flex items-center ml-10'>
                 <Select>
                     <SelectTrigger className="w-[80px] focus:ring-0 focus:ring-offset-0">
-                        <SelectValue placeholder="sets" />
+                        <SelectValue placeholder={`${sets? sets : 'sets'}`} />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectGroup>
@@ -115,7 +210,7 @@ const Create = () => {
                 <FontAwesomeIcon className='m-3' icon={faXmark} />
                 <Select>
                     <SelectTrigger className="w-[80px] focus:ring-0 focus:ring-offset-0">
-                        <SelectValue placeholder="reps" />
+                        <SelectValue placeholder={`${reps? reps : 'reps'}`} />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectGroup>
@@ -132,18 +227,28 @@ const Create = () => {
                             <SelectItem value="10">10</SelectItem>
                         </SelectGroup>
                     </SelectContent>
-                </Select>
-                </div>        
+                </Select> 
+                </div>     
+                 
                 <div className='flex flex-col'>
-                    <FontAwesomeIcon size='xl' onClick={() => {setVisibleTextareas(prev => ({...prev, [exercise]: !prev[exercise]}))}} icon={faPenToSquare} />
+                    <FontAwesomeIcon onClick={() => {setVisibleTextareas(prev => ({...prev, [exercise]: !prev[exercise]}))}} size='lg' icon={faPenToSquare} />
                     <p className='text-xs mt-1'>Add Note</p>
                 </div>   
                 <div className='flex flex-col mr-2'>
-                    <FontAwesomeIcon size="xl"icon={faFileVideo} />   
+                    <FontAwesomeIcon size="lg"icon={faFileVideo} />   
                     <p className='text-xs mt-1'>Add Video</p>
                 </div>
                         
-            </CardContent>   
+            </CardContent>
+            : 
+            <CardContent className="h-20 py-4 flex items-center">
+                <p className='w-1/4 font-semibold'>{exercise.name}</p>
+                <div className='self-center flex items-center ml-36'>
+                    <p className='text-lg font-semibold'>{sets}  x  {reps}</p>
+                </div>
+                
+            </CardContent>
+            }   
             <CardFooter className='p-0'>
                 {visibleTextareas[exercise] && 
                 <div className='w-full mb-2 mx-6'>
@@ -151,13 +256,8 @@ const Create = () => {
                 </div>}
             </CardFooter>                     
         </Card>
-          )})
+            )})
 
-    let navigate = useNavigate();
-
-    const handleClick = () => {
-        navigate('/program_overview/1');
-    };
     
 
     return (
@@ -167,23 +267,30 @@ const Create = () => {
                 <Card className='mr-4 h-full flex flex-col'>
                     <CardHeader className='flex flex-row items=center justify-between'>
                         <div>
-                            <CardTitle className='font-semibold'>Lower Body 1</CardTitle>
-                            <CardDescription>16 Week Undulating &gt; Phase 3</CardDescription>
+                        {workout ? (
+                            <>
+                                <CardTitle className='font-semibold'>{workout.name}  <FontAwesomeIcon onClick={()=> setEditMode(currentState => !currentState)} className='ml-1' size='xs' icon={faPenToSquare} /></CardTitle>
+                                <CardDescription>{program.name} &gt; {phase.name}</CardDescription>
+                            </>
+                        ) : (
+                            <p>Loading...</p> // Placeholder content or a loader can be placed here
+                        )}
                         </div>
-                        <FontAwesomeIcon onClick={handleClick} size="xl" icon={faAngleLeft} />
+                        <FontAwesomeIcon onClick={goBack} size="xl" icon={faAngleLeft} />
                         
                     </CardHeader>
                     <CardContent>
                         <ScrollArea className="h-96 w-full rounded-md">
                             <div>
-                                {workoutExerciseList}
+                                {workoutExerciseList.length > 0 ? workoutExerciseList : <div className=' flex justify-center items-center w-full h-96 text-muted-foreground font-semibold text-xl'>
+                                    <h1 className='text-muted-foreground font-semibold text-xl'>No Exercises</h1></div>}
                             </div>
                         </ScrollArea>
-                        <Button className='mt-6'>Create Workout</Button>
+                        {editMode ? <Button onClick={() => updateWorkout()} className='mt-6'>Save Changes</Button>: <> </>}
                    </CardContent>
                 </Card>
             </div>
-
+            {editMode ? 
             <div className='flex-1 flex-col'>
                 <div className="relative mb-2">
                   <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -195,16 +302,17 @@ const Create = () => {
                         <h4 className="mb-4 text-xl font-bold leading-none">Add Exercises</h4>
                         {exercises.map((exercise)=> {
                             return (
-                                <div onClick={() => clickToAddExercise(exercise.name)} key={exercise.name}>
+                                <div onClick={() => clickToAddExercise(exercise)} key={exercise.name}>
                                     <div className="text-sm">{exercise.name}</div>
                                     <Separator className="my-2" />
                                 </div>
                             )
                         })}
                     </div>
-                </ScrollArea>
+                </ScrollArea> 
 
             </div>
+            : <></> }
             
         </div>
   )

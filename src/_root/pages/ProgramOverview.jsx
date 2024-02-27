@@ -50,7 +50,7 @@ import {
     AlertDialogTrigger,
     } from "@/components/ui/alert-dialog"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPenToSquare, faEllipsis, faCirclePlus, faPlus, faPaperPlane} from '@fortawesome/free-solid-svg-icons';
+import { faPenToSquare, faEye, faEllipsis, faCirclePlus, faPlus, faPaperPlane} from '@fortawesome/free-solid-svg-icons';
 import { faShareFromSquare } from '@fortawesome/free-regular-svg-icons';
 import { useTheme } from '@/components/theme-provider';
 import { useNavigate } from 'react-router-dom';
@@ -66,8 +66,6 @@ const ProgramOverview = () => {
     const [program, setProgram] = useState(null);
     const [phase, setPhase] = useState(null)
     const [defaultTabValue, setDefaultTabValue] = useState('');
-    const numColumns = phase && phase.workouts ? (phase.workouts.length > 12 ? 12 : phase.workouts.length) : 1;
-    const tabsListClassName = `grid w-full grid-cols-${numColumns}`;
 
     useEffect(() => {
         if (phase && phase.workouts && phase.workouts.length > 0) {
@@ -120,12 +118,37 @@ const ProgramOverview = () => {
                 return { ...prevProgram, phases: updatedPhases };
             });
             setWorkoutName("");
+            navigate(`/create/${phase.id}/${response.data.id}`, { state: { program } });
         })
         .catch(error => {
             console.error('Error fetching data:', error);
         });
         }
 
+    function deleteWorkout(workoutId) {
+        apiClient.delete(`/workouts/${workoutId}/`)
+        .then(() => {
+
+            setPhase(prevPhase => {
+                const updatedWorkouts = prevPhase.workouts.filter(workout => workout.id !== workoutId);
+                return { ...prevPhase, workouts: updatedWorkouts };
+            });
+
+            setProgram(prevProgram => {
+                const updatedPhases = prevProgram.phases.map(p => {
+                    if (p.id === phase.id) {
+                        const updatedWorkouts = p.workouts.filter(workout => workout.id !== workoutId);
+                        return { ...p, workouts: updatedWorkouts };
+                    }
+                    return p;
+                });
+                return { ...prevProgram, phases: updatedPhases };
+            });
+        })
+        .catch(error => {
+            console.error('Error deleting the phase:', error);
+        });
+        }
 
 
     function createPhase() {
@@ -166,6 +189,7 @@ const ProgramOverview = () => {
     });
     }
 
+
     useEffect(() => {
     apiClient.get(`/user_programs/${programId}/`)
         .then(response => {
@@ -181,8 +205,8 @@ const ProgramOverview = () => {
 
     const navigate = useNavigate();
 
-    const editWorkout = (programId) => {
-        navigate(`/create/`); // Navigate to program details page
+    const editWorkout = (workoutId) => {
+        navigate(`/create/${phase.id}/${workoutId}`, { state: { program } });// Navigate to program details page
     };
 
 
@@ -192,14 +216,20 @@ const ProgramOverview = () => {
         <Card className='h-full w-full flex flex-col'>
             <div className='p-6 flex justify-between items-center'>
                 <div className='flex'>
-                    <h1 className='text-2xl font-semibold'>16 Week Strength Program</h1>
-                    <Badge variant='secondary' className='ml-4 text-xs'>Active</Badge>
+                {program ? (
+                    <>
+                            <h1 className='text-2xl font-semibold'>{program.name}</h1>
+                            <Badge variant='secondary' className='ml-4 text-xs'>Active</Badge>
+                    </>
+                ) : (
+                    <p>Loading...</p> // Placeholder content or a loader can be placed here
+                )}
                 </div>
 
                 <AlertDialog>
                     <AlertDialogTrigger>
                         <div className="h-10 px-4 py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
-                            <FontAwesomeIcon className='mr-1' icon={faPlus} />Training Block</div>
+                            <FontAwesomeIcon className='mr-1' icon={faPlus} /> Block</div>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                         <AlertDialogHeader>
@@ -238,7 +268,7 @@ const ProgramOverview = () => {
             <div className='flex flex-col'>
                 <div className='flex w-full px-6 h-20'>
                 {program && program.phases && program.phases.map((block, phaseIndex) => (
-                <div key={block.id} onClick={() => setPhase(block)} className={`relative flex flex-col justify-center items-center flex-1 border ${theme === 'light' && block.id === (phase?.id) ? 'text-background' : 'text-foreground'} ${block.id === (phase?.id) ? 'bg-primary' : 'bg-background'} ${phase?.id !== block.id && 'hover:bg-primary-darker'} transition duration-300 ease-in-out`}><p className='text-xl font-semibold'>{block.name}</p><p className='text-sm'>{block.weeks} Weeks</p>
+                <div style={{ flexGrow: block.weeks }} key={block.id} onClick={() => setPhase(block)} className={`relative flex flex-col justify-center items-center border ${theme === 'light' && block.id === (phase?.id) ? 'text-background' : 'text-foreground'} ${block.id === (phase?.id) ? 'bg-primary' : 'bg-background'} ${phase?.id !== block.id && 'hover:bg-accent'} transition duration-300 ease-in-out`}><p className='text-xl font-semibold'>{block.name}</p><p className='text-sm'>{block.weeks} Weeks</p>
                 <div onClick={(event) => event.stopPropagation()} className='absolute top-0 right-2'>
                     <Popover>
                         <PopoverTrigger className='pb-2 pl-2'><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
@@ -257,10 +287,6 @@ const ProgramOverview = () => {
                     <Card className='px-2 h-[97%]'>
                         <div className='flex justify-between items-center'>
                             <h1 className='p-4 text-xl font-semibold'>{phase.name}</h1>
-
-
-
-
                             <AlertDialog>
                                 <AlertDialogTrigger>
                                     <div className="h-10 px-4 py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
@@ -277,21 +303,6 @@ const ProgramOverview = () => {
                                     </AlertDialogFooter>
                                 </AlertDialogContent>
                             </AlertDialog>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                         </div>
                         {phase && phase.workouts && phase.workouts.length > 0 ? (
                             <Tabs key={defaultTabValue} defaultValue={defaultTabValue} className="w-full rounded-sm">
@@ -304,17 +315,30 @@ const ProgramOverview = () => {
                                     ))}
                                 </TabsList>
                                 </div>
+
                             {phase && phase.workouts && phase.workouts.map((workout, index) => (
                                 <TabsContent key={workout.id} value={workout.id}>
                                     <Card className='border-none h-80'>
+                                        
                                         <CardContent className="space-y-2">
+                                            <div className='relative h-4'>
+                                                <div onClick={(event) => event.stopPropagation()} className='absolute top-0 right-4'>
+                                                    <Popover>
+                                                        <PopoverTrigger className='pb-2 pl-2'><FontAwesomeIcon size='lg' icon={faEllipsis} /></PopoverTrigger>
+                                                        <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md'>
+                                                            <Button onClick={() => deleteWorkout(workout.id)} className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>Delete Workout</Button>
+                                                            </PopoverContent>
+                                                    </Popover>
+                                                </div>
+                                            </div>
+                                            
                                             <Table className='h-full'>
                                                 <TableHeader>
                                                 <TableRow className='relative'>
                                                     <TableHead className="w-1/3">Exercise</TableHead>
                                                     <TableHead className='w-1/3'>Sets x Reps</TableHead>
                                                     <TableHead className="w-1/3">Note</TableHead>
-                                                    <TableHead onClick={editWorkout} className='absolute right-0 pb-0.5 flex items-center'><p className='mr-2'>Edit Workout</p><FontAwesomeIcon size="lg" icon={faPenToSquare} /></TableHead>
+                                                    <TableHead onClick={() => editWorkout(workout.id)} className='text-foreground absolute right-0 pb-0.5 flex items-center'><p className='mr-2'>View Workout</p><FontAwesomeIcon icon={faEye} /></TableHead>
                                                 </TableRow>
                                                 </TableHeader>
                                                 <TableBody>
