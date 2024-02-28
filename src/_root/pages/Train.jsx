@@ -1,5 +1,6 @@
 import React from 'react'
 import { useTheme } from '@/components/theme-provider';
+import { useNavigate } from 'react-router-dom';
 import {
     Card,
     CardContent,
@@ -28,9 +29,27 @@ import {
         AccordionTrigger,
       } from "@/components/ui/accordion"
 import { Separator } from '@/components/ui/separator';
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
+import {
+    Sheet,
+    SheetClose,
+    SheetContent,
+    SheetDescription,
+    SheetFooter,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+  } from "@/components/ui/sheet"
 
 const Train = () => {
     const { theme } = useTheme();
+    const navigate = useNavigate();
+
+    function startTrainingSession() {
+        navigate('/workoutSession')
+    }
+
 
     const [date, setDate] = React.useState(new Date())
     // Determine the background color class based on the theme
@@ -46,7 +65,45 @@ const Train = () => {
                 className="flex-1 h-[95%] m-4"
                 />
                 <div className='flex flex-col flex-1 border-l pl-4'>
-                    <h1 className='pt-4 pb-1 text-center text-2xl font-semibold'>Current Workout</h1>
+                    <div className='flex items-center justify-between pr-2 py-4'>
+                        <h1 className='text-center text-xl font-semibold'>12 Week Undulating</h1>
+                        <Sheet>
+                            <SheetTrigger asChild>
+                                <Button variant="outline">Change Program</Button>
+                            </SheetTrigger>
+                            <SheetContent>
+                                <SheetHeader>
+                                <SheetTitle>Select Program</SheetTitle>
+                                </SheetHeader>
+                                <div className='p-4'>
+                                    <h1>12 Week Linear</h1>
+                                </div>
+                                <Separator></Separator>
+                                <div className='p-4'>
+                                    <h1>8 Week Hypertrophy</h1>                                  
+                                </div>
+                                <Separator></Separator>
+                                <div className='p-4'>
+                                    <h1>16 Week Linear</h1>                                   
+                                </div>
+                                <Separator></Separator>
+                                <div className='p-4'>
+                                    <h1>McKays Program</h1>                                  
+                                </div>
+                                <Separator></Separator>
+                                <SheetFooter className='mt-4'>
+                                <SheetClose asChild>
+                                    <Button type="submit">Save changes</Button>
+                                </SheetClose>
+                                </SheetFooter>
+                            </SheetContent>
+                        </Sheet>
+                    </div>
+                    <div className='flex items-center justify-between pr-2'>
+                        <h1 className='font-semibold text-lg'>Week 3: Lower 1</h1>
+                        <Button variant='outline'>All Sessions</Button>
+                    </div>
+                    
                     <Table className='h-full'>
                     <TableHeader>
                     <TableRow>
@@ -76,38 +133,12 @@ const Train = () => {
                         </TableRow>
                     </TableBody>
                 </Table>
+                 
+                <div className='mt-4'>
+                    <Button onClick={startTrainingSession} className='self-center w-1/2 p-6 text-lg'>Start Training!</Button>
+                    <Button variant='outline' className='mx-2 self-center w-1/3 mb-4 p-6 text-lg'>Skip Workout</Button>
+                </div>
                 
-                <Accordion className='' type="single" collapsible>
-                    <AccordionItem value="item-1">
-                        <AccordionTrigger>Previous Workouts</AccordionTrigger>
-                        <AccordionContent>
-                            <ScrollArea className='h-32'>
-                            <p className='p-4'>Upper Body</p>
-                            <Separator/>
-                            <p className='p-4'>Lower Body</p>
-                            <Separator/>
-                            <p className='p-4'>Upper Body</p>
-                            <Separator/>
-                            <p className='p-4'>Lower Body</p>
-                            </ScrollArea>
-                        </AccordionContent>
-                    </AccordionItem>
-                    <AccordionItem value="item-2">
-                        <AccordionTrigger>Upcoming Workouts</AccordionTrigger>
-                        <AccordionContent >
-                        <ScrollArea className='h-32'>
-                            <p className='p-4'>Upper Body</p>
-                            <Separator/>
-                            <p className='p-4'>Lower Body</p>
-                            <Separator/>
-                            <p className='p-4'>Upper Body</p>
-                            <Separator/>
-                            <p className='p-4'>Lower Body</p>
-                            </ScrollArea>
-                        </AccordionContent>
-                    </AccordionItem>
-                </Accordion>
-                <Button className='mt-auto self-center w-1/2 mb-4 p-6 text-lg'>Start Training!</Button>
                 </div>
                 
             </Card>

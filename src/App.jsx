@@ -17,6 +17,7 @@ import ProgramDetails from './_root/pages/ProgramDetails';
 import PhaseDetails from './_root/pages/Workouts';
 import WorkoutDetails from './_root/pages/WorkoutDetails';
 import ProgramOverview from './_root/pages/ProgramOverview';
+import WorkoutSession from './_root/pages/WorkoutSession';
 
 
 function App() {
@@ -35,6 +36,7 @@ function App() {
               <Route path="/workout/:workoutId" element={<WorkoutDetails />} />
               <Route path="/clients" element={<Clients />} />
               <Route path="/train" element={<Train />} />
+              <Route path="/workoutSession" element={<WorkoutSession />} />
               <Route path="/Progress" element={<Progress />} />
               <Route path="/Chat" element={<Chat />} />
               <Route path="/exerciseLibrary" element={<ExerciseLibrary />} />
