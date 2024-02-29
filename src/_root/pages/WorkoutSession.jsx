@@ -2,6 +2,22 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { Separator } from '@/components/ui/separator';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+  } from "@/components/ui/popover"
+import {
+    Table,
+    TableBody,
+    TableCaption,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableFooter,
+    TableRow,
+    } from "@/components/ui/table"
 import {
   Carousel,
   CarouselContent,
@@ -24,7 +40,7 @@ import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClock} from '@fortawesome/free-regular-svg-icons';
-import { faAngleLeft} from '@fortawesome/free-solid-svg-icons';
+import { faAngleLeft, faEllipsis} from '@fortawesome/free-solid-svg-icons';
 import { useTheme } from '@/components/theme-provider';
   
 
@@ -44,50 +60,55 @@ const WorkoutSession = () => {
     return (
         <div className={`w-full ${backgroundColorClass} border rounded-lg p-4`}>
             <Card className='h-full w-full'>
-                <div className='flex relative w-full items-center justify-center p-4'>
+                <div className='flex relative w-full items-center justify-center p-6'>
                     <FontAwesomeIcon className='absolute top-6 left-6' onClick={goBack} size="xl" icon={faAngleLeft} />
-                    <h1 className='text-xl font-semibold'>May 3, 2024: Lower Body 1</h1>
+                    <h1 className='text-2xl font-semibold'>May 3, 2024: Lower Body 1</h1>
                 </div>
-                <div className='w-full flex flex-col justify-center items-center'>
+                <div className='w-full flex'>
                     
-                    <Carousel className="w-[1100px] h-[550px]">
+                    <Carousel className="mx-16 w-1/2 max-w-2xl">
                         <CarouselContent>
                             {Array.from({ length: 5 }).map((_, index) => (
-                            <CarouselItem key={index}  >
-                                <div className="p-1">
+                            <CarouselItem key={index}   >
+                                <div >
                                 <Card className='h-[550px]' >
-                                    <CardContent className="flex h-full items-center justify-center p-6 ">
+                                    <CardContent className="flex p-6 ">
                                         <div className='flex flex-col'>
-                                            <div className='flex items-center'>
-                                                <h1>1. Back Squat</h1>
+                                            <div className='flex items-center pb-4'>
+                                                <h1 className='font-semibold text-xl'>1. Back Squat</h1>
                                                 <Button variant='outline' className='ml-2'>History</Button>
                                             </div>
+                                            <Separator/>
+                                            <div className='flex items-center m-2 py-2'>
+                                                <p>1. Reps</p><Label htmlFor="reps" className='mr-2'></Label><Input id='reps' className='w-20 mr-2'></Input>
+                                                <Label htmlFor="weight" className='mr-2'>Weight</Label><Input id='weight' className='w-20'></Input>
+                                                <Button variant='outline' className='mx-2'>Add Note</Button>
+                                                <Button variant='outline'>Add Video</Button>
+                                            </div>
+                                            <Separator/>
+                                            <div className='flex items-center m-2 py-2'>
+                                                <p>2. Reps</p><Label htmlFor="reps" className='mr-2'></Label><Input id='reps' className='w-20 mr-2'></Input>
+                                                <Label htmlFor="weight" className='mr-2'>Weight</Label><Input id='weight' className='w-20'></Input>
+                                                <Button variant='outline' className='mx-2'>Add Note</Button>
+                                                <Button variant='outline'>Add Video</Button>
+                                            </div>
+                                            <Separator/>
+                                            <div className='flex items-center m-2 py-2'>
+                                                <p>3. Reps</p><Label htmlFor="reps" className='mr-2'></Label><Input id='reps' className='w-20 mr-2'></Input>
+                                                <Label htmlFor="weight" className='mr-2'>Weight</Label><Input id='weight' className='w-20'></Input>
+                                                <Button variant='outline' className='mx-2'>Add Note</Button>
+                                                <Button variant='outline'>Add Video</Button>
+                                            </div>
+                                            <Separator/>
+                                            <div className='flex items-center m-2 py-2'>
+                                                <p>4. Reps</p><Label htmlFor="reps" className='mr-2'></Label><Input id='reps' className='w-20 mr-2'></Input>
+                                                <Label htmlFor="weight" className='mr-2'>Weight</Label><Input id='weight' className='w-20'></Input>
+                                                <Button variant='outline' className='mx-2'>Add Note</Button>
+                                                <Button variant='outline'>Add Video</Button>
+                                            </div>
+                                            <Separator/>
                                             
-                                            <div className='flex items-center m-2'>
-                                                <p>Set 1: Reps</p><Label htmlFor="reps" className='mr-2'></Label><Input id='reps' className='w-20 mr-2'></Input>
-                                                <Label htmlFor="weight" className='mr-2'>Weight</Label><Input id='weight' className='w-20'></Input>
-                                                <Button variant='outline' className='mx-2'>Add Note</Button>
-                                                <Button variant='outline'>Add Video</Button>
-                                            </div>
-                                            <div className='flex items-center m-2'>
-                                                <p>Set 2: Reps</p><Label htmlFor="reps" className='mr-2'></Label><Input id='reps' className='w-20 mr-2'></Input>
-                                                <Label htmlFor="weight" className='mr-2'>Weight</Label><Input id='weight' className='w-20'></Input>
-                                                <Button variant='outline' className='mx-2'>Add Note</Button>
-                                                <Button variant='outline'>Add Video</Button>
-                                            </div>
-                                            <div className='flex items-center m-2'>
-                                                <p>Set 3: Reps</p><Label htmlFor="reps" className='mr-2'></Label><Input id='reps' className='w-20 mr-2'></Input>
-                                                <Label htmlFor="weight" className='mr-2'>Weight</Label><Input id='weight' className='w-20'></Input>
-                                                <Button variant='outline' className='mx-2'>Add Note</Button>
-                                                <Button variant='outline'>Add Video</Button>
-                                            </div>
-                                            <div className='flex items-center m-2'>
-                                                <p>Set 4: Reps</p><Label htmlFor="reps" className='mr-2'></Label><Input id='reps' className='w-20 mr-2'></Input>
-                                                <Label htmlFor="weight" className='mr-2'>Weight</Label><Input id='weight' className='w-20'></Input>
-                                                <Button variant='outline' className='mx-2'>Add Note</Button>
-                                                <Button variant='outline'>Add Video</Button>
-                                            </div>
-                                            <div className='flex gap-1 items-center' > 
+                                            <div className='flex gap-1 items-center pt-4' > 
                                                 <Drawer>
                                                     <DrawerTrigger asChild><Button size='lg' variant='outline'><FontAwesomeIcon size='lg' icon={faClock} /></Button></DrawerTrigger>
                                                     <DrawerContent>
@@ -125,7 +146,49 @@ const WorkoutSession = () => {
                         </CarouselContent>
                         <CarouselPrevious />
                         <CarouselNext />
-                    </Carousel>           
+                    </Carousel>    
+                    <Card className='h-[550px] flex-1 mr-6 p-6'>
+                        <div className='flex items-center justify-between pr-2'>
+                            <h1 className='font-semibold text-lg'>Lower Body 1</h1>
+                            <div className=''>
+                                <Popover>
+                                    <PopoverTrigger><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
+                                    <PopoverContent>Place content for the popover here.</PopoverContent>
+                                </Popover>
+                            </div>
+                        </div>
+                        <div>
+                            <Table className='h-full'>
+                                <TableHeader>
+                                <TableRow>
+                                    <TableHead className="w-[100px] pl-0">Exercise</TableHead>
+                                    <TableHead>Sets x Reps</TableHead>
+                                    <TableHead>Note</TableHead>
+                                </TableRow>
+                                </TableHeader>
+                                <TableBody >
+                                    <TableRow>
+                                        <TableCell className="font-medium w-36 pl-0">Back Squat</TableCell>
+                                        <TableCell>5 x 5</TableCell>
+                                        <TableCell>Build up to a heavy top set</TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell className="font-medium w-48 pl-0">Romanian Deadlift</TableCell>
+                                        <TableCell>5 x 5</TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell className="font-medium w-36 pl-0">Split Squat</TableCell>
+                                        <TableCell>3 x 8</TableCell>
+                                        <TableCell>Focus on Form</TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell className="font-medium w-36 pl-0">Calf Raise</TableCell>
+                                        <TableCell>3 x 8</TableCell>
+                                    </TableRow>
+                                </TableBody>
+                            </Table>
+                        </div>
+                    </Card>       
                 </div>
             </Card>
         </div>
