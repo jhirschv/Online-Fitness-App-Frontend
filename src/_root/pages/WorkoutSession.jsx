@@ -66,7 +66,7 @@ const WorkoutSession = () => {
                 </div>
                 <div className='w-full flex'>
                     
-                    <Carousel className="mx-16 w-1/2 max-w-2xl">
+                    <Carousel className="w-full md:w-1/2 md:mx-16 max-w-2xl">
                         <CarouselContent>
                             {Array.from({ length: 5 }).map((_, index) => (
                             <CarouselItem key={index}   >
@@ -144,10 +144,10 @@ const WorkoutSession = () => {
                                 
                             </CarouselItem>
                         </CarouselContent>
-                        <CarouselPrevious />
-                        <CarouselNext />
+                        <CarouselPrevious className='hidden md:block'/>
+                        <CarouselNext className='hidden md:block'/>
                     </Carousel>    
-                    <Card className='h-[550px] flex-1 mr-6 p-6'>
+                    <Card className='hidden md:block h-[550px] flex-1 mr-6 p-6'>
                         <div className='flex items-center justify-between pr-2'>
                             <h1 className='font-semibold text-lg'>Lower Body 1</h1>
                             <div className=''>
