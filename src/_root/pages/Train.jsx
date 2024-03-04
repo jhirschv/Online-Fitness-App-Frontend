@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react';
+import apiClient from '../../services/apiClient';
 import { useTheme } from '@/components/theme-provider';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -57,6 +58,56 @@ const Train = () => {
         navigate('/workoutSession')
     }
 
+    function updateActiveProgram(selectedProgram) {
+            const payload = {
+                program_id: selectedProgram, 
+            };
+
+            apiClient.post('/set_active_program/', payload)
+            .then(response => {
+                return apiClient.get('/get_active_program/'); 
+            })
+            .then(response => {
+                
+                setActiveProgram(response.data);
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+        });
+        
+    }
+
+    const [activeProgram, setActiveProgram] = useState(null)
+    const [selectedProgram, setSelectedProgram] = useState(null)
+    const handleProgramClick = (programId) => {
+        setSelectedProgram(programId)
+        console.log(selectedProgram);
+      };
+    const [userPrograms, setUserPrograms] = useState([])
+    
+
+
+    useEffect(() => {
+        apiClient.get('/get_active_program/') // Make sure the endpoint matches your Django URL configuration
+        .then(response => {
+            setActiveProgram(response.data);
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
+    }, []);
+
+    
+    useEffect(() => {
+        apiClient.get('/user_programs/') // Make sure the endpoint matches your Django URL configuration
+        .then(response => {
+            setUserPrograms(response.data);
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
+    }, []);
+
 
     const [date, setDate] = React.useState(new Date())
     // Determine the background color class based on the theme
@@ -70,7 +121,7 @@ const Train = () => {
                     <div className='flex flex-col h-full justify-between basis-2/5 pl-6'>
                         <div className='flex flex-col pr-2 py-6'>
                             <div className='flex mb-4'>
-                                <h1 className='mr-2 text-2xl font-semibold'>12 Week Undulating</h1>
+                                {activeProgram? <h1 className='mr-2 text-2xl font-semibold'>{activeProgram.name}</h1> : <h1 className='mr-2 text-2xl font-semibold'>No Active Program</h1>}
                                 <Sheet>
                                     <SheetTrigger asChild>
                                         <Button variant="outline">Change Program</Button>
@@ -79,25 +130,18 @@ const Train = () => {
                                         <SheetHeader>
                                         <SheetTitle>Select Program</SheetTitle>
                                         </SheetHeader>
-                                        <div className='p-4'>
-                                            <h1>12 Week Linear</h1>
+                                        {userPrograms.map((program) => (
+                                        <div
+                                            key={program.id}
+                                            className={`p-4 ${selectedProgram === program.id ? 'bg-secondary' : 'bg-background'}`}
+                                            onClick={() => handleProgramClick(program.id)}
+                                        >
+                                            <h1>{program.name}</h1>
                                         </div>
-                                        <Separator></Separator>
-                                        <div className='p-4'>
-                                            <h1>8 Week Hypertrophy</h1>                                  
-                                        </div>
-                                        <Separator></Separator>
-                                        <div className='p-4'>
-                                            <h1>16 Week Linear</h1>                                   
-                                        </div>
-                                        <Separator></Separator>
-                                        <div className='p-4'>
-                                            <h1>McKays Program</h1>                                  
-                                        </div>
-                                        <Separator></Separator>
+                                        ))}
                                         <SheetFooter className='mt-4'>
                                         <SheetClose asChild>
-                                            <Button type="submit">Save changes</Button>
+                                            <Button type="submit" onClick={() => updateActiveProgram(selectedProgram)}>Save changes</Button>
                                         </SheetClose>
                                         </SheetFooter>
                                     </SheetContent>
