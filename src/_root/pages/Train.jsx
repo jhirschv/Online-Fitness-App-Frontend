@@ -81,6 +81,23 @@ const Train = () => {
         
     }
 
+    const startWorkoutSession = () => {
+        const payload = {
+            workout_id: currentWorkout.id, 
+        };
+
+        apiClient.post('/start_workout_session/', payload)
+            .then(response => {
+                console.log(response.data);
+                navigate(`/workoutSession/${response.data.session_id}`);
+                // Optionally, fetch the newly started workout session details
+                // and update the UI accordingly
+            })
+            .catch(error => {
+                console.error('Error starting workout session:', error);
+            });
+    };
+
     const [activeProgram, setActiveProgram] = useState(null)
     const [selectedProgram, setSelectedProgram] = useState(null)
     const handleProgramClick = (programId) => {
@@ -198,7 +215,7 @@ const Train = () => {
                         </div>
                         
                         <div className='mb-6'>
-                            <Button onClick={startTrainingSession} className='self-center w-1/2 p-6 text-lg'>Start Training!</Button>
+                            <Button onClick={startWorkoutSession} className='self-center w-1/2 p-6 text-lg'>Start Training!</Button>
                             <Button variant='outline' className='mx-2 self-center w-1/3 mb-4 p-6 text-lg'>Skip Workout</Button>
                         </div>
                         

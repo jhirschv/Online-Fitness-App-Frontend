@@ -1,5 +1,7 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react';
+import apiClient from '../../services/apiClient';
 import { useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from '@/components/ui/separator';
@@ -46,9 +48,30 @@ import { useTheme } from '@/components/theme-provider';
 
 const WorkoutSession = () => {
 
+    const currentDate = new Date().toLocaleDateString('en-US', {
+        year: 'numeric', // "2024"
+        month: 'long', // "March"
+        day: 'numeric', // "1"
+      });
+
 
     const { theme } = useTheme();
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
+
+    const { sessionId } = useParams();
+    const [sessionDetails, setSessionDetails] = useState(null);
+
+    useEffect(() => {
+        // Fetch the workout session details by sessionId
+        apiClient.get(`/workoutSession/${sessionId}/`)
+            .then(response => {
+                setSessionDetails(response.data);
+                console.log(response.data)
+            })
+            .catch(error => {
+                console.error('Error fetching workout session details:', error);
+            });
+    }, [sessionId]);
 
 
     const navigate = useNavigate();
@@ -59,6 +82,7 @@ const WorkoutSession = () => {
 
     return (
         <div className={`w-full ${backgroundColorClass} border rounded-lg p-4`}>
+
             <Card className='h-full w-full relative'>
                 <FontAwesomeIcon className='absolute top-6 left-6' onClick={goBack} size="xl" icon={faAngleLeft} />
 
@@ -66,48 +90,29 @@ const WorkoutSession = () => {
                     <div className='flex-3'>
                         <Carousel className="w-full mx-16 mt-6 max-w-2xl">
                             <CarouselContent className='w-full'>
-                                {Array.from({ length: 5 }).map((_, index) => (
-                                <CarouselItem key={index}   >
+                                {sessionDetails && sessionDetails.exercise_logs.map((exercise, index) => (
+                                <CarouselItem key={exercise.id}   >
                                     <div >
                                     <Card className='h-[600px]' >
                                         <CardContent className="flex p-6 ">
                                             <div className='flex flex-col w-full'>
                                                 <div className='flex items-center pb-4'>
-                                                    <h1 className='font-semibold text-xl'>1. Back Squat</h1>
+                                                    <h1 className='font-semibold text-xl'>{index + 1}. {exercise.workout_exercise.exercise.name}</h1>
                                                     <Button variant='outline' className='ml-2'>History</Button>
                                                 </div>
-                                                <Separator/>
-                                                <div className='flex items-center m-2 py-2'>
-                                                    <p>1. Reps</p><Label htmlFor="reps" className='mr-2'></Label><Input id='reps' className='w-20 mr-2'></Input>
-                                                    <Label htmlFor="weight" className='mr-2'>Weight</Label><Input id='weight' className='w-20'></Input>
-                                                    <Button variant='outline' className='mx-2'>Add Note</Button>
-                                                    <Button variant='outline'>Add Video</Button>
-                                                </div>
+                                                {exercise.sets.map((set) => (
+                                                    <div>
+                                                        <Separator/>
+                                                            <div className='flex items-center m-2 py-2'>
+                                                                <p>{set.set_number}. Reps</p><Label htmlFor="reps" className='mr-2'></Label><Input placeholder={String(exercise.workout_exercise.reps)} id='reps' className='w-20 mr-2 text-center'></Input>
+                                                                <Label htmlFor="weight" className='mr-2'>Weight</Label><Input id='weight' className='w-20'></Input>
+                                                                <Button variant='outline' className='mx-2'>Add Note</Button>
+                                                                <Button variant='outline'>Add Video</Button>
+                                                            </div>
+                                                        <Separator/>
+                                                    </div>  
+                                                ))}
                                                 
-                                                <Separator/>
-                                                
-                                                
-                                                <div className='flex items-center m-2 py-2'>
-                                                    <p>2. Reps</p><Label htmlFor="reps" className='mr-2'></Label><Input id='reps' className='w-20 mr-2'></Input>
-                                                    <Label htmlFor="weight" className='mr-2'>Weight</Label><Input id='weight' className='w-20'></Input>
-                                                    <Button variant='outline' className='mx-2'>Add Note</Button>
-                                                    <Button variant='outline'>Add Video</Button>
-                                                </div>
-                                                <Separator/>
-                                                <div className='flex items-center m-2 py-2'>
-                                                    <p>3. Reps</p><Label htmlFor="reps" className='mr-2'></Label><Input id='reps' className='w-20 mr-2'></Input>
-                                                    <Label htmlFor="weight" className='mr-2'>Weight</Label><Input id='weight' className='w-20'></Input>
-                                                    <Button variant='outline' className='mx-2'>Add Note</Button>
-                                                    <Button variant='outline'>Add Video</Button>
-                                                </div>
-                                                <Separator/>
-                                                <div className='flex items-center m-2 py-2'>
-                                                    <p>4. Reps</p><Label htmlFor="reps" className='mr-2'></Label><Input id='reps' className='w-20 mr-2'></Input>
-                                                    <Label htmlFor="weight" className='mr-2'>Weight</Label><Input id='weight' className='w-20'></Input>
-                                                    <Button variant='outline' className='mx-2'>Add Note</Button>
-                                                    <Button variant='outline'>Add Video</Button>
-                                                </div>
-                                                <Separator/>
                                                 
                                                 <div className='flex gap-1 items-center pt-4' > 
                                                     <Drawer>
@@ -152,7 +157,7 @@ const WorkoutSession = () => {
                     <div className='flex-1 h-full'>
                         <Card className='rounded-none h-full flex-2 p-6'>
                             <div className='flex items-center justify-between pr-2 mb-4'>
-                                <h1 className='font-semibold text-lg'>March 1, 2024: Lower Body 1</h1>
+                                <h1 className='font-semibold text-lg'>{currentDate}: {sessionDetails && sessionDetails.workout.name}</h1>
                                 <div className=''>
                                     <Popover>
                                         <PopoverTrigger><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
@@ -170,24 +175,13 @@ const WorkoutSession = () => {
                                     </TableRow>
                                     </TableHeader>
                                     <TableBody >
-                                        <TableRow>
-                                            <TableCell className="font-medium w-36 pl-0">Back Squat</TableCell>
-                                            <TableCell>5 x 5</TableCell>
-                                            <TableCell>Build up to a heavy top set</TableCell>
-                                        </TableRow>
-                                        <TableRow>
-                                            <TableCell className="font-medium w-48 pl-0">Romanian Deadlift</TableCell>
-                                            <TableCell>5 x 5</TableCell>
-                                        </TableRow>
-                                        <TableRow>
-                                            <TableCell className="font-medium w-36 pl-0">Split Squat</TableCell>
-                                            <TableCell>3 x 8</TableCell>
-                                            <TableCell>Focus on Form</TableCell>
-                                        </TableRow>
-                                        <TableRow>
-                                            <TableCell className="font-medium w-36 pl-0">Calf Raise</TableCell>
-                                            <TableCell>3 x 8</TableCell>
-                                        </TableRow>
+                                        {sessionDetails && sessionDetails.workout.workout_exercises.map((exercise) => (
+                                            <TableRow key={exercise.id}>
+                                                <TableCell className="font-medium w-36 pl-0">{exercise.exercise.name}</TableCell>
+                                                <TableCell>{`${exercise.sets} x ${exercise.reps}`}</TableCell>
+                                                <TableCell>{exercise.note || ''}</TableCell>
+                                            </TableRow>
+                                        ))}
                                     </TableBody>
                                 </Table>
                             </div>
