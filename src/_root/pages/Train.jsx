@@ -68,11 +68,15 @@ const Train = () => {
                 return apiClient.get('/get_active_program/'); 
             })
             .then(response => {
-                
                 setActiveProgram(response.data);
+                return apiClient.get('/current_workout/');
+            })
+            .then(response => {
+                setCurrentWorkout(response.data);
             })
             .catch(error => {
                 console.error('Error fetching data:', error);
+                setCurrentWorkout(null)
         });
         
     }
@@ -84,6 +88,7 @@ const Train = () => {
         console.log(selectedProgram);
       };
     const [userPrograms, setUserPrograms] = useState([])
+    const [currentWorkout, setCurrentWorkout] = useState(null);
     
 
 
@@ -96,6 +101,16 @@ const Train = () => {
             console.error('Error fetching data:', error);
         });
     }, []);
+
+    useEffect(() => {
+        apiClient.get('/current_workout/') // Make sure the endpoint matches your Django URL configuration
+        .then(response => {
+            setCurrentWorkout(response.data)
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
+    }, [activeProgram]);
 
     
     useEffect(() => {
@@ -133,7 +148,7 @@ const Train = () => {
                                         {userPrograms.map((program) => (
                                         <div
                                             key={program.id}
-                                            className={`p-4 ${selectedProgram === program.id ? 'bg-secondary' : 'bg-background'}`}
+                                            className={`p-4 rounded ${selectedProgram === program.id ? 'bg-secondary' : 'bg-background'}`}
                                             onClick={() => handleProgramClick(program.id)}
                                         >
                                             <h1>{program.name}</h1>
@@ -150,8 +165,11 @@ const Train = () => {
                             
                             
                             <div className='flex items-center justify-between pr-2'>
+                                {currentWorkout?
                                 <h1 className='font-semibold text-lg'>Lower Body 1</h1>
-                                <div className=''>
+                                :<h1>No Current Workout</h1>
+                                }
+                                <div>
                                     <Popover>
                                         <PopoverTrigger><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
                                         <PopoverContent>Place content for the popover here.</PopoverContent>
@@ -168,24 +186,13 @@ const Train = () => {
                                 </TableRow>
                                 </TableHeader>
                                 <TableBody >
-                                    <TableRow>
-                                        <TableCell className="font-medium w-36 pl-0">Back Squat</TableCell>
-                                        <TableCell>5 x 5</TableCell>
-                                        <TableCell>Build up to a heavy top set</TableCell>
+                                {currentWorkout && currentWorkout.workout_exercises.map((exercise) => (
+                                    <TableRow key={exercise.id}>
+                                        <TableCell className="font-medium w-36 pl-0">{exercise.exercise.name}</TableCell>
+                                        <TableCell>{`${exercise.sets} x ${exercise.reps}`}</TableCell>
+                                        <TableCell>{exercise.note || ''}</TableCell>
                                     </TableRow>
-                                    <TableRow>
-                                        <TableCell className="font-medium w-48 pl-0">Romanian Deadlift</TableCell>
-                                        <TableCell>5 x 5</TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                        <TableCell className="font-medium w-36 pl-0">Split Squat</TableCell>
-                                        <TableCell>3 x 8</TableCell>
-                                        <TableCell>Focus on Form</TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                        <TableCell className="font-medium w-36 pl-0">Calf Raise</TableCell>
-                                        <TableCell>3 x 8</TableCell>
-                                    </TableRow>
+                                ))}
                                 </TableBody>
                             </Table>
                         </div>
