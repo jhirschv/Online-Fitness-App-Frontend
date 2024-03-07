@@ -18,53 +18,7 @@ import {
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 
-const events = [
-  { date: '2024-03-10', name: 'Lower Body 1' },
-  { date: '2024-03-15', name: 'Upper Body 2' },
-  // Add more events as needed
-];
 
-// Convert event dates from string to Date objects for comparison
-const eventDates = events.map(event => new Date(event.date + 'T00:00:00'));
-
-const CustomDay = ({ date, displayMonth, ...props }) => {
-  const dateString = date.toISOString().split('T')[0];
-  const event = events.find(event => event.date === dateString);
-
-  // Custom rendering for dates with events
-  if (event) {
-    return (
-        <AlertDialog>
-          <AlertDialogTrigger>
-            <div {...props} className="flex flex-col items-center">
-              <div onClick={() => console.log(activeModifiers)}>{date.getDate()}</div>
-              <div className="text-xs mt-1 rounded bg-blue-100 text-blue-800 px-2">
-                {event.name}
-            </div></div></AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete your account
-                and remove your data from our servers.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction>Continue</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-    );
-  }
-
-  // Fallback to default rendering for dates without events
-  return (
-    <div {...props} className="day-cell">
-      {date.getDate()}
-    </div>
-  );
-};
 
 function Calendar({
   className,
@@ -72,8 +26,47 @@ function Calendar({
   showOutsideDays = true,
   ...props
 }) {
+
+  const [selectedEvent, setSelectedEvent] = React.useState(null);
+
+  // Handler to open the dialog for a specific event
+  const handleOpenDialog = (event) => {
+    setSelectedEvent(event);
+  };
+
+  const events = [
+    { date: '2024-03-10', name: 'Lower Body 1' },
+    { date: '2024-03-15', name: 'Upper Body 2' },
+    // Add more events as needed
+  ];
+
+  
+  const CustomDay = ({ date, activeModifiers, displayMonth, ...props }) => {
+    const dateString = date.toISOString().split('T')[0];
+    const event = events.find(event => event.date === dateString);
+  
+    // Custom rendering for dates with events
+    if (event) {
+      return (
+              <div {...props} className="flex flex-col items-center"  onClick={() => handleOpenDialog(event)}>
+                <div>{date.getDate()}</div>
+                <div className="text-xs mt-1 rounded bg-blue-100 text-blue-800 px-2">
+                  {event.name}
+              </div></div>
+      );
+    }
+  
+    // Fallback to default rendering for dates without events
+    return (
+      <div {...props} className="day-cell">
+        {date.getDate()}
+      </div>
+    );
+  };
+
   return (
-    (<DayPicker
+    (<>
+    <DayPicker
       showOutsideDays={showOutsideDays}
       className={cn("p-3", className)}
       classNames={{
@@ -115,7 +108,27 @@ function Calendar({
         IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" />,
         IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" />,
       }}
-      {...props} />)
+      {...props} />
+      {selectedEvent && (
+        <AlertDialog open={Boolean(selectedEvent)} onOpenChange={() => setSelectedEvent(null)}>
+          <AlertDialogTrigger asChild>
+            {/* This is now just a placeholder; the actual trigger is handled by the day clicks */}
+            <button style={{display: "none"}}></button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{selectedEvent.name}</AlertDialogTitle>
+              <AlertDialogDescription>
+                Event details for {selectedEvent.date}.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setSelectedEvent(null)}>Close</AlertDialogCancel>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
+      </>)
   );
 }
 Calendar.displayName = "Calendar"
