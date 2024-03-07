@@ -48,12 +48,14 @@ function Calendar({
     // Custom rendering for dates with events
     if (event) {
       return (
-              <div {...props} className="flex flex-col items-center" >
-                <div>{date.getDate()}</div>
-                <div  onClick={() => handleOpenDialog(event)} className="text-xs mt-1 rounded bg-blue-100 text-blue-800 px-2">
-                  {event.name}
-                </div>
-              </div>
+        <div {...props} className="flex flex-col items-center justify-center h-full relative">
+        <div className="flex items-center justify-center">
+          <span>{date.getDate()}</span>
+        </div>
+        <div onClick={() => handleOpenDialog(event)} className="absolute bottom-1 text-xs px-2">
+          {event.name}
+        </div>
+      </div>
       );
     }
   
