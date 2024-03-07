@@ -1,10 +1,70 @@
 "use client";
 import * as React from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { DayPicker } from "react-day-picker"
+import { DayPicker, useActiveModifiers } from "react-day-picker"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+
 
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
+
+const events = [
+  { date: '2024-03-10', name: 'Lower Body 1' },
+  { date: '2024-03-15', name: 'Upper Body 2' },
+  // Add more events as needed
+];
+
+// Convert event dates from string to Date objects for comparison
+const eventDates = events.map(event => new Date(event.date + 'T00:00:00'));
+
+const CustomDay = ({ date, displayMonth, ...props }) => {
+  const dateString = date.toISOString().split('T')[0];
+  const event = events.find(event => event.date === dateString);
+
+  // Custom rendering for dates with events
+  if (event) {
+    return (
+        <AlertDialog>
+          <AlertDialogTrigger>
+            <div {...props} className="flex flex-col items-center">
+              <div onClick={() => console.log(activeModifiers)}>{date.getDate()}</div>
+              <div className="text-xs mt-1 rounded bg-blue-100 text-blue-800 px-2">
+                {event.name}
+            </div></div></AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete your account
+                and remove your data from our servers.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction>Continue</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+    );
+  }
+
+  // Fallback to default rendering for dates without events
+  return (
+    <div {...props} className="day-cell">
+      {date.getDate()}
+    </div>
+  );
+};
 
 function Calendar({
   className,
@@ -51,6 +111,7 @@ function Calendar({
         ...classNames,
       }}
       components={{
+        DayContent: CustomDay,
         IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" />,
         IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" />,
       }}
