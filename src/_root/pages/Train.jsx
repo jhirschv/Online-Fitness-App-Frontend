@@ -55,6 +55,15 @@ const Train = () => {
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
     const navigate = useNavigate();
 
+    const [date, setDate] = React.useState(new Date())
+    const [activeProgram, setActiveProgram] = useState(null)
+    const [selectedProgram, setSelectedProgram] = useState(null)
+    const [userPrograms, setUserPrograms] = useState([])
+    const [currentWorkout, setCurrentWorkout] = useState(null);
+    const [phasesDetails, setPhasesDetails] = useState([]);
+    const [selectedWorkout, setSelectedWorkout] = useState(null);
+    const [isSheetOpen, setIsSheetOpen] = useState(false);
+
     function startTrainingSession() {
         navigate('/workoutSession')
     }
@@ -116,9 +125,7 @@ const Train = () => {
             console.error('Failed to update workout progress:', error);
             // Handle error appropriately
         }
-    };
-    
-    
+    }
     function handleSelectedWorkout(data) {
         setSelectedWorkout(data)
         console.log(data)
@@ -132,7 +139,7 @@ const Train = () => {
         .catch(error => {
             console.error('Error fetching data:', error);
         });
-    };
+    }
     const handleSheetOpenChange = (open) => {
         setIsSheetOpen(open);
 
@@ -140,30 +147,23 @@ const Train = () => {
         if (!open) {
             setSelectedWorkout(null);
         }
-    };
-
-    const [date, setDate] = React.useState(new Date())
-    const [activeProgram, setActiveProgram] = useState(null)
-    const [selectedProgram, setSelectedProgram] = useState(null)
-    const [userPrograms, setUserPrograms] = useState([])
-    const [currentWorkout, setCurrentWorkout] = useState(null);
-    const [phasesDetails, setPhasesDetails] = useState([]);
-    const [selectedWorkout, setSelectedWorkout] = useState(null);
-    const [isSheetOpen, setIsSheetOpen] = useState(false);
+    }
 
     useEffect(() => {
-        // Directly using apiClient to fetch data
-        const fetchData = async () => {
-        try {
-            const response = await apiClient.get(`phase_details/1/`);
-            setPhasesDetails(response.data);
-        } catch (error) {
-            console.error('Error fetching phases and workouts:', error);
-            // Optionally handle the error, e.g., updating state to show an error message
+        if (activeProgram) { // Check if activeProgram is not null
+            const fetchData = async () => {
+                try {
+                    const programId = activeProgram.id; // Assuming activeProgram contains an id field
+                    const response = await apiClient.get(`phase_details/${programId}/`);
+                    setPhasesDetails(response.data);
+                } catch (error) {
+                    console.error('Error fetching phases and workouts:', error);
+                }
+            };
+            fetchData();
         }
-        };
-        fetchData();
-    }, []); // This effect depends on programId   
+    }, [activeProgram]);
+     // This effect depends on programId   
     useEffect(() => {
         apiClient.get('/get_active_program/') // Make sure the endpoint matches your Django URL configuration
         .then(response => {
@@ -173,9 +173,11 @@ const Train = () => {
             console.error('Error fetching data:', error);
         });
     }, []);
+
     useEffect(() => {
         fetchCurrentWorkout();
     }, [activeProgram]);
+
     useEffect(() => {
         apiClient.get('/user_programs/') // Make sure the endpoint matches your Django URL configuration
         .then(response => {
