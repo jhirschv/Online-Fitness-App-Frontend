@@ -19,7 +19,7 @@ const SideBar = () => {
                 <AvatarImage src="https://github.com/shadcn.png" />
                 <AvatarFallback>CN</AvatarFallback>
               </Avatar>
-              Profile
+              Account
             </li>
           </NavLink>
 
@@ -36,11 +36,11 @@ const SideBar = () => {
               Programs
             </li>
           </NavLink>
-         
-          <NavLink to='/clients'> 
+
+          <NavLink  to="/">
             <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md transition duration-150 ease-in-out">
-              <FontAwesomeIcon className="mr-3" icon={faUserGroup} />
-              Clients
+              <FontAwesomeIcon className="mr-3" icon={faDumbbell} />
+              Workouts
             </li>
           </NavLink>
 
@@ -50,18 +50,18 @@ const SideBar = () => {
               Progress
             </li>
           </NavLink>
+         
+          {/* <NavLink to='/clients'> 
+            <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md transition duration-150 ease-in-out">
+              <FontAwesomeIcon className="mr-3" icon={faUserGroup} />
+              Friends
+            </li>
+          </NavLink> */}
 
           <NavLink to='/Chat'> 
             <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md transition duration-150 ease-in-out">
               <FontAwesomeIcon className="mr-3" icon={faComments} />
-              Chat
-            </li>
-          </NavLink>
-          
-          <NavLink to='/settings'> 
-            <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md transition duration-150 ease-in-out">
-              <FontAwesomeIcon className="mr-3" icon={faGear} />
-              Settings
+              Messages
             </li>
           </NavLink>
           

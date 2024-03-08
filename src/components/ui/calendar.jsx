@@ -2,6 +2,8 @@
 import * as React from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { DayPicker, useActiveModifiers } from "react-day-picker"
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -48,12 +50,12 @@ function Calendar({
     // Custom rendering for dates with events
     if (event) {
       return (
-        <div {...props} className="flex flex-col items-center justify-center h-full relative">
+        <div {...props} className="flex flex-col items-center justify-center h-full w-full relative bg-accent rounded-md">
         <div className="flex items-center justify-center">
           <span>{date.getDate()}</span>
         </div>
-        <div onClick={() => handleOpenDialog(event)} className="absolute bottom-1 text-xs px-2">
-          {event.name}
+        <div onClick={() => handleOpenDialog(event)} className="absolute top-2 right-1 text-xs px-2">
+          <FontAwesomeIcon size='lg' icon={faCheck} />
         </div>
       </div>
       );
