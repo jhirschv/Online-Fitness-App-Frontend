@@ -16,7 +16,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import Create from './_root/pages/Create';
 import ProgramDetails from './_root/removedPages/ProgramDetails';
 import PhaseDetails from './_root/pages/Workouts';
-import WorkoutDetails from './_root/pages/WorkoutDetails';
+import WorkoutDetails from './_root/removedPages/WorkoutDetails';
 import ProgramOverview from './_root/pages/ProgramOverview';
 import WorkoutSession from './_root/pages/WorkoutSession';
 
