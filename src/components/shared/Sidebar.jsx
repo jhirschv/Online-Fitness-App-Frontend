@@ -13,7 +13,7 @@ const SideBar = () => {
       <div className="w-5/6">
         <ul className="flex flex-col gap-1">
 
-          <NavLink>
+          <NavLink to='/account'>
             <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md transition duration-300 ease-in-out">
               <Avatar className="mr-3">
                 <AvatarImage src="https://github.com/shadcn.png" />
@@ -37,7 +37,7 @@ const SideBar = () => {
             </li>
           </NavLink>
 
-          <NavLink  to="/">
+          <NavLink  to="/workouts">
             <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md transition duration-150 ease-in-out">
               <FontAwesomeIcon className="mr-3" icon={faDumbbell} />
               Workouts

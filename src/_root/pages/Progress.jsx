@@ -17,8 +17,8 @@ const Progress = () => {
 
     return (
         <div className={`w-full h-full ${backgroundColorClass} border rounded-lg p-4`}>
-            <Card className='h-full w-full flex flex-col items-center'>
-                Progress
+            <Card className='h-full w-full flex flex-col justify-center items-center'>
+                <p>Progress</p>
             </Card>
         </div>
     )

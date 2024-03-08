@@ -17,8 +17,8 @@ const Chat = () => {
 
     return (
         <div className={`w-full ${backgroundColorClass} border rounded-lg p-4`}>
-            <Card className='h-full w-full flex flex-col items-center'>
-                Chat
+            <Card className='h-full w-full flex flex-col justify-center items-center'>
+                <p>Chat</p>
             </Card>
         </div>
     )
