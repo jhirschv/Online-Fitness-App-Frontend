@@ -62,6 +62,21 @@ const Create = () => {
     const [visibleTextareas, setVisibleTextareas] = useState({});
     const [phase, setPhase] = useState({});
     const [editMode, setEditMode] = useState(true)
+    const [newExercise, setNewExercise] = useState("")
+
+    let createNewExercise = () => {
+
+        if (newExercise.trim()) {
+            apiClient.post('/exercises/', { name: newExercise })
+            .then(response => {
+                console.log(response)
+                setNewExercise("");
+                fetchExercises()
+            })
+
+            .catch(error => console.log('Error', error))
+        }
+}
     
 
     const { phaseId, workoutId } = useParams();
@@ -318,6 +333,17 @@ const Create = () => {
             </div>
             {editMode ? 
             <div className='flex-1 flex-col'>
+                <Card className='mb-2'>
+                    <CardHeader className='pt-4 pb-0 px-4 '>
+                        <CardTitle className='text-lg'>
+                            Create New Exercise
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className='flex gap-1 px-4 py-3'>
+                        <Input value={newExercise} onChange={(event) => setNewExercise(event.target.value)} placeholder="Exercise name" className="py-4" />
+                        <Button onClick={() => createNewExercise()}variant="outline">Create</Button>
+                    </CardContent>
+                </Card>
                 <div className="relative mb-2">
                   <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input placeholder="Search" className="pl-8" />
@@ -325,7 +351,7 @@ const Create = () => {
                 
                 <ScrollArea className="h-96 w-full rounded-md border bg-background">
                     <div className="p-4">
-                        <h4 className="mb-4 text-xl font-bold leading-none">Add Exercises</h4>
+                        <h4 className="mb-4 text-lg font-bold leading-none">Add Exercises</h4>
                         {exercises.map((exercise)=> {
                             return (
                                 <div onClick={() => clickToAddExercise(exercise)} key={exercise.name}>
@@ -336,6 +362,7 @@ const Create = () => {
                         })}
                     </div>
                 </ScrollArea> 
+                
 
             </div>
             : <></> }
