@@ -25,7 +25,7 @@ import {
   } from "@/components/ui/card"
   import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
   import { faArrowLeft, faXmark, faAngleLeft, faCircleChevronLeft, faPenToSquare, faEllipsis, faFileVideo } from '@fortawesome/free-solid-svg-icons';
-  import { faCircleLeft } from '@fortawesome/free-regular-svg-icons';
+  import { faCircleLeft, faSquarePlus } from '@fortawesome/free-regular-svg-icons';
 
   import {
     Select,
@@ -48,6 +48,7 @@ import {
   import { useTheme } from '@/components/theme-provider';
   import { Textarea } from "@/components/ui/textarea"
   import { Label } from "@/components/ui/label"
+  import { useRef } from 'react';
 
 
   
@@ -63,6 +64,65 @@ const Create = () => {
     const [phase, setPhase] = useState({});
     const [editMode, setEditMode] = useState(true)
     const [newExercise, setNewExercise] = useState("")
+    const [urlInputs, setUrlInputs] = useState({});
+
+    const handleUrlInputChange = (id, value) => {
+        setUrlInputs(prevInputs => ({
+            ...prevInputs,
+            [id]: value
+        }));
+    };
+
+    const fileInputRef = useRef(null);
+
+    const handleButtonClick = () => {
+        fileInputRef.current.click(); // Trigger hidden file input click event
+    };
+
+    const fetchWorkoutExercises = () => {
+        apiClient.get(`/workouts/${workoutId}/`)
+            .then(response => {
+                setWorkoutExercises(response.data.workout_exercises)
+                console.log(response.data.workout_exercises)
+                })
+            
+            .catch(error => console.error('Error:', error))
+    }
+
+    const handleVideoChange = (exerciseId, file) => {
+        const formData = new FormData();
+        formData.append('video', file);
+
+        apiClient.patch(`/workout_exercises/${exerciseId}/`, formData)
+            .then(response => {
+                console.log(response)
+            })
+
+        .catch(error => console.log('Error', error))
+    }
+
+    const handleUrl = (exerciseId, url) => {
+
+        const extractVideoID = (url) => {
+            const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\/\?]+)/;
+            const matches = url.match(regex);
+            return matches ? matches[1] : null;
+        };
+    
+        const videoID = extractVideoID(url);
+    
+        if (videoID) {
+
+        apiClient.patch(`/exercises/${exerciseId}/`, {video: videoID})
+            .then(response => {
+                console.log(response)
+                fetchWorkoutExercises()
+
+            })
+
+        .catch(error => console.log('Error', error))
+    }
+}
 
     let createNewExercise = () => {
 
@@ -77,13 +137,10 @@ const Create = () => {
             .catch(error => console.log('Error', error))
         }
 }
-    
 
     const { phaseId, workoutId } = useParams();
     let location = useLocation();
     let program = location.state.program;
-
-    
 
     useEffect(() => {
         apiClient.get(`/workouts/${workoutId}/`)
@@ -105,25 +162,6 @@ const Create = () => {
             .catch(error => console.error('Error:', error));
         }, [workoutId]);
 
-
-    function createWorkoutExercise(exerciseId) {
-        const newWorkoutExercise = {
-            exercise_id: exerciseId,
-            sets: null,
-            reps: null,
-            note: "",
-            video: null,
-            workout: workoutId, 
-        };
-
-        apiClient.put(`/workout_exercises/6/`, newWorkoutExercise) 
-        .then(response => {
-            console.log('Workout updated successfully:', response.data);
-        })
-        .catch(error => {
-            console.error('Failed to update workout:', error);
-        });
-    }
     
     const handleSetsChange = (exerciseId, newSets) => {
         const updatedExercises = workoutExercises.map(exerciseDetail => {
@@ -144,6 +182,18 @@ const Create = () => {
         });
         setWorkoutExercises(updatedExercises);
       };
+
+    /* const handleVideoChange = (exerciseId, newVideo) => {
+        const updatedExercises = workoutExercises.map(exerciseDetail => {
+          if (exerciseDetail.exercise.id === exerciseId) {
+            return { ...exerciseDetail, video: newVideo };
+          }
+          return exerciseDetail;
+        });
+        setWorkoutExercises(updatedExercises);
+      }; */
+
+
     
     function updateWorkout() {
         console.log(workoutExercises)
@@ -208,7 +258,7 @@ const Create = () => {
     }
 
     let workoutExerciseList = workoutExercises.map(exerciseDetail => {
-        const { exercise, sets, reps } = exerciseDetail;
+        const { id, exercise, sets, reps } = exerciseDetail;
         return (
             <Card key={exercise.id} className='relative mt-1 mb-1 mr-3'> 
             {editMode ? 
@@ -219,8 +269,43 @@ const Create = () => {
                 </Popover>
             </div> : <></>}
             {editMode ?
-            <CardContent className="h-20 py-4 flex justify-between items-center">
-                <p className='w-1/4 font-semibold'>{exercise.name}</p>
+            <CardContent className="p-0 h-20 py-4 pl-2 pr-4 flex justify-between items-center">
+                {exercise.video ? 
+                <div className='h-16 w-16'>
+                    <Popover>
+                        <PopoverTrigger>
+                        <img
+                            src={`https://img.youtube.com/vi/${exercise.video}/maxresdefault.jpg`}
+                            alt="Video Thumbnail"
+                            className="object-cover rounded-md cursor-pointer w-16 h-16"
+                        />
+                        </PopoverTrigger>
+                        <PopoverContent className='flex justify-center items-center fixed inset-0 z-50 m-auto w-[580px] h-[350px]'>
+                        <iframe
+                            width="560"
+                            height="315"
+                            src={`https://www.youtube.com/embed/${exercise.video}`}
+                            title="YouTube video player"
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen>
+                        </iframe>
+                        </PopoverContent>
+                    </Popover>
+                </div> :
+                <div className='flex justify-center items-center h-16 w-16'>
+                <Popover>
+                    <PopoverTrigger><FontAwesomeIcon size='2xl' icon={faSquarePlus} /></PopoverTrigger>
+                    <PopoverContent className='flex items-center w-[auto]'>
+                        <Label className='mr-2'>url:</Label>
+                        <Input value={urlInputs[exercise.id] || ''} onChange={(e) => handleUrlInputChange(exercise.id, e.target.value)}
+                        className='h-8 rounded-r-none w-48 focus:outline-none focus:ring-0 ' placeholder="Youtube URL"/>
+                        <Button onClick={() => handleUrl(exercise.id, urlInputs[exercise.id])} variant='outline' className='h-8 mr-2 rounded-l-none'>Upload</Button>
+                    </PopoverContent>
+                </Popover>
+                </div> 
+                }
+                <p className='w-1/4 ml-2 font-semibold'>{exercise.name}</p>
 
                  
                 <div className='flex items-center ml-10'>
@@ -243,6 +328,17 @@ const Create = () => {
                             <SelectItem value="8">8</SelectItem>
                             <SelectItem value="9">9</SelectItem>
                             <SelectItem value="10">10</SelectItem>
+                            <SelectItem value="10">10</SelectItem>
+                            <SelectItem value="11">11</SelectItem>
+                            <SelectItem value="12">12</SelectItem>
+                            <SelectItem value="13">13</SelectItem>
+                            <SelectItem value="14">14</SelectItem>
+                            <SelectItem value="15">15</SelectItem>
+                            <SelectItem value="16">16</SelectItem>
+                            <SelectItem value="17">17</SelectItem>
+                            <SelectItem value="18">18</SelectItem>
+                            <SelectItem value="19">19</SelectItem>
+                            <SelectItem value="20">20</SelectItem>
                         </SelectGroup>
                     </SelectContent>
                 </Select>
@@ -266,19 +362,50 @@ const Create = () => {
                             <SelectItem value="8">8</SelectItem>
                             <SelectItem value="9">9</SelectItem>
                             <SelectItem value="10">10</SelectItem>
+                            <SelectItem value="11">11</SelectItem>
+                            <SelectItem value="12">12</SelectItem>
+                            <SelectItem value="13">13</SelectItem>
+                            <SelectItem value="14">14</SelectItem>
+                            <SelectItem value="15">15</SelectItem>
+                            <SelectItem value="16">16</SelectItem>
+                            <SelectItem value="17">17</SelectItem>
+                            <SelectItem value="18">18</SelectItem>
+                            <SelectItem value="19">19</SelectItem>
+                            <SelectItem value="20">20</SelectItem>
                         </SelectGroup>
                     </SelectContent>
                 </Select> 
                 </div>     
                  
-                <div className='flex flex-col'>
+                <div className='flex flex-col mr-6'>
                     <FontAwesomeIcon onClick={() => {setVisibleTextareas(prev => ({...prev, [exercise.id]: !prev[exercise.id]}))}} size='lg' icon={faPenToSquare} />
                     <p className='text-xs mt-1'>Add Note</p>
-                </div>   
-                <div className='flex flex-col mr-2'>
-                    <FontAwesomeIcon size="lg"icon={faFileVideo} />   
+                </div> 
+                  
+                {/* <div className='flex flex-col mr-2'>
+                <Popover>
+                    <PopoverTrigger><FontAwesomeIcon size="lg"icon={faFileVideo} /></PopoverTrigger>
+                    <PopoverContent className='flex items-center w-[auto]'>
+                        <Label className='mr-2'>url:</Label>
+                        <Input  className='h-8 rounded-r-none w-48 focus:outline-none focus:ring-0 ' placeholder="Youtube url"/>
+                        <Button variant='outline' className='h-8 mr-2 rounded-l-none'>Upload</Button>
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={(event) => {
+                                const file = event.target.files[0]; 
+                                if (file) {
+                                    handleVideoChange(id, file); 
+                                }
+                            }}
+                            accept="video/*"
+                            style={{ display: 'none' }} // Hide the file input
+                        />
+                        <Button className='h-8' onClick={handleButtonClick}>Photo Gallary</Button>
+                    </PopoverContent>
+                </Popover> 
                     <p className='text-xs mt-1'>Add Video</p>
-                </div>
+                </div> */}
                         
             </CardContent>
             : 
