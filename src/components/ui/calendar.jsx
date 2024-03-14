@@ -19,6 +19,7 @@ import {
 
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
+import apiClient from '../../services/apiClient';
 
 
 
@@ -26,10 +27,13 @@ function Calendar({
   className,
   classNames,
   showOutsideDays = true,
+  onDataReceive,
+
   ...props
 }) {
 
   const [selectedEvent, setSelectedEvent] = React.useState(null);
+  const [userWorkoutSessions, setUserWorkoutSessions] = React.useState([])
 
   // Handler to open the dialog for a specific event
   const handleOpenDialog = (event) => {
@@ -42,29 +46,43 @@ function Calendar({
     // Add more events as needed
   ];
 
+  React.useEffect(() => {
+    apiClient.get('/user_workout_sessions/')
+        .then(response => {
+            setUserWorkoutSessions(response.data)
+            })
+        
+        .catch(error => console.error('Error:', error));
+    }, []);
+  
+    const sendDataToParent = (childData) => {
+      onDataReceive(childData);
+    };
+
   
   const CustomDay = ({ date, activeModifiers, displayMonth, ...props }) => {
     const dateString = date.toISOString().split('T')[0];
-    const event = events.find(event => event.date === dateString);
+    const dayData = userWorkoutSessions.find(workout => workout.date.split('T')[0] === dateString);
   
-    // Custom rendering for dates with events
-    if (event) {
+    // Custom rendering for dates with dayDatas
+    if (dayData) {
       return (
-        <div {...props} className="flex flex-col items-center justify-center h-full w-full relative bg-accent rounded-md">
-        <div className="flex items-center justify-center">
-          <span>{date.getDate()}</span>
-        </div>
-        <div onClick={() => handleOpenDialog(event)} className="absolute top-2 right-1 text-xs px-2">
-          <FontAwesomeIcon size='lg' icon={faCheck} />
-        </div>
+        <div onClick={() => sendDataToParent(dayData)} {...props} className={`flex flex-col items-center justify-center h-full w-full relative ${activeModifiers.selected? "bg-primary" : "bg-accent"} rounded-md`}>
+          <div className="flex items-center justify-center">
+            <span>{date.getDate()}</span>
+          </div>
+          <div onClick={() => handleOpenDialog(dayData)} className="absolute top-2 right-1 text-xs px-2">
+            <FontAwesomeIcon size='lg' icon={faCheck} />
+          </div>
       </div>
       );
     }
   
     // Fallback to default rendering for dates without events
     return (
-      <div {...props} className="day-cell">
-        {date.getDate()}
+      <div {...props} className={`day-cell items-center justify-center`}>
+        <p className="relative">{date.getDate()}</p>
+        {activeModifiers.today? <div className="text-xs absolute bottom-3 right-8">Today</div> : <></>}
       </div>
     );
   };
@@ -91,15 +109,15 @@ function Calendar({
         head_cell:
           "text-muted-foreground rounded-md w-24 font-normal text-[0.8rem]",
         row: "flex w-full mt-2",
-        cell: "h-[4.5rem] w-24 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+        cell: "rounded-md h-[4.5rem] w-24 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
         day: cn(
           buttonVariants({ variant: "ghost" }),
           "h-[4.5rem] w-24 p-0 font-normal aria-selected:opacity-100"
         ),
         day_range_end: "day-range-end",
         day_selected:
-          "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-        day_today: "bg-accent text-accent-foreground",
+          "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:rounded-md focus:text-primary-foreground",
+        day_today: "bg-primary text-accent-foreground",
         day_outside:
           "day-outside text-muted-foreground opacity-50 aria-selected:bg-accent/50 aria-selected:text-muted-foreground aria-selected:opacity-30",
         day_disabled: "text-muted-foreground opacity-50",

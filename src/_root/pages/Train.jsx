@@ -63,10 +63,37 @@ const Train = () => {
     const [phasesDetails, setPhasesDetails] = useState([]);
     const [selectedWorkout, setSelectedWorkout] = useState(null);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
+    const [userWorkoutSessions, setUserWorkoutSessions] = useState([])
+    const [dayData, setDayData] = useState({});
+    const [displayCurrentWorkout, setDisplayCurrentWorkout] = useState(true);
 
-    function startTrainingSession() {
-        navigate('/workoutSession')
+    const handleDayData = (dayData) => {
+        console.log('Sending event data to parent:', dayData)
+        setDayData(dayData)
+        if (Object.keys(dayData).length > 0) {
+            setDisplayCurrentWorkout(false); // Display dayData if there's data for the clicked day
+        } else {
+            setDisplayCurrentWorkout(true); // Fallback to current workout display
+        }
     }
+
+    const handleSelect = (newDate) => {
+      setDate(newDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+    
+      // Create a new Date object from newDate and strip time for comparison
+      const selectedDate = new Date(newDate);
+      selectedDate.setHours(0, 0, 0, 0);
+    
+      // Compare dates to check if the selected date is today
+      if (selectedDate.getTime() === today.getTime()) {
+        setDisplayCurrentWorkout(true);
+      } else {
+        setDisplayCurrentWorkout(false);
+      }
+    };
+
     function updateActiveProgram(selectedProgram) {
             const payload = {
                 program_id: selectedProgram, 
@@ -98,8 +125,6 @@ const Train = () => {
             .then(response => {
                 console.log(response.data);
                 navigate(`/workoutSession/${response.data.session_id}`);
-                // Optionally, fetch the newly started workout session details
-                // and update the UI accordingly
             })
             .catch(error => {
                 console.error('Error starting workout session:', error);
@@ -134,7 +159,7 @@ const Train = () => {
         apiClient.get('/current_workout/') // Make sure the endpoint matches your Django URL configuration
         .then(response => {
             setCurrentWorkout(response.data);
-            console.log(response.data);
+            setDisplayCurrentWorkout(true);
         })
         .catch(error => {
             console.error('Error fetching data:', error);
@@ -148,6 +173,15 @@ const Train = () => {
             setSelectedWorkout(null);
         }
     }
+
+    useEffect(() => {
+        apiClient.get('/user_workout_sessions/')
+            .then(response => {
+                setUserWorkoutSessions(response.data)
+                })
+            
+            .catch(error => console.error('Error:', error));
+        }, []);
 
     useEffect(() => {
         if (activeProgram) { // Check if activeProgram is not null
@@ -187,6 +221,64 @@ const Train = () => {
             console.error('Error fetching data:', error);
         });
     }, []);
+
+    const renderWorkoutDetails = (workout) => {
+        return (
+            <>
+                <div className='flex items-center justify-between pr-2'>
+                    <h1 className='font-semibold text-lg'>{workout.name}</h1>
+                    <div>
+                        <Popover>
+                            <PopoverTrigger><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
+                            <PopoverContent>Place content for the popover here.</PopoverContent>
+                        </Popover>
+                    </div>
+                </div>
+
+                <Table className='h-full'>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="w-[100px] pl-0">Exercise</TableHead>
+                            <TableHead>Sets x Reps</TableHead>
+                            <TableHead>Note</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {workout.workout_exercises.map((exercise) => (
+                            <TableRow key={exercise.id}>
+                                <TableCell className="font-medium w-36 pl-0">{exercise.exercise.name}</TableCell>
+                                <TableCell>{`${exercise.sets} x ${exercise.reps}`}</TableCell>
+                                <TableCell>{exercise.note || ''}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </>
+        );
+    };
+
+    const renderWorkoutSessionDetails = (workout) => {
+
+        const workoutDate = new Date(workout.date);
+
+        // Format the date
+        const formattedDate = workoutDate.toLocaleDateString('en-US', {
+            year: 'numeric', // "2024"
+            month: 'long', // "March"
+            day: 'numeric', // "8"
+        });
+        
+        return (
+        <>
+                <div className='flex items-center justify-between pr-2'>
+                    <h1 className='font-semibold text-lg'>{workout.workout.name}</h1>
+                    <h1>{formattedDate}</h1>
+                    <h1>Completed: {workout.completed.toString()}</h1>
+                
+                </div>
+            </>
+        )
+    }
    
 
     return (
@@ -224,38 +316,12 @@ const Train = () => {
                                 </Sheet>
                             </div>
                             
-                            
-                            <div className='flex items-center justify-between pr-2'>
-                                {currentWorkout?
-                                <h1 className='font-semibold text-lg'>{currentWorkout.name}</h1>
-                                :<h1>No Current Workout</h1>
-                                }
-                                <div>
-                                    <Popover>
-                                        <PopoverTrigger><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
-                                        <PopoverContent>Place content for the popover here.</PopoverContent>
-                                    </Popover>
-                                </div>
+                            <div>
+                                {displayCurrentWorkout && currentWorkout ? renderWorkoutDetails(currentWorkout) :
+                                !displayCurrentWorkout && dayData ? renderWorkoutSessionDetails(dayData) :
+                                <h1>No Workout Selected</h1>}
                             </div>
-                        
-                            <Table className='h-full'>
-                                <TableHeader>
-                                <TableRow>
-                                    <TableHead className="w-[100px] pl-0">Exercise</TableHead>
-                                    <TableHead>Sets x Reps</TableHead>
-                                    <TableHead>Note</TableHead>
-                                </TableRow>
-                                </TableHeader>
-                                <TableBody >
-                                {currentWorkout && currentWorkout.workout_exercises.map((exercise) => (
-                                    <TableRow key={exercise.id}>
-                                        <TableCell className="font-medium w-36 pl-0">{exercise.exercise.name}</TableCell>
-                                        <TableCell>{`${exercise.sets} x ${exercise.reps}`}</TableCell>
-                                        <TableCell>{exercise.note || ''}</TableCell>
-                                    </TableRow>
-                                ))}
-                                </TableBody>
-                            </Table>
+                            
                         </div>
                         
                         <div className='mb-6'>
@@ -296,9 +362,10 @@ const Train = () => {
 
                     <div className='flex h-full items-center justify-center basis-3/5'>
                         <Calendar
+                        onDataReceive={handleDayData}
                         mode="single"
                         selected={date}
-                        onSelect={setDate}
+                        onSelect={handleSelect}
                         className="h-[90%] m-4"
                         />
                     </div>
