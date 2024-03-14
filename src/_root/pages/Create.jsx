@@ -66,6 +66,7 @@ const Create = () => {
     const [editMode, setEditMode] = useState(true)
     const [newExercise, setNewExercise] = useState("")
     const [urlInputs, setUrlInputs] = useState({});
+    
 
     const deleteWorkoutExercise = (exercise) => {
         apiClient.delete(`/workout_exercises/${exercise.id}/`)
@@ -194,15 +195,15 @@ const Create = () => {
         setWorkoutExercises(updatedExercises);
       };
 
-    /* const handleVideoChange = (exerciseId, newVideo) => {
+    const handleNoteChange = (exerciseId, note) => {
         const updatedExercises = workoutExercises.map(exerciseDetail => {
           if (exerciseDetail.exercise.id === exerciseId) {
-            return { ...exerciseDetail, video: newVideo };
+            return { ...exerciseDetail, note: note };
           }
           return exerciseDetail;
         });
         setWorkoutExercises(updatedExercises);
-      }; */
+      };
 
 
     
@@ -269,7 +270,7 @@ const Create = () => {
     }
 
     let workoutExerciseList = workoutExercises.map(exerciseDetail => {
-        const { id, exercise, sets, reps } = exerciseDetail;
+        const { id, exercise, sets, reps, note } = exerciseDetail;
         return (
             <Card key={exercise.id} className='relative mt-1 mb-1 mr-3'> 
             {editMode ? 
@@ -308,7 +309,9 @@ const Create = () => {
                 </div> :
                 <div className='flex justify-center items-center h-16 w-16'>
                 <Popover>
-                    <PopoverTrigger><FontAwesomeIcon size='2xl' icon={faSquarePlus} /></PopoverTrigger>
+                    <PopoverTrigger>
+                        <FontAwesomeIcon size='2xl' icon={faSquarePlus} />
+                    </PopoverTrigger>
                     <PopoverContent className='flex items-center w-[auto]'>
                         <Label className='mr-2'>url:</Label>
                         <Input value={urlInputs[exercise.id] || ''} onChange={(e) => handleUrlInputChange(exercise.id, e.target.value)}
@@ -433,7 +436,7 @@ const Create = () => {
             <CardFooter className='p-0'>
                 {visibleTextareas[exercise.id] && 
                 <div className='w-full mb-2 mx-6'>
-                    <Label>Note</Label><Textarea className='min-h-[20px] h-10 overflow-y-auto resize-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-0' spellcheck="false"/>
+                    <Label>Note</Label><Textarea value={note} onChange={(e)  => handleNoteChange(exercise.id, e.target.value)} className='min-h-[20px] h-10 overflow-y-auto resize-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-0' spellCheck="false"/>
                 </div>}
             </CardFooter>                     
         </Card>
