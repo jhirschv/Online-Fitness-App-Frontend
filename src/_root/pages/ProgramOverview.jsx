@@ -306,8 +306,8 @@ const ProgramOverview = () => {
                         </div>
                         {phase && phase.workouts && phase.workouts.length > 0 ? (
                             <Tabs key={defaultTabValue} defaultValue={defaultTabValue} className="w-full rounded-sm">
-                                <div className='flex items-center'>
-                                <TabsList className={'flex w-full'}>
+                                <div className='flex justify-center items-center'>
+                                <TabsList className={'flex w-[95%]  '}>
                                     
                                     {phase && phase.workouts && phase.workouts.map((workout, index)=> (
                                         
