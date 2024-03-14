@@ -66,6 +66,16 @@ const Create = () => {
     const [newExercise, setNewExercise] = useState("")
     const [urlInputs, setUrlInputs] = useState({});
 
+    const deleteWorkoutExercise = (exercise) => {
+        apiClient.delete(`/workout_exercises/${exercise.id}/`)
+            .then(response => {
+                console.log(response)
+                fetchWorkoutExercises()
+            })
+
+        .catch(error => console.log('Error', error))
+    }
+
     const handleUrlInputChange = (id, value) => {
         setUrlInputs(prevInputs => ({
             ...prevInputs,
@@ -265,7 +275,9 @@ const Create = () => {
             <div className='absolute top-2 right-4'>
                 <Popover>
                     <PopoverTrigger><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
-                    <PopoverContent>Place content for the popover here.</PopoverContent>
+                    <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md'>
+                    <Button onClick={() => deleteWorkoutExercise(exerciseDetail)} className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>Delete Exercise</Button>
+                    </PopoverContent>
                 </Popover>
             </div> : <></>}
             {editMode ?
