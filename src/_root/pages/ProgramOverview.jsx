@@ -307,11 +307,11 @@ const ProgramOverview = () => {
                         {phase && phase.workouts && phase.workouts.length > 0 ? (
                             <Tabs key={defaultTabValue} defaultValue={defaultTabValue} className="w-full rounded-sm">
                                 <div className='flex justify-center items-center'>
-                                <TabsList className={'flex w-[95%]  '}>
+                                <TabsList className={'flex w-[95%] rounded-xs bg-muted '}>
                                     
                                     {phase && phase.workouts && phase.workouts.map((workout, index)=> (
                                         
-                                        <TabsTrigger className='flex-1' key={workout.id} value={workout.id}>{workout.name}</TabsTrigger>
+                                        <TabsTrigger className='flex-1 gap-1 rounded-xs' key={workout.id} value={workout.id}>{workout.name}</TabsTrigger>
                                     ))}
                                 </TabsList>
                                 </div>

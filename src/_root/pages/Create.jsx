@@ -49,6 +49,7 @@ import {
   import { Textarea } from "@/components/ui/textarea"
   import { Label } from "@/components/ui/label"
   import { useRef } from 'react';
+  import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 
   
@@ -483,24 +484,47 @@ const Create = () => {
                         <Button onClick={() => createNewExercise()}variant="outline">Create</Button>
                     </CardContent>
                 </Card>
-                <div className="relative mb-2">
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input placeholder="Search" className="pl-8" />
-                </div>
                 
-                <ScrollArea className="h-96 w-full rounded-md border bg-background">
-                    <div className="p-4">
-                        <h4 className="mb-4 text-lg font-bold leading-none">Add Exercises</h4>
-                        {exercises.map((exercise)=> {
-                            return (
-                                <div onClick={() => clickToAddExercise(exercise)} key={exercise.name}>
-                                    <div className="text-sm">{exercise.name}</div>
-                                    <Separator className="my-2" />
+                
+                    <Tabs defaultValue='exerciseDatabase'>
+                        <div className='flex justify-center items-center w-full pb-2'>
+                        <TabsList className="grid w-full grid-cols-2 gap-1 rounded-xs bg-muted">
+                            <TabsTrigger className='rounded-xs' value="exerciseDatabase">Exercise Database</TabsTrigger>
+                            <TabsTrigger className='rounded-xs' value="yourExercises">Your Exercises</TabsTrigger>
+                        </TabsList>
+                        </div>
+                        <Card>
+                        <div className="relative py-2 w-full flex justify-center items-center">
+                            <Search className="absolute left-4 top-5 h-4 w-4 text-muted-foreground" />
+                            <Input placeholder="Search" className="pl-8 w-full mx-2" />
+                        </div>
+                        <TabsContent className='m-0' value="exerciseDatabase">
+                            <ScrollArea className="h-96 w-full rounded-md border-none bg-background">
+                                <div className="p-4">
+                                    {exercises.map((exercise)=> {
+                                        return (
+                                            <div onClick={() => clickToAddExercise(exercise)} key={exercise.name}>
+                                                <div className="text-sm">{exercise.name}</div>
+                                                <Separator className="my-2" />
+                                            </div>
+                                        )
+                                    })}
                                 </div>
-                            )
-                        })}
-                    </div>
-                </ScrollArea> 
+                            </ScrollArea>
+                        </TabsContent>
+                        <TabsContent className='m-0' value="yourExercises">
+                            <ScrollArea className="h-96 w-full rounded-md border-none bg-background">
+                                    <div className="p-4">
+                                        
+                                    </div>
+                                </ScrollArea>
+                        </TabsContent>
+                        </Card>
+                    </Tabs>
+               
+                
+                
+                 
                 
 
             </div>
