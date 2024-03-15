@@ -75,7 +75,7 @@ function Calendar({
   
     // Fallback to default rendering for dates without events
     return (
-      <div {...props} className={`day-cell items-center justify-center`}>
+      <div onClick={() => sendDataToParent(null)} {...props} className={`day-cell flex h-full w-full items-center justify-center`}>
         <p className="relative">{date.getDate()}</p>
         {activeModifiers.today? <div className="text-xs absolute bottom-3 right-8">Today</div> : <></>}
       </div>

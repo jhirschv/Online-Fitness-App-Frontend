@@ -67,15 +67,21 @@ const Train = () => {
     const [dayData, setDayData] = useState({});
     const [displayCurrentWorkout, setDisplayCurrentWorkout] = useState(true);
 
-    const handleDayData = (dayData) => {
-        console.log('Sending event data to parent:', dayData)
-        setDayData(dayData)
-        if (Object.keys(dayData).length > 0) {
-            setDisplayCurrentWorkout(false); // Display dayData if there's data for the clicked day
+    const handleDayData = (receivedDayData) => {
+        console.log('Sending event data to parent:', receivedDayData);
+        // Even if receivedDayData is undefined or null, setDayData to an empty object
+        setDayData(receivedDayData || {});
+        // Check if receivedDayData is truly an object with properties
+        if (receivedDayData && Object.keys(receivedDayData).length > 0) {
+            setDisplayCurrentWorkout(false);
         } else {
-            setDisplayCurrentWorkout(true); // Fallback to current workout display
+            setDisplayCurrentWorkout(true);
         }
-    }
+    };
+
+    useEffect(() => {
+        console.log(date);
+      }, [date]);
 
     const handleSelect = (newDate) => {
       setDate(newDate);
@@ -274,8 +280,43 @@ const Train = () => {
                     <h1 className='font-semibold text-lg'>{workout.workout.name}</h1>
                     <h1>{formattedDate}</h1>
                     <h1>Completed: {workout.completed.toString()}</h1>
-                
                 </div>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Exercise</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        <ScrollArea className='h-92 W-full'>
+                            {workout.exercise_logs.map((exercise) => (
+                                <TableRow key={exercise.id}>
+                                    <Accordion type="single" collapsible>
+                                        <AccordionItem value="item-1">
+                                            <AccordionTrigger className='p-0 pr-4'>
+                                                <TableCell className="font-medium pl-0">{exercise.workout_exercise.exercise.name}</TableCell>
+                                            </AccordionTrigger>
+                                            <AccordionContent>
+                                                {exercise.sets.map((set) => (
+                                                    <div className='px-3'>
+                                                        <div className='p-4 w-full flex justify-between items-center'>
+                                                            <p >Set: {set.set_number}</p>
+                                                            <p>Reps: {set.reps}</p> 
+                                                            <p>weight: {set.weight_used? set.weight_used: 0}</p>
+                                                        </div>
+                                                        
+                                                        <Separator/>
+                                                    </div>
+                                                ))}
+                                            </AccordionContent>
+                                        </AccordionItem>
+                                        </Accordion>
+                                    
+                                </TableRow>
+                            ))}
+                        </ScrollArea>
+                    </TableBody>
+                </Table>
             </>
         )
     }
@@ -286,7 +327,7 @@ const Train = () => {
             <Card className='h-full w-full flex flex-col'>
                 <div className='flex h-full'>
 
-                    <div className='flex flex-col h-full justify-between basis-2/5 pl-6'>
+                    <div className='flex flex-col h-full basis-2/5 pl-6'>
                         <div className='flex flex-col pr-2 py-6'>
                             <div className='flex mb-4'>
                                 {activeProgram? <h1 className='mr-2 text-2xl font-semibold'>{activeProgram.name}</h1> : <h1 className='mr-2 text-2xl font-semibold'>No Active Program</h1>}
@@ -316,13 +357,26 @@ const Train = () => {
                                 </Sheet>
                             </div>
                             
-                            <div>
-                                {displayCurrentWorkout && currentWorkout ? renderWorkoutDetails(currentWorkout) :
-                                !displayCurrentWorkout && dayData ? renderWorkoutSessionDetails(dayData) :
-                                <h1>No Workout Selected</h1>}
-                            </div>
+                            
                             
                         </div>
+
+                        <div className='flex-1'>
+                                {displayCurrentWorkout && currentWorkout ? (
+                                    renderWorkoutDetails(currentWorkout)
+                                ) : (
+                                    !displayCurrentWorkout && dayData && (typeof dayData === 'object' && Object.keys(dayData).length > 0) ? (
+                                        renderWorkoutSessionDetails(dayData)
+                                    ) : (
+                                        <div className='w-full flex flex-col gap-2 mt-[35%] items-center text-muted-foreground text-lg'>
+                                            <h1>Nothing to see here!</h1>
+                                            <h1>{date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h1>
+                                        
+                                        </div>
+                                        
+                                    )
+                                )}
+                            </div>
                         
                         <div className='mb-6'>
                             <Button onClick={startWorkoutSession} className='self-center w-1/2 p-6 text-lg'>Start Training!</Button>
