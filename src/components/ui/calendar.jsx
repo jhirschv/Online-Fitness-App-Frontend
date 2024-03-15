@@ -40,11 +40,6 @@ function Calendar({
     setSelectedEvent(event);
   };
 
-  const events = [
-    { date: '2024-03-10', name: 'Lower Body 1' },
-    { date: '2024-03-04', name: 'Upper Body 2' },
-    // Add more events as needed
-  ];
 
   React.useEffect(() => {
     apiClient.get('/user_workout_sessions/')
