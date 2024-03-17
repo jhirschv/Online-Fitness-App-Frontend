@@ -60,13 +60,80 @@ const WorkoutSession = () => {
 
     const { sessionId } = useParams();
     const [sessionDetails, setSessionDetails] = useState(null);
+    const [selectedSet, setSelectedSet] = useState(null);
 
+    const selectSet = (set) => {
+        setSelectedSet(set);
+        
+    };
+
+    useEffect(()=> {
+        console.log(sessionDetails)
+    }, [sessionDetails])
+
+
+    const handleRepsChange = (exerciseLogId, setId, newReps) => {
+        const updatedSessionDetails = {
+            ...sessionDetails,
+            exercise_logs: sessionDetails.exercise_logs.map(log => {
+                if (log.id === exerciseLogId) {
+                    return {
+                        ...log,
+                        sets: log.sets.map(set => {
+                            if (set.id === setId) {
+                                return { ...set, reps: newReps };
+                            }
+                            return set;
+                        })
+                    };
+                }
+                return log;
+            })
+        };
+        setSessionDetails(updatedSessionDetails);
+    };
+    
+    const handleWeightChange = (exerciseLogId, setId, newWeight) => {
+        const updatedSessionDetails = {
+            ...sessionDetails,
+            exercise_logs: sessionDetails.exercise_logs.map(log => {
+                if (log.id === exerciseLogId) {
+                    return {
+                        ...log,
+                        sets: log.sets.map(set => {
+                            if (set.id === setId) {
+                                return { ...set, weight_used: newWeight };
+                            }
+                            return set;
+                        })
+                    };
+                }
+                return log;
+            })
+        };
+        setSessionDetails(updatedSessionDetails);
+    };
+
+    const findUpdatedSet = (setId) => {
+        for (const exerciseLog of sessionDetails.exercise_logs) {
+            for (const set of exerciseLog.sets) {
+                if (set.id === setId) {
+                    return set; // This set has the latest reps and weight_used values
+                }
+            }
+        }
+        return null; // In case the set isn't found
+    };
+
+    
+
+    
+ 
     useEffect(() => {
         // Fetch the workout session details by sessionId
         apiClient.get(`/workoutSession/${sessionId}/`)
             .then(response => {
                 setSessionDetails(response.data);
-                console.log(response.data)
             })
             .catch(error => {
                 console.error('Error fetching workout session details:', error);
@@ -78,6 +145,27 @@ const WorkoutSession = () => {
 
     function goBack() {
         navigate(-1);
+    }
+
+    const updateExerciseSet = () => {
+        if (!selectedSet) return;
+
+        const updatedSet = findUpdatedSet(selectedSet.id);
+        if (!updatedSet) {
+            console.error('Set not found');
+            return;
+        }
+
+        const { id, reps, weight_used } = updatedSet;
+
+
+        apiClient.patch(`/exercise_set_update/${id}/`, { reps, weight_used })
+            .then(response => {
+                console.log(response.data)
+            })
+            .catch(error => {
+                console.error('Error fetching workout session details:', error);
+            });
     }
 
     return (
@@ -101,11 +189,19 @@ const WorkoutSession = () => {
                                                     <Button variant='outline' className='ml-2'>History</Button>
                                                 </div>
                                                 {exercise.sets.map((set) => (
-                                                    <div>
+                                                    <div className={`${selectedSet === set? "bg-muted" : "bg-background"}`}key={set.id} onClick={() => selectSet(set)}>
                                                         <Separator/>
                                                             <div className='flex items-center m-2 py-2'>
-                                                                <p>{set.set_number}. Reps</p><Label htmlFor="reps" className='mr-2'></Label><Input placeholder={String(exercise.workout_exercise.reps)} id='reps' className='w-20 mr-2 text-center'></Input>
-                                                                <Label htmlFor="weight" className='mr-2'>Weight</Label><Input id='weight' className='w-20'></Input>
+                                                                <p>{set.set_number}</p>
+                                                                <Label htmlFor="reps" className='mr-2'>. Reps</Label>
+                                                                <Input value={set.reps !== 0 ? set.reps : ''} onChange={(e) => handleRepsChange(exercise.id, set.id, e.target.value)} 
+                                                                placeholder={String(exercise.workout_exercise.reps)} id='reps' className='w-20 mr-2 text-center'></Input>
+
+                                                                <Label htmlFor="weight" className='mr-2'>Weight</Label>
+                                                                <Input id='weight' className='w-20'
+                                                                value={set.weight_used || ''} // Handle potential null or undefined values
+                                                                onChange={(e) => handleWeightChange(exercise.id, set.id, e.target.value)}></Input>
+
                                                                 <Button variant='outline' className='mx-2'>Add Note</Button>
                                                                 <Button variant='outline'>Add Video</Button>
                                                             </div>
@@ -127,7 +223,7 @@ const WorkoutSession = () => {
                                                             </div>
                                                         </DrawerContent>
                                                     </Drawer>
-                                                    <Button size='lg'>Save</Button>
+                                                    <Button onClick={updateExerciseSet} size='lg'>Log Set</Button>
                                                 </div>
                                             </div>
                                             
