@@ -123,8 +123,8 @@ export default function YourWorkouts() {
                     
                     
                     <AlertDialog>
-                        <AlertDialogTrigger className='flex items-center mr-4 h-10 px-4 py-2 bg-muted border text-primary-foreground hover:bg-background inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50'>
-                         <FontAwesomeIcon size='sm' className='mt-1 mr-1' icon={faPlus} />Create New Program
+                        <AlertDialogTrigger asChild className='mr-4'>
+                         <Button variant="outline"><FontAwesomeIcon size='sm' icon={faPlus} />Create New Program</Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                             <AlertDialogHeader>
