@@ -124,7 +124,7 @@ export default function YourWorkouts() {
                     
                     <AlertDialog>
                         <AlertDialogTrigger asChild className='mr-4'>
-                         <Button variant="outline"><FontAwesomeIcon size='sm' icon={faPlus} />Create New Program</Button>
+                         <Button variant="outline" className='flex gap-1 items-center'><FontAwesomeIcon size='sm' icon={faPlus} />Create New Program</Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                             <AlertDialogHeader>

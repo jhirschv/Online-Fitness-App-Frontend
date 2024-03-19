@@ -69,7 +69,7 @@ const Create = () => {
     
 
     const deleteWorkoutExercise = (exercise) => {
-        apiClient.delete(`/workout_exercises/${exercise.id}/`)
+        apiClient.delete(`/workout_exercises/${exercise}/`)
             .then(response => {
                 console.log(response)
                 fetchWorkoutExercises()
@@ -159,7 +159,7 @@ const Create = () => {
             .then(response => {
                 setWorkout(response.data)
                 setWorkoutExercises(response.data.workout_exercises)
-                console.log(response.data.workout_exercises)
+                console.log(response.data)
                 })
             
             .catch(error => console.error('Error:', error));
@@ -214,7 +214,7 @@ const Create = () => {
             workout_exercises: workoutExercises.map(({id, exercise, sets, reps, note, video}) => ({
                 id,
                 workout: workoutId,
-                exercise_id: exercise.id, 
+                exercise_name: exercise.name, 
                 sets,
                 reps,
                 note,
@@ -278,7 +278,7 @@ const Create = () => {
                 <Popover>
                     <PopoverTrigger><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
                     <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md'>
-                    <Button onClick={() => deleteWorkoutExercise(exerciseDetail)} className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>Delete Exercise</Button>
+                    <Button onClick={() => deleteWorkoutExercise(id)} className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>Delete Exercise</Button>
                     </PopoverContent>
                 </Popover>
             </div> : <></>}
@@ -343,7 +343,6 @@ const Create = () => {
                             <SelectItem value="7">7</SelectItem>
                             <SelectItem value="8">8</SelectItem>
                             <SelectItem value="9">9</SelectItem>
-                            <SelectItem value="10">10</SelectItem>
                             <SelectItem value="10">10</SelectItem>
                             <SelectItem value="11">11</SelectItem>
                             <SelectItem value="12">12</SelectItem>
