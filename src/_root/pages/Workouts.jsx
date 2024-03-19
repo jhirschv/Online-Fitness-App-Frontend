@@ -1,6 +1,7 @@
-
-import React from 'react'
+import React, { useState, useEffect } from 'react';
+import apiClient from '../../services/apiClient';
 import { useTheme } from '@/components/theme-provider';
+import { ScrollArea } from "@/components/ui/scroll-area"
 import {
     Card,
     CardContent,
@@ -46,7 +47,7 @@ import {
     TableRow,
     } from "@/components/ui/table"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEllipsis, faPlus} from '@fortawesome/free-solid-svg-icons';
+import { faEllipsis, faPlus, faWandMagicSparkles} from '@fortawesome/free-solid-svg-icons';
 import { Button } from "@/components/ui/button"
 import { useNavigate } from 'react-router-dom';
 
@@ -55,6 +56,19 @@ const Workouts = () => {
 
     // Determine the background color class based on the theme
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
+
+    const [workouts, setWorkouts] = useState(null)
+
+    useEffect(() => {
+        apiClient.get('/user_workouts/') // Make sure the endpoint matches your Django URL configuration
+        .then(response => {
+            setWorkouts(response.data);
+            console.log(response.data)
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
+    }, []);
 
     return (
         <div className={`w-full ${backgroundColorClass} border rounded-lg p-4`}>
@@ -65,24 +79,25 @@ const Workouts = () => {
                             <h1 className='text-2xl font-semibold '>Workouts</h1>
                             <p className='text-sm text-muted-foreground'>Create workouts here</p>
                         </div>
-                    
-                    
-                    <AlertDialog>
-                        <AlertDialogTrigger asChild className='mr-4'>
-                         <Button variant="outline" className='flex gap-1 items-center'><FontAwesomeIcon size='sm'icon={faPlus} />Create New Workout</Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                            <AlertDialogTitle>Create Program</AlertDialogTitle>
-                            <Label htmlFor="programName">Name</Label><Input autoComplete="off" id="programName" />
-                            <Label htmlFor="description">Description</Label><Input autoComplete="off" id="description" />
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction>Continue</AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
+                    <div className='flex gap-1'>
+                        <Button variant="default" className='flex gap-1 items-center'><FontAwesomeIcon icon={faWandMagicSparkles} />Create AI Workout</Button>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild className='mr-4'>
+                            <Button variant="outline" className='flex gap-1 items-center'><FontAwesomeIcon size='sm'icon={faPlus} />Create New Workout</Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                <AlertDialogTitle>Create Program</AlertDialogTitle>
+                                <Label htmlFor="programName">Name</Label><Input autoComplete="off" id="programName" />
+                                <Label htmlFor="description">Description</Label><Input autoComplete="off" id="description" />
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction>Continue</AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    </div>
                     </div>
                     <div className='flex flex-col w-full px-4 pb-4'>
                         <div className='flex items-center justify-end pb-2 space-x-2 w-full'>
@@ -109,9 +124,27 @@ const Workouts = () => {
                             <TableHead>Creator</TableHead>
                         </TableRow>
                         </TableHeader>
-                        <TableBody>
                         
+                        <TableBody className="overflow-y-auto">
+                        {workouts && workouts.map((workout) => (
+                            <TableRow key={workout.id} className='relative'>
+                            <TableCell key={workout.name}>{workout.name}</TableCell>
+                            <TableCell className="font-medium p-6">{workout.description}</TableCell>
+                            <TableCell>{workout.creator.username[0].toUpperCase() + workout.creator.username.slice(1)}
+                            <div className='absolute top-0 right-4'>
+                                <Popover>
+                                    <PopoverTrigger className='p-4'><FontAwesomeIcon size='lg' icon={faEllipsis} /></PopoverTrigger>
+                                    <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md' >
+                                        <Button className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>Delete Program</Button></PopoverContent>
+                                </Popover>
+                            </div> 
+                            </TableCell>
+                            </TableRow>
+                        ))}
                         </TableBody>
+
+                        
+                        
                     </Table>
                     </div>
 
