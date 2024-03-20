@@ -51,7 +51,7 @@ import { faEllipsis, faPlus, faWandMagicSparkles} from '@fortawesome/free-solid-
 import { Button } from "@/components/ui/button"
 import { useNavigate } from 'react-router-dom';
 import { Textarea } from '@/components/ui/textarea';
-import { PacmanLoader } from 'react-spinners';
+import { MoonLoader } from 'react-spinners';
 
 const Workouts = () => {
     const { theme } = useTheme();
@@ -99,7 +99,7 @@ const Workouts = () => {
             <Card className='h-full w-full relative'>
             {isLoading && (
                 <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-25 z-10 rounded-lg">
-                <PacmanLoader color="#FFFFFF" size={50} />
+                <MoonLoader color="hsla(257, 70%, 40%, 1)" size={60} />
                 </div>
             )}
                 <div>
