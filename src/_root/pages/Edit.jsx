@@ -54,7 +54,7 @@ import {
 
   
 
-const Create = () => {
+const Edit = () => {
     const { theme } = useTheme();
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
 
@@ -536,4 +536,4 @@ const Create = () => {
   )
 }
 
-export default Create
+export default Edit

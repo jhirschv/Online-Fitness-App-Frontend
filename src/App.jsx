@@ -6,19 +6,20 @@ import Clients from './_root/removedPages/Clients';
 import Progress from './_root/pages/Progress';
 import Chat from './_root/pages/Chat';
 import Account from './_root/pages/Account';
-import Workouts from './_root/pages/Workouts';
+import Workouts from './_root/pages/WorkoutList';
 import SigninForm from './_auth/SigninForm';
 import ExerciseLibrary from './_root/removedPages/ExerciseLibrary';
 import RootLayout from './_root/RootLayout'
 import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from "@/components/theme-provider"
-import Create from './_root/pages/Create';
+import Edit from './_root/pages/Edit';
 import ProgramDetails from './_root/removedPages/ProgramDetails';
-import PhaseDetails from './_root/pages/Workouts';
+import PhaseDetails from './_root/pages/WorkoutList';
 import WorkoutDetails from './_root/removedPages/WorkoutDetails';
 import ProgramOverview from './_root/pages/ProgramOverview';
 import WorkoutSession from './_root/pages/WorkoutSession';
+import Workout from './_root/pages/Workout'
 
 
 function App() {
@@ -30,7 +31,8 @@ function App() {
           <Route element={<RootLayout />}>
             <Route element={<PrivateRoute />}>
               <Route path="account" element={<Account />} />  
-              <Route path="create/:phaseId/:workoutId" element={<Create />} />  
+              <Route path="edit/:phaseId/:workoutId" element={<Edit />} />  
+              <Route path='workout/:workoutId' element={<Workout />} />
               <Route index element={<Programs />} />       
               <Route path="workouts" element={<Workouts />} />       
               <Route path="/program_overview/:programId" element={<ProgramOverview />} />

@@ -206,7 +206,7 @@ const ProgramOverview = () => {
     const navigate = useNavigate();
 
     const editWorkout = (workoutId) => {
-        navigate(`/create/${phase.id}/${workoutId}`, { state: { program } });// Navigate to program details page
+        navigate(`/edit/${phase.id}/${workoutId}`, { state: { program } });// Navigate to program details page
     };
 
 

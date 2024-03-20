@@ -50,14 +50,16 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEllipsis, faPlus, faWandMagicSparkles} from '@fortawesome/free-solid-svg-icons';
 import { Button } from "@/components/ui/button"
 import { useNavigate } from 'react-router-dom';
+import { Textarea } from '@/components/ui/textarea';
 
 const Workouts = () => {
     const { theme } = useTheme();
-
-    // Determine the background color class based on the theme
+    const navigate = useNavigate();
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
 
     const [workouts, setWorkouts] = useState(null)
+    const [prompt, setPrompt] = useState('');
+
 
     useEffect(() => {
         apiClient.get('/user_workouts/') // Make sure the endpoint matches your Django URL configuration
@@ -68,7 +70,22 @@ const Workouts = () => {
         .catch(error => {
             console.error('Error fetching data:', error);
         });
-    }, []);
+    }, [])
+    const ClickWorkout = (workoutId) => {
+        navigate(`/workout/${workoutId}`);// Navigate to program details page
+    }
+    const handlePromptChange = (e) => {
+        setPrompt(e.target.value);
+      };
+    const createAiWorkout = () => {
+        apiClient.post(`/api/openai/`, { prompt: prompt })
+            .then(response => {
+                console.log(response)
+                navigate(`/workout/${response.data.id}`);
+                })
+            
+            .catch(error => console.error('Error:', error))
+    }
 
     return (
         <div className={`w-full ${backgroundColorClass} border rounded-lg p-4`}>
@@ -80,10 +97,25 @@ const Workouts = () => {
                             <p className='text-sm text-muted-foreground'>Create workouts here</p>
                         </div>
                     <div className='flex gap-1'>
-                        <Button variant="default" className='flex gap-1 items-center'><FontAwesomeIcon icon={faWandMagicSparkles} />Create AI Workout</Button>
                         <AlertDialog>
                             <AlertDialogTrigger asChild className='mr-4'>
-                            <Button variant="outline" className='flex gap-1 items-center'><FontAwesomeIcon size='sm'icon={faPlus} />Create New Workout</Button>
+                                <Button variant="default" className='flex gap-1 items-center'><FontAwesomeIcon icon={faWandMagicSparkles} />Create AI Workout</Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                <AlertDialogTitle>Create AI Workout</AlertDialogTitle>
+                                <Label htmlFor="prompt">Workout Description</Label><Textarea value={prompt} onChange={handlePromptChange} placeholder="Describe your workout here." id='prompt' />
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={createAiWorkout}>Create<FontAwesomeIcon className='ml-1' icon={faWandMagicSparkles} /></AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                        
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild className='mr-4'>
+                                <Button variant="outline" className='flex gap-1 items-center'><FontAwesomeIcon size='sm'icon={faPlus} />Create New Workout</Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                                 <AlertDialogHeader>
@@ -127,7 +159,7 @@ const Workouts = () => {
                         
                         <TableBody className="overflow-y-auto">
                         {workouts && workouts.map((workout) => (
-                            <TableRow key={workout.id} className='relative'>
+                            <TableRow onClick={() => ClickWorkout(workout.id)} key={workout.id} className='relative'>
                             <TableCell key={workout.name}>{workout.name}</TableCell>
                             <TableCell className="font-medium p-6">{workout.description}</TableCell>
                             <TableCell>{workout.creator.username[0].toUpperCase() + workout.creator.username.slice(1)}
