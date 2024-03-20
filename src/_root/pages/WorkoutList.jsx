@@ -51,6 +51,7 @@ import { faEllipsis, faPlus, faWandMagicSparkles} from '@fortawesome/free-solid-
 import { Button } from "@/components/ui/button"
 import { useNavigate } from 'react-router-dom';
 import { Textarea } from '@/components/ui/textarea';
+import { PacmanLoader } from 'react-spinners';
 
 const Workouts = () => {
     const { theme } = useTheme();
@@ -59,6 +60,7 @@ const Workouts = () => {
 
     const [workouts, setWorkouts] = useState(null)
     const [prompt, setPrompt] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
 
     useEffect(() => {
@@ -78,6 +80,7 @@ const Workouts = () => {
         setPrompt(e.target.value);
       };
     const createAiWorkout = () => {
+        setIsLoading(true)
         apiClient.post(`/api/openai/`, { prompt: prompt })
             .then(response => {
                 console.log(response)
@@ -85,11 +88,20 @@ const Workouts = () => {
                 })
             
             .catch(error => console.error('Error:', error))
+            .finally(() => {
+        setIsLoading(false); // Stop loading on completion
+      });
     }
 
     return (
-        <div className={`w-full ${backgroundColorClass} border rounded-lg p-4`}>
-            <Card className='h-full w-full'>
+        <div className={`w-full ${backgroundColorClass} border rounded-lg p-4 `}>
+            
+            <Card className='h-full w-full relative'>
+            {isLoading && (
+                <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-25 z-10 rounded-lg">
+                <PacmanLoader color="#FFFFFF" size={50} />
+                </div>
+            )}
                 <div>
                     <div className='flex justify-between items-center'>
                         <div className='px-6 pt-6 pb-2'>
