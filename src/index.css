@@ -3,6 +3,7 @@
 @tailwind utilities;
  
 
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -11,7 +12,7 @@
     --card-foreground: 224 71.4% 4.1%;
     --popover: 0 0% 100%;
     --popover-foreground: 224 71.4% 4.1%;
-    --primary: 257 70% 40%;
+    --primary: 221.2 83.2% 53.3%;
     --primary-alt: 239.4 70% 50.4%;
     --primary-foreground: 210 20% 98%;
     --secondary: 220 14.3% 95.9%;
@@ -35,7 +36,7 @@
     --card-foreground: 210 20% 98%;
     --popover: 224 71.4% 4.1%;
     --popover-foreground: 210 20% 98%;
-    --primary: 257 70% 40%;
+    --primary: 221.2 83.2% 53.3%;
     --primary-foreground: 210 20% 98%;
     --secondary: 215 27.9% 16.9%;
     --secondary-foreground: 210 20% 98%;

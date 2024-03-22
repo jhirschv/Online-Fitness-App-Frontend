@@ -327,7 +327,7 @@ const Train = () => {
             <Card className='h-full w-full flex flex-col'>
                 <div className='flex h-full'>
 
-                    <div className='flex flex-col h-full basis-2/5 pl-6'>
+                    <div className='flex flex-col h-full basis-full md:basis-2/5 px-6 md:pl-6'>
                         <div className='flex flex-col pr-2 py-6'>
                             <div className='flex mb-4'>
                                 {activeProgram? <h1 className='mr-2 text-2xl font-semibold'>{activeProgram.name}</h1> : <h1 className='mr-2 text-2xl font-semibold'>No Active Program</h1>}
@@ -379,10 +379,10 @@ const Train = () => {
                             </div>
                         
                         <div className='mb-6'>
-                            <Button onClick={startWorkoutSession} className='self-center w-1/2 p-6 text-lg'>Start Training!</Button>
+                            <Button onClick={startWorkoutSession} className='self-center w-5/12 md:w-1/2 p-6 text-lg'>Start Training!</Button>
                             <Sheet open={isSheetOpen} onOpenChange={handleSheetOpenChange}>
                                 <SheetTrigger asChild>
-                                    <Button variant='outline' onClick={() => setIsSheetOpen(true)} className='mx-2 self-center w-1/3 mb-4 p-6 text-lg'>Change Workout</Button>
+                                    <Button variant='outline' onClick={() => setIsSheetOpen(true)} className='mx-2 self-center w-1/2 md:w-2/5 mb-4 p-6 text-lg'>Change Workout</Button>
                                 </SheetTrigger>
                                 <SheetContent>
                                     <div className='w-full flex justify-center'>
@@ -414,7 +414,7 @@ const Train = () => {
                         
                     </div>
 
-                    <div className='flex h-full items-center justify-center basis-3/5'>
+                    <div className='hidden md:flex h-full items-center justify-center basis-3/5'>
                         <Calendar
                         onDataReceive={handleDayData}
                         mode="single"

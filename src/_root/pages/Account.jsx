@@ -56,11 +56,11 @@ const Account = () => {
 
                                 <div>
                                     <Label>Username</Label>
-                                    <Input className='w-96 rounded-xs mt-1' placeholder="Username"></Input>
+                                    <Input className='md:w-96 rounded-xs mt-1' placeholder="Username"></Input>
                                 </div>
                                 <div>
                                     <Label>Email</Label>
-                                    <Input className='w-96 rounded-xs mt-1' placeholder="Email"></Input>
+                                    <Input className='md:w-96 rounded-xs mt-1' placeholder="Email"></Input>
                                 </div>
                                 
                                 

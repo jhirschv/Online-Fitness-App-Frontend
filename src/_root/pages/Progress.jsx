@@ -47,19 +47,18 @@ const Progress = () => {
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
 
     return (
-        <div className={`w-full h-full ${backgroundColorClass} border rounded-lg p-4`}>
-            <Card className='h-full w-full flex pt-8'>
-            <div className='w-1/2'>
+        <div className={`w-full h-[520px] md:h-full ${backgroundColorClass} md:p-4`}>
+            <Card className='h-full w-full rounded-none md:rounded md:border border-none flex justify-center pt-8'>
+            <div className='w-full flex justify-center md:w-1/2'>
                 <Tabs defaultValue="Strength" className="w-[100%] p-6">
                     <div className='flex items-center justify-between'> 
-                        <TabsList>
-                            <TabsTrigger value="Strength">Strength</TabsTrigger>
-                            <TabsTrigger value="Consistency">Consistency</TabsTrigger>
-                            <TabsTrigger value="totalWeightLifted">Total Weight Lifted</TabsTrigger>
-                            <TabsTrigger value="bodyWeight">Body Weight</TabsTrigger>
+                        <TabsList className='w-full'>
+                            <TabsTrigger className='flex-1 text-xs md:text-md' value="Strength">Strength</TabsTrigger>
+                            <TabsTrigger className='text-xs flex-1 md:text-md' value="Consistency">Consistency</TabsTrigger>
+                            <TabsTrigger className='text-xs flex-1 md:text-md' value="totalWeightLifted">Total Weight Lifted</TabsTrigger>
                         </TabsList>
-                        <Popover>
-                            <PopoverTrigger asChild>
+                        <Popover >
+                            <PopoverTrigger className='hidden md:flex' asChild>
                                 <Button
                                 variant={"outline"}
                                 className={cn(
@@ -84,14 +83,14 @@ const Progress = () => {
                 
                 <TabsContent  value="Strength">
                     <Card className='flex flex-col justify-center w-full pb-4'>
-                            <h1 className='px-8 py-6 text-xl font-semibold'>Back Squat</h1>
+                            <h1 className='px-4 py-6 text-xl font-semibold'>Back Squat</h1>
                             <ResponsiveContainer width="100%" height={250}>
                             
                                 <LineChart
                                     width={500}
                                     height={300}
                                     data={data}
-                                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                                    margin={{ top: 5, right: 30, left: 5, bottom: 5 }}
                                 >
                                     <XAxis dataKey="date" 
                                     stroke="#888888"
@@ -144,11 +143,11 @@ const Progress = () => {
                 </Tabs>
 
             </div>
-            <div className='w-1/2 flex items-center justify-center'>
+            <div className='hidden md:block w-1/2 flex items-center justify-center'>
                 <ProCalendar
                     mode="single"
                     selected={date}
-                    className="h-[90%] m-4"
+                    className="hidden md:block h-[90%] m-4"
                     />
 
             </div>

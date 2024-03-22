@@ -176,8 +176,8 @@ const WorkoutSession = () => {
 
                 <div className='w-full h-full flex'>
                     <div className='flex-3'>
-                        <Carousel className="w-full mx-16 mt-6 max-w-2xl">
-                            <CarouselContent className='w-full'>
+                        <Carousel className="w-full md:mx-16 mt-6 max-w-2xl">
+                            <CarouselContent className='w-[373px] md:w-full'>
                                 {sessionDetails && sessionDetails.exercise_logs.map((exercise, index) => (
                                 <CarouselItem key={exercise.id}   >
                                     <div >
@@ -202,8 +202,8 @@ const WorkoutSession = () => {
                                                                 value={set.weight_used || ''} // Handle potential null or undefined values
                                                                 onChange={(e) => handleWeightChange(exercise.id, set.id, e.target.value)}></Input>
 
-                                                                <Button variant='outline' className='mx-2'>Add Note</Button>
-                                                                <Button variant='outline'>Add Video</Button>
+                                                                <Button variant='outline' className='hidden md:block mx-2'>Add Note</Button>
+                                                                <Button variant='outline' className='hidden md:block'>Add Video</Button>
                                                             </div>
                                                         <Separator/>
                                                     </div>  
@@ -246,11 +246,11 @@ const WorkoutSession = () => {
                                     
                                 </CarouselItem>
                             </CarouselContent>
-                            <CarouselPrevious />
-                            <CarouselNext />
+                            <CarouselPrevious className='hidden md:flex'/>
+                            <CarouselNext className='hidden md:flex'/>
                         </Carousel>   
                     </div>
-                    <div className='flex-1 h-full'>
+                    <div className='hidden md:block flex-1 h-full'>
                         <Card className='rounded-none h-full flex-2 p-6'>
                             <div className='flex items-center justify-between pr-2 mb-4'>
                                 <h1 className='font-semibold text-lg'>{currentDate}: {sessionDetails && sessionDetails.workout.name}</h1>

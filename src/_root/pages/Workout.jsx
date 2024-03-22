@@ -236,7 +236,7 @@ const Create = () => {
     let workoutExerciseList = workoutExercises.map(exerciseDetail => {
         const { id, exercise, sets, reps, note } = exerciseDetail;
         return (
-            <Card key={exercise.id} className='relative mt-1 mb-1 mr-3'> 
+            <Card key={exercise.id} className='relative mt-1 mb-1 mx-2 md:mr-3'> 
             {editMode ? 
             <div className='absolute top-2 right-4'>
                 <Popover>
@@ -249,7 +249,7 @@ const Create = () => {
             {editMode ?
             <CardContent className="p-0 h-20 py-4 pl-2 pr-4 flex justify-between items-center">
                 {exercise.video ? 
-                <div className='h-16 w-16'>
+                <div className='h-16 w-16 hidden md:block'>
                     <Popover>
                         <PopoverTrigger>
                         <img
@@ -271,7 +271,7 @@ const Create = () => {
                         </PopoverContent>
                     </Popover>
                 </div> :
-                <div className='flex justify-center items-center h-16 w-16'>
+                <div className='hidden md:flex justify-center items-center h-16 w-16'>
                 <Popover>
                     <PopoverTrigger>
                         <FontAwesomeIcon size='2xl' icon={faSquarePlus} />
@@ -285,14 +285,14 @@ const Create = () => {
                 </Popover>
                 </div> 
                 }
-                <p className='w-1/4 ml-2 font-semibold'>{exercise.name}</p>
+                <p className='md:w-1/4 ml-2 md:text-md font-semibold'>{exercise.name}</p>
 
                  
-                <div className='flex items-center ml-10'>
+                <div className='flex items-center md:ml-10'>
                 <Select  value={sets > 0 ? sets.toString() : ''}
                 onValueChange={(newValue) => handleSetsChange(exercise.id, parseInt(newValue, 10))}
                 id={`sets-${exercise.id}`}>
-                    <SelectTrigger className="w-[80px] focus:ring-0 focus:ring-offset-0">
+                    <SelectTrigger className="w-[55px] md:w-[80px] focus:ring-0 focus:ring-offset-0">
                         <SelectValue placeholder='sets' />
                     </SelectTrigger>
                     <SelectContent>
@@ -325,7 +325,7 @@ const Create = () => {
                 <Select value={reps > 0 ? reps.toString() : ''}
                  onValueChange={(newValue) => handleRepsChange(exercise.id, parseInt(newValue, 10))}
                  id={`reps-${exercise.id}`}>
-                    <SelectTrigger className="w-[80px] focus:ring-0 focus:ring-offset-0">
+                    <SelectTrigger className="w-[55px] md:w-[80px] focus:ring-0 focus:ring-offset-0">
                         <SelectValue placeholder={`${reps? reps : 'reps'}`} />
                     </SelectTrigger>
                     <SelectContent>
@@ -382,9 +382,9 @@ const Create = () => {
 
     return (
         <div className={`w-full flex ${backgroundColorClass} border rounded-lg p-4`}>
-            <div className='w-3/5'>
+            <div className='w-full md:w-3/5'>
                 
-                <Card className='mr-4 h-full flex flex-col'>
+                <Card className='md:mr-4 h-full flex flex-col'>
                     <CardHeader className='flex flex-row items=center justify-between'>
                         <div>
                         {workout ? (
@@ -398,7 +398,7 @@ const Create = () => {
                         <FontAwesomeIcon onClick={goBack} size="xl" icon={faAngleLeft} />
                         
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className='p-0 md:px-6'>
                         <ScrollArea className="h-96 w-full rounded-md">
                             <div>
                                 {workoutExerciseList.length > 0 ? workoutExerciseList : <div className=' flex justify-center items-center w-full h-96 text-muted-foreground font-semibold text-xl'>
@@ -410,7 +410,7 @@ const Create = () => {
                 </Card>
             </div>
             {editMode ? 
-            <div className='flex-1 flex-col'>
+            <div className='hidden md:flex flex-1 flex-col'>
                 <Card className='mb-2'>
                     <CardHeader className='pt-4 pb-0 px-4 '>
                         <CardTitle className='text-lg'>

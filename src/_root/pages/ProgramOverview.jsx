@@ -268,7 +268,7 @@ const ProgramOverview = () => {
             <div className='flex flex-col'>
                 <div className='flex w-full px-6 h-20'>
                 {program && program.phases && program.phases.map((block, phaseIndex) => (
-                <div style={{ flexGrow: block.weeks }} key={block.id} onClick={() => setPhase(block)} className={`relative flex flex-col justify-center items-center border ${theme === 'light' && block.id === (phase?.id) ? 'text-background' : 'text-foreground'} ${block.id === (phase?.id) ? 'bg-primary' : 'bg-background'} ${phase?.id !== block.id && 'hover:bg-accent'} transition duration-300 ease-in-out`}><p className='text-xl font-semibold'>{block.name}</p><p className='text-sm'>{block.weeks} Weeks</p>
+                <div style={{ flexGrow: block.weeks }} key={block.id} onClick={() => setPhase(block)} className={`relative flex flex-col justify-center items-center border ${theme === 'light' && block.id === (phase?.id) ? 'text-background' : 'text-foreground'} ${block.id === (phase?.id) ? 'bg-primary' : 'bg-background'} ${phase?.id !== block.id && 'hover:bg-accent'} transition duration-300 ease-in-out`}><p className='text-md md:text-xl font-semibold'>{block.name}</p><p className='text-sm'>{block.weeks} Weeks</p>
                 <div onClick={(event) => event.stopPropagation()} className='absolute top-0 right-2'>
                     <Popover>
                         <PopoverTrigger className='pb-2 pl-2'><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
@@ -305,7 +305,7 @@ const ProgramOverview = () => {
                             </AlertDialog>
                         </div>
                         {phase && phase.workouts && phase.workouts.length > 0 ? (
-                            <Tabs key={defaultTabValue} defaultValue={defaultTabValue} className="w-full rounded-sm">
+                            <Tabs key={defaultTabValue} defaultValue={defaultTabValue} className="hidden md:block w-full rounded-sm">
                                 <div className='flex justify-center items-center'>
                                 <TabsList className={'flex w-[95%] rounded-xs bg-muted '}>
                                     

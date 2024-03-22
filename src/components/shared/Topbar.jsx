@@ -13,6 +13,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useTheme } from "@/components/theme-provider"
+import { NavLink } from 'react-router-dom'
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 const Topbar = () => {
   const { setTheme } = useTheme()
@@ -21,12 +23,20 @@ const Topbar = () => {
   let { user, logoutUser } = useContext(AuthContext)
 
   return (
-    <div  className="w-full h-16 flex items-center justify-between p-6">
+    <div  className="fixed z-50 top-0 w-full h-16 flex items-center justify-between p-6 bg-background">
         <div className='flex font-bold text-3xl ml-4'><h1>Train.</h1><h1 className={`${fontColor}`}>io</h1></div>
         <div className='flex items-center'>
+        <NavLink className='md:hidden' to='/account'>
+            <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md transition duration-300 ease-in-out">
+              <Avatar className="mr-3">
+                <AvatarImage src="https://github.com/shadcn.png" />
+                <AvatarFallback>CN</AvatarFallback>
+              </Avatar>
+            </li>
+          </NavLink>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
+              <Button className='hidden md:flex' variant="outline" size="icon">
                 <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                 <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                 <span className="sr-only">Toggle theme</span>

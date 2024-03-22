@@ -118,13 +118,13 @@ export default function YourWorkouts() {
                     <div className='flex justify-between items-center'>
                         <div className='px-6 pt-6 pb-2'>
                             <h1 className='text-2xl font-semibold '>Programs</h1>
-                            <p className='text-sm text-muted-foreground'>Create, customize, and share programs here</p>
+                            <p className='hidden md:block text-sm text-muted-foreground'>Create, customize, and share programs here</p>
                         </div>
                     
                     
                     <AlertDialog>
                         <AlertDialogTrigger asChild className='mr-4'>
-                         <Button variant="outline" className='flex gap-1 items-center'><FontAwesomeIcon size='sm' icon={faPlus} />Create New Program</Button>
+                         <Button variant="outline" className='flex gap-1 items-center'><FontAwesomeIcon size='sm' icon={faPlus} />New Program</Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                             <AlertDialogHeader>
@@ -141,10 +141,10 @@ export default function YourWorkouts() {
                     </div>
                     <div className='flex flex-col w-full px-4 pb-4'>
                         <div className='flex items-center justify-end pb-2 space-x-2 w-full'>
-                            <Label htmlFor="sort">Sort by:</Label>
+                            <Label className='hidden md:block' htmlFor="sort">Sort by:</Label>
 
                             <Select className='self-end focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-none focus-visible:ring-offset-0' id='sort'>
-                                <SelectTrigger className="w-[180px]">
+                                <SelectTrigger className="w-[160px] p-3">
                                     <SelectValue placeholder="Recently Updated" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -171,7 +171,7 @@ export default function YourWorkouts() {
                             <TableCell key={program.name}>{program.name}</TableCell>
                             <TableCell className="font-medium p-6">{program.description}</TableCell>
                             <TableCell>{program.creator.username[0].toUpperCase() + program.creator.username.slice(1)}
-                            <div className='absolute top-0 right-4' onClick={(event) => event.stopPropagation()}>
+                            <div className='hidden md:block absolute top-0 right-4' onClick={(event) => event.stopPropagation()}>
                                 <Popover>
                                     <PopoverTrigger className='p-4'><FontAwesomeIcon size='lg' icon={faEllipsis} /></PopoverTrigger>
                                     <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md' >

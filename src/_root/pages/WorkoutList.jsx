@@ -51,7 +51,7 @@ import { faEllipsis, faPlus, faWandMagicSparkles} from '@fortawesome/free-solid-
 import { Button } from "@/components/ui/button"
 import { useNavigate } from 'react-router-dom';
 import { Textarea } from '@/components/ui/textarea';
-import { MoonLoader } from 'react-spinners';
+import { PacmanLoader } from 'react-spinners';
 
 const Workouts = () => {
     const { theme } = useTheme();
@@ -99,7 +99,7 @@ const Workouts = () => {
             <Card className='h-full w-full relative'>
             {isLoading && (
                 <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-25 z-10 rounded-lg">
-                <MoonLoader color="hsla(257, 70%, 40%, 1)" size={60} />
+                <PacmanLoader color="hsla(257, 70%, 40%, 1)" size={40} />
                 </div>
             )}
                 <div>
@@ -108,10 +108,10 @@ const Workouts = () => {
                             <h1 className='text-2xl font-semibold '>Workouts</h1>
                             <p className='text-sm text-muted-foreground'>Create workouts here</p>
                         </div>
-                    <div className='flex gap-1'>
+                    <div className='flex flex-col md:flex-row  gap-2 md:gap-1'>
                         <AlertDialog>
                             <AlertDialogTrigger asChild className='mr-4'>
-                                <Button variant="default" className='flex gap-1 items-center'><FontAwesomeIcon icon={faWandMagicSparkles} />Create AI Workout</Button>
+                                <Button variant="default" className='flex gap-1 items-center'><FontAwesomeIcon icon={faWandMagicSparkles} />AI Workout</Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                                 <AlertDialogHeader>
@@ -127,7 +127,7 @@ const Workouts = () => {
                         
                         <AlertDialog>
                             <AlertDialogTrigger asChild className='mr-4'>
-                                <Button variant="outline" className='flex gap-1 items-center'><FontAwesomeIcon size='sm'icon={faPlus} />Create New Workout</Button>
+                                <Button variant="outline" className='flex gap-1 items-center'><FontAwesomeIcon size='sm'icon={faPlus} />New Workout</Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                                 <AlertDialogHeader>
@@ -145,10 +145,10 @@ const Workouts = () => {
                     </div>
                     <div className='flex flex-col w-full px-4 pb-4'>
                         <div className='flex items-center justify-end pb-2 space-x-2 w-full'>
-                            <Label htmlFor="sort">Sort by:</Label>
+                            <Label className='hidden md:block' htmlFor="sort">Sort by:</Label>
 
                             <Select className='self-end focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-none focus-visible:ring-offset-0' id='sort'>
-                                <SelectTrigger className="w-[180px]">
+                                <SelectTrigger className="hidden md:flex w-[180px]">
                                     <SelectValue placeholder="Recently Updated" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -164,7 +164,7 @@ const Workouts = () => {
                         <TableHeader>
                         <TableRow>
                             <TableHead>Name</TableHead>
-                            <TableHead>Descritpion</TableHead>
+                            <TableHead className='hidden md:block'>Descritpion</TableHead>
                             <TableHead>Creator</TableHead>
                         </TableRow>
                         </TableHeader>
@@ -173,9 +173,9 @@ const Workouts = () => {
                         {workouts && workouts.map((workout) => (
                             <TableRow onClick={() => ClickWorkout(workout.id)} key={workout.id} className='relative'>
                             <TableCell key={workout.name}>{workout.name}</TableCell>
-                            <TableCell className="font-medium p-6">{workout.description}</TableCell>
+                            <TableCell className="hidden md:block font-medium p-6">{workout.description}</TableCell>
                             <TableCell>{workout.creator.username[0].toUpperCase() + workout.creator.username.slice(1)}
-                            <div className='absolute top-0 right-4'>
+                            <div className='hidden md:block absolute top-0 right-4'>
                                 <Popover>
                                     <PopoverTrigger className='p-4'><FontAwesomeIcon size='lg' icon={faEllipsis} /></PopoverTrigger>
                                     <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md' >

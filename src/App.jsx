@@ -1,6 +1,7 @@
 import Programs from './_root/pages/Programs';
 import Train from './_root/pages/Train';
 import PrivateRoute from './utils/PrivateRoute'
+import useDisableZoom from './utils/useDisableZoom';
 import CreateProgram from './_root/removedPages/CreateProgram';
 import Clients from './_root/removedPages/Clients';
 import Progress from './_root/pages/Progress';
@@ -23,6 +24,8 @@ import Workout from './_root/pages/Workout'
 
 
 function App() {
+  useDisableZoom();
+  
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
