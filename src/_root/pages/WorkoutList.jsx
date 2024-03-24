@@ -110,7 +110,7 @@ const Workouts = () => {
                         </div>
                     <div className='flex flex-col md:flex-row  gap-2 md:gap-1'>
                         <AlertDialog>
-                            <AlertDialogTrigger asChild className='mr-4'>
+                            <AlertDialogTrigger asChild className='mr-4 mt-4 md:mt-0'>
                                 <Button variant="default" className='flex gap-1 items-center'><FontAwesomeIcon icon={faWandMagicSparkles} />AI Workout</Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>

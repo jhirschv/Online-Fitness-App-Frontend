@@ -231,17 +231,15 @@ const Train = () => {
     const renderWorkoutDetails = (workout) => {
         return (
             <>
-                <div className='flex items-center justify-between pr-2'>
+                <div className='flex w-full items-center justify-between pr-2'>
                     <h1 className='font-semibold text-lg'>{workout.name}</h1>
-                    <div>
-                        <Popover>
-                            <PopoverTrigger><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
-                            <PopoverContent>Place content for the popover here.</PopoverContent>
-                        </Popover>
-                    </div>
+                    <Popover>
+                        <PopoverTrigger><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
+                        <PopoverContent>Place content for the popover here.</PopoverContent>
+                    </Popover>
                 </div>
 
-                <Table className='h-full'>
+                <Table className='h-full w-full'>
                     <TableHeader>
                         <TableRow>
                             <TableHead className="w-[100px] pl-0">Exercise</TableHead>
@@ -252,8 +250,8 @@ const Train = () => {
                     <TableBody>
                         {workout.workout_exercises.map((exercise) => (
                             <TableRow key={exercise.id}>
-                                <TableCell className="font-medium w-36 pl-0">{exercise.exercise.name}</TableCell>
-                                <TableCell>{`${exercise.sets} x ${exercise.reps}`}</TableCell>
+                                <TableCell >{exercise.exercise.name}</TableCell>
+                                <TableCell >{`${exercise.sets} x ${exercise.reps}`}</TableCell>
                                 <TableCell>{exercise.note || ''}</TableCell>
                             </TableRow>
                         ))}
@@ -325,9 +323,9 @@ const Train = () => {
     return (
         <div className={`${backgroundColorClass} w-full p-4 border rounded-lg`}>
             <Card className='h-full w-full flex flex-col'>
-                <div className='flex h-full'>
+                <div className='flex h-full w-full'>
 
-                    <div className='flex flex-col h-full basis-full md:basis-2/5 px-6 md:pl-6'>
+                    <div className='flex flex-col h-full basis-full w-full md:basis-2/5 px-6 md:pl-6'>
                         <div className='flex flex-col pr-2 py-6'>
                             <div className='flex mb-4'>
                                 {activeProgram? <h1 className='mr-2 text-2xl font-semibold'>{activeProgram.name}</h1> : <h1 className='mr-2 text-2xl font-semibold'>No Active Program</h1>}
@@ -356,9 +354,6 @@ const Train = () => {
                                     </SheetContent>
                                 </Sheet>
                             </div>
-                            
-                            
-                            
                         </div>
 
                         <div className='flex-1'>
@@ -376,13 +371,13 @@ const Train = () => {
                                         
                                     )
                                 )}
-                            </div>
+                        </div>
                         
-                        <div className='mb-6'>
-                            <Button onClick={startWorkoutSession} className='self-center w-5/12 md:w-1/2 p-6 text-lg'>Start Training!</Button>
+                        <div className='flex justify-center gap-4 items-center mb-6 '>
+                            <Button onClick={startWorkoutSession} className='self-center p-6 text-lg'>Train!</Button>
                             <Sheet open={isSheetOpen} onOpenChange={handleSheetOpenChange}>
                                 <SheetTrigger asChild>
-                                    <Button variant='outline' onClick={() => setIsSheetOpen(true)} className='mx-2 self-center w-1/2 md:w-2/5 mb-4 p-6 text-lg'>Change Workout</Button>
+                                    <Button variant='outline' onClick={() => setIsSheetOpen(true)} className='self-center w-1/2 md:w-2/5 p-6 text-lg'>Change Workout</Button>
                                 </SheetTrigger>
                                 <SheetContent>
                                     <div className='w-full flex justify-center'>
