@@ -66,8 +66,8 @@ function ProCalendar({
           <div className="flex items-center justify-center">
             <span>{date.getDate()}</span>
           </div>
-          <div onClick={() => handleOpenDialog(dayData)} className="absolute top-2 right-1 text-xs px-2">
-            <FontAwesomeIcon size='lg' icon={faCheck} />
+          <div onClick={() => handleOpenDialog(dayData)} className="absolute top-1 right-0 text-xs px-2">
+            <FontAwesomeIcon className='hidden' size='sm' icon={faCheck} />
           </div>
       </div>
       );
@@ -86,11 +86,11 @@ function ProCalendar({
     (<>
     <DayPicker
       showOutsideDays={showOutsideDays}
-      className={cn("p-3", className)}
+      className={cn("", className)}
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-        month: "space-y-4",
-        caption: "flex justify-center p-2 relative items-center",
+        month: "space-y-2",
+        caption: "flex justify-center p-0 relative items-center",
         caption_label: "text-lg font-medium",
         nav: "space-x-1 flex items-center",
         nav_button: cn(
@@ -102,12 +102,12 @@ function ProCalendar({
         table: "w-full border-collapse space-y-1",
         head_row: "flex",
         head_cell:
-          "text-muted-foreground rounded-md w-16 font-normal text-[0.8rem]",
+          "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
         row: "flex w-full mt-2",
-        cell: "rounded-md h-16 w-16 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+        cell: "rounded-md h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
         day: cn(
           buttonVariants({ variant: "ghost" }),
-          "h-16 w-16 p-0 font-normal aria-selected:opacity-100"
+          "h-9 w-9 p-0 font-normal aria-selected:opacity-100"
         ),
         day_range_end: "day-range-end",
         day_selected:

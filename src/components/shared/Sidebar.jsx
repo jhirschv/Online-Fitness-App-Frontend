@@ -23,14 +23,14 @@ const SideBar = () => {
             </li>
           </NavLink>
 
-          <NavLink  to="/train">
+          <NavLink  to="/">
             <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md transition duration-150 ease-in-out">
               <FontAwesomeIcon  size='lg' className="mr-3" icon={faPersonRunning} />
               Train!
             </li>
           </NavLink>
           
-          <NavLink  to="/">
+          <NavLink  to="programs">
             <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md transition duration-150 ease-in-out">
               <FontAwesomeIcon className="mr-3" icon={faFolder} />
               Programs
@@ -50,13 +50,6 @@ const SideBar = () => {
               Progress
             </li>
           </NavLink>
-         
-          {/* <NavLink to='/clients'> 
-            <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md transition duration-150 ease-in-out">
-              <FontAwesomeIcon className="mr-3" icon={faUserGroup} />
-              Friends
-            </li>
-          </NavLink> */}
 
           <NavLink to='/Chat'> 
             <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md transition duration-150 ease-in-out">

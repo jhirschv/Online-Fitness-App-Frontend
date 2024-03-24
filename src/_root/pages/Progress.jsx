@@ -47,9 +47,72 @@ const Progress = () => {
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
 
     return (
-        <div className={`w-full h-[520px] md:h-full ${backgroundColorClass} md:p-4`}>
-            <Card className='h-full w-full rounded-none md:rounded md:border border-none flex justify-center pt-8'>
-            <div className='w-full flex justify-center md:w-1/2'>
+        <div className={`w-full h-[520px] border rounded-lg md:h-full ${backgroundColorClass} md:p-4`}>
+            <Card className='h-full w-full md:border flex justify-center p-4'>
+            <div class="w-full h-full grid grid-cols-1 md:grid-cols-3 gap-4">
+    
+    <div class="col-span-2 h-48"><Card className='w-full h-full'>Item 1</Card></div>
+
+    <div class="h-[400px] row-span-2">
+        <Card className='w-full h-full flex justify-center pt-1'>
+            <ProCalendar
+                mode="single"
+                selected={date}
+                className="hidden md:block h-[90%]"
+                />
+
+        </Card>
+    </div>
+
+   
+    <div class="row-span-2 col-span-2 h-[400px]">
+        <Card className='w-full h-full flex flex-col'>
+        <h1 className='px-4 py-6 text-xl font-semibold'>Back Squat Estimated 1RM</h1>
+                            <ResponsiveContainer width="100%" height={300}>
+                            
+                                <LineChart
+                                    width={500}
+                                    height={300}
+                                    data={data}
+                                    margin={{ top: 5, right: 30, left: 5, bottom: 5 }}
+                                >
+                                    <XAxis dataKey="date" 
+                                    stroke="#888888"
+                                    padding={{ left: 20, right: 20 }}
+                                    tickFormatter={(value) => format(parseISO(value), 'MMM dd')}
+                                    fontSize={12}
+                                    tickLine={false}
+                                    axisLine={false} />
+                                    <YAxis 
+                                    stroke="#888888"
+                                    tickFormatter={(value) => `${value} lbs`}
+                                    fontSize={12}
+                                    tickLine={false}
+                                    axisLine={false}/>
+                                    <Tooltip />
+                                    <Line type="monotone" strokeWidth={2} dataKey="weight" stroke="#471fad" activeDot={{r: 8, style: { fill: "var(--theme-primary)" },}} />
+                                </LineChart>
+                            </ResponsiveContainer>
+        </Card>
+    </div>
+
+
+    <div class="h-48"><Card className='w-full h-full'>Item 5</Card></div>
+
+
+</div>
+                            
+            
+            </Card>
+        </div>
+    )
+}
+
+export default Progress
+
+
+
+{/* <div className='w-full flex justify-center md:w-1/2'>
                 <Tabs defaultValue="Strength" className="w-[100%] p-6">
                     <div className='flex items-center justify-between'> 
                         <TabsList className='w-full'>
@@ -150,12 +213,4 @@ const Progress = () => {
                     className="hidden md:block h-[90%] m-4"
                     />
 
-            </div>
-            
-            
-            </Card>
-        </div>
-    )
-}
-
-export default Progress
+            </div> */}

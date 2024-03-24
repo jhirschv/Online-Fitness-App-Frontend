@@ -36,10 +36,10 @@ function App() {
               <Route path="account" element={<Account />} />  
               <Route path="edit/:phaseId/:workoutId" element={<Edit />} />  
               <Route path='workout/:workoutId' element={<Workout />} />
-              <Route index element={<Programs />} />       
+              <Route path='programs' element={<Programs />} />       
               <Route path="workouts" element={<Workouts />} />       
               <Route path="/program_overview/:programId" element={<ProgramOverview />} />
-              <Route path="/train" element={<Train />} />
+              <Route index element={<Train />} />
               <Route path="/workoutSession/:sessionId" element={<WorkoutSession />} />
               <Route path="/Progress" element={<Progress />} />
               <Route path="/Chat" element={<Chat />} />
