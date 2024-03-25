@@ -137,10 +137,13 @@ const Topbar = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Avatar className="mx-3 ">
-            <AvatarImage src="https://github.com/shadcn.png" />
-            <AvatarFallback>CN</AvatarFallback>
-          </Avatar>
+          <NavLink to='/account'>
+            <Avatar className="mx-3 md:hidden">
+              <AvatarImage src="https://github.com/shadcn.png" />
+              <AvatarFallback>CN</AvatarFallback>
+            </Avatar>
+          </NavLink>
+          
           <FontAwesomeIcon icon={faRightFromBracket} onClick={logoutUser} className='md:block ml-4' size="xl"/>
         </div>
         

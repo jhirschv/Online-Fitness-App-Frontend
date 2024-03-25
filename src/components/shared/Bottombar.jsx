@@ -9,35 +9,35 @@ import { faDumbbell, faPersonRunning, faChartLine, faWandMagicSparkles, faCommen
 const Bottombar = () => {
   return (
     <div className='fixed bottom-0 md:hidden w-full flex h-24 bg-background'>
-        <ul className="flex w-full justify-between px-6">
+        <ul className="flex w-full justify-evenly">
 
-            <NavLink  to="/">
-            <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md transition duration-150 ease-in-out">
-                <FontAwesomeIcon  size='lg' className="mr-3" icon={faPersonRunning} />
+            <NavLink className='flex justify-center items-center ' to="/">
+            <li className="flex items-center text-lg hover:bg-muted p-8 w-full h-16 rounded-md transition duration-150 ease-in-out">
+                <FontAwesomeIcon  size='lg' icon={faPersonRunning} />
             </li>
             </NavLink>
 
-            <NavLink  to="/programs">
-            <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md transition duration-150 ease-in-out">
-                <FontAwesomeIcon className="mr-3" icon={faFolder} />
+            <NavLink className='flex justify-center items-center ' to="/programs">
+            <li className="flex items-center text-lg hover:bg-muted p-8 w-full h-16 rounded-md transition duration-150 ease-in-out">
+                <FontAwesomeIcon size='lg' icon={faFolder} />
             </li>
             </NavLink>
 
-            <NavLink  to="/workouts">
-            <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md transition duration-150 ease-in-out">
-                <FontAwesomeIcon className="mr-3" icon={faDumbbell} />
+{/*             <NavLink className='flex justify-center items-center ' to="/workouts">
+            <li className="flex items-center text-lg hover:bg-muted w-f p-8ull h-16 rounded-md transition duration-150 ease-in-out">
+                <FontAwesomeIcon size='lg' icon={faDumbbell} />
+            </li>
+            </NavLink> */}
+
+            <NavLink className='flex justify-center items-center ' to='/progress'> 
+            <li className="flex items-center text-lg hover:bg-muted p-8 w-full h-16 rounded-md transition duration-150 ease-in-out">
+                <FontAwesomeIcon size='lg' icon={faChartLine} />
             </li>
             </NavLink>
 
-            <NavLink to='/Progress'> 
-            <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md transition duration-150 ease-in-out">
-                <FontAwesomeIcon className="mr-3" icon={faChartLine} />
-            </li>
-            </NavLink>
-
-            <NavLink to='/Chat'> 
-            <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md transition duration-150 ease-in-out">
-                <FontAwesomeIcon className="mr-3" icon={faComments} />
+            <NavLink className='flex justify-center items-center ' to='/Chat'> 
+            <li className="flex items-center text-lg hover:bg-muted p-8 w-full h-16 rounded-md transition duration-150 ease-in-out">
+                <FontAwesomeIcon size='lg' icon={faComments} />
             </li>
             </NavLink>
 

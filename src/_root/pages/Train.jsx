@@ -318,7 +318,6 @@ const Train = () => {
             </>
         )
     }
-   
 
     return (
         <div className={`${backgroundColorClass} w-full p-4 border rounded-lg`}>
@@ -328,7 +327,7 @@ const Train = () => {
                     <div className='flex flex-col h-full basis-full w-full md:basis-2/5 px-6 md:pl-6'>
                         <div className='flex flex-col pr-2 py-6'>
                             <div className='flex mb-4'>
-                                {activeProgram? <h1 className='mr-2 text-2xl font-semibold'>{activeProgram.name}</h1> : <h1 className='mr-2 text-2xl font-semibold'>No Active Program</h1>}
+                                {activeProgram && <h1 className='mr-2 text-2xl font-semibold'>{activeProgram.name}</h1>}
                                 <Sheet>
                                     <SheetTrigger asChild>
                                         <Button variant="outline">Change Program</Button>
