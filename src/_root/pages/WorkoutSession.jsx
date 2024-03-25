@@ -169,19 +169,19 @@ const WorkoutSession = () => {
     }
 
     return (
-        <div className={`w-full ${backgroundColorClass} border rounded-lg p-4`}>
+        <div className={`w-full ${backgroundColorClass} md:border md:rounded-lg md:p-4`}>
 
-            <Card className='h-full w-full relative'>
-                <FontAwesomeIcon className='absolute top-6 left-6' onClick={goBack} size="xl" icon={faAngleLeft} />
+            <Card className='h-full w-full rounded-none md:rounded-lg relative'>
+                <FontAwesomeIcon className='hidden md:block absolute top-6 left-6' onClick={goBack} size="xl" icon={faAngleLeft} />
 
-                <div className='w-full h-full flex'>
-                    <div className='flex-3'>
-                        <Carousel className="w-full md:mx-16 mt-6 max-w-2xl">
-                            <CarouselContent className='w-[373px] md:w-full'>
+                <div className='w-full h-full flex justify-center items-center'>
+                    
+                        <Carousel className="w-full md:mx-16 md:mt-6 md:max-w-md md:max-w-3xl">
+                            <CarouselContent className='w-100vw min-w-full'>
                                 {sessionDetails && sessionDetails.exercise_logs.map((exercise, index) => (
-                                <CarouselItem key={exercise.id}   >
+                                <CarouselItem className='w-full' key={exercise.id}   >
                                     <div >
-                                    <Card className='h-[600px]' >
+                                    <Card className='h-full w-full border-none md:border' >
                                         <CardContent className="flex p-6 ">
                                             <div className='flex flex-col w-full'>
                                                 <div className='flex items-center pb-4'>
@@ -235,7 +235,7 @@ const WorkoutSession = () => {
                                 ))}
                                 <CarouselItem className='basis-full h-full'>
                                     <div className="p-1">
-                                        <Card className='h-[600px]'>
+                                        <Card className='h-[600px] w-full border-none md:border'>
                                             <CardContent className="flex flex-col h-full items-center justify-center p-6 gap-2">
                                                     <h1 className='text-xl font-semibold'>Workout Finished!</h1>
                                                     <Button onClick={goBack}>End Workout</Button>
@@ -249,8 +249,8 @@ const WorkoutSession = () => {
                             <CarouselPrevious className='hidden md:flex'/>
                             <CarouselNext className='hidden md:flex'/>
                         </Carousel>   
-                    </div>
-                    <div className='hidden md:block flex-1 h-full'>
+                    
+                    <div className='hidden xl:block flex-1 h-full'>
                         <Card className='rounded-none h-full flex-2 p-6'>
                             <div className='flex items-center justify-between pr-2 mb-4'>
                                 <h1 className='font-semibold text-lg'>{currentDate}: {sessionDetails && sessionDetails.workout.name}</h1>
