@@ -238,7 +238,7 @@ const Create = () => {
         return (
             <Card key={exercise.id} className='relative mt-1 mb-1 mx-2 md:mr-3'> 
             {editMode ? 
-            <div className='absolute top-2 right-4'>
+            <div className='absolute top-1 right-3'>
                 <Popover>
                     <PopoverTrigger><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
                     <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md'>
@@ -285,7 +285,7 @@ const Create = () => {
                 </Popover>
                 </div> 
                 }
-                <p className='md:w-1/4 ml-2 md:text-md font-semibold'>{exercise.name}</p>
+                <p className='w-1/4 ml-2 md:text-md font-semibold'>{exercise.name}</p>
 
                  
                 <div className='flex items-center md:ml-10'>
@@ -325,7 +325,7 @@ const Create = () => {
                 <Select value={reps > 0 ? reps.toString() : ''}
                  onValueChange={(newValue) => handleRepsChange(exercise.id, parseInt(newValue, 10))}
                  id={`reps-${exercise.id}`}>
-                    <SelectTrigger className="w-[55px] md:w-[80px] focus:ring-0 focus:ring-offset-0">
+                    <SelectTrigger className="w-[50px] md:w-[80px] focus:ring-0 focus:ring-offset-0">
                         <SelectValue placeholder={`${reps? reps : 'reps'}`} />
                     </SelectTrigger>
                     <SelectContent>
@@ -356,8 +356,8 @@ const Create = () => {
                 </Select> 
                 </div>     
                  
-                <div className='flex flex-col mr-6'>
-                    <FontAwesomeIcon onClick={() => {setVisibleTextareas(prev => ({...prev, [exercise.id]: !prev[exercise.id]}))}} size='lg' icon={faPenToSquare} />
+                <div className='flex flex-col'>
+                    <FontAwesomeIcon onClick={() => {setVisibleTextareas(prev => ({...prev, [exercise.id]: !prev[exercise.id]}))}} size='md' icon={faPenToSquare} />
                     <p className='text-xs mt-1'>Add Note</p>
                 </div> 
                         
@@ -381,7 +381,7 @@ const Create = () => {
     )})
 
     return (
-        <div className={`w-full flex ${backgroundColorClass} border rounded-lg p-4`}>
+        <div className={`w-full flex ${backgroundColorClass} md:border rounded-lg md:p-4`}>
             <div className='w-full md:w-3/5'>
                 
                 <Card className='md:mr-4 h-full flex flex-col'>
@@ -398,7 +398,7 @@ const Create = () => {
                         <FontAwesomeIcon onClick={goBack} size="xl" icon={faAngleLeft} />
                         
                     </CardHeader>
-                    <CardContent className='p-0 md:px-6'>
+                    <CardContent className='px-6'>
                         <ScrollArea className="h-96 w-full rounded-md">
                             <div>
                                 {workoutExerciseList.length > 0 ? workoutExerciseList : <div className=' flex justify-center items-center w-full h-96 text-muted-foreground font-semibold text-xl'>
@@ -410,7 +410,7 @@ const Create = () => {
                 </Card>
             </div>
             {editMode ? 
-            <div className='hidden md:flex flex-1 flex-col'>
+            <div className='hidden lg:flex flex-1 flex-col'>
                 <Card className='mb-2'>
                     <CardHeader className='pt-4 pb-0 px-4 '>
                         <CardTitle className='text-lg'>

@@ -146,7 +146,7 @@ const Progress = () => {
                     </ResponsiveContainer>
                 </div>
 
-                <div class="h-[400px] row-span-2">
+                <div class="h-[400px] col-span-2 row-span-2">
                     <Card className='w-full h-full flex justify-center pt-1'>
                         <ProCalendar
                             mode="single"
@@ -190,7 +190,7 @@ const Progress = () => {
                 </div>
 
 
-                <div class="h-48">
+                <div class="h-48 col-span-2">
                     <Card className='w-full h-full pt-2'>
                         <h1 className='text-xl font-semibold px-6'>Consistency</h1>
                         <ResponsiveContainer width="100%" height={150}>
