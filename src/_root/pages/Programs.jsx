@@ -50,6 +50,7 @@ import { faEllipsis, faPlus} from '@fortawesome/free-solid-svg-icons';
 import { Button } from "@/components/ui/button"
 import { useTheme } from '@/components/theme-provider';
 import { useNavigate } from 'react-router-dom';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 
 export default function YourWorkouts() {
@@ -105,6 +106,23 @@ export default function YourWorkouts() {
         });
     }, []);
 
+    const [workouts, setWorkouts] = useState(null)
+
+    useEffect(() => {
+        apiClient.get('/user_workouts/')
+        .then(response => {
+            setWorkouts(response.data);
+            console.log(response.data)
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
+    }, [])
+
+    const ClickWorkout = (workoutId) => {
+        navigate(`/workout/${workoutId}`);// Navigate to program details page
+    }
+
     const navigate = useNavigate();
     const handleProgramClick = (programId) => {
         navigate(`/program_overview/${programId}/`); // Navigate to program details page
@@ -115,10 +133,10 @@ export default function YourWorkouts() {
         <div className={`w-full ${backgroundColorClass} md:border md:rounded-lg md:p-4`}>
             <Card className='h-full w-full rounded-none md:rounded-lg'>
                 <div>
-                    <div className='flex justify-between items-center'>
+                    <div className='flex justify-between items-center mb-6'>
                         <div className='px-6 pt-6 pb-2'>
-                            <h1 className='text-2xl font-semibold '>Programs</h1>
-                            <p className='hidden md:block text-sm text-muted-foreground'>Create, customize, and share programs here</p>
+                            <h1 className='text-2xl font-semibold '>Workouts</h1>
+                            <p className='hidden md:block text-sm text-muted-foreground'>Create, customize, and share your workouts here</p>
                         </div>
                     
                     
@@ -140,7 +158,76 @@ export default function YourWorkouts() {
                     </AlertDialog>
                     </div>
                     <div className='flex flex-col w-full px-4 pb-4'>
-                        <div className='flex items-center justify-end pb-2 space-x-2 w-full'>
+
+                        <Tabs defaultValue="workouts" className="">
+                            <TabsList className='rounded-xs'>
+                                <TabsTrigger className='rounded-xs' value="workouts">Workouts</TabsTrigger>
+                                <TabsTrigger className='rounded-xs' value="programs">Programs</TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="programs">
+                                <div className="rounded-md border">
+                                    <Table>
+                                        <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Name</TableHead>
+                                            <TableHead>Descritpion</TableHead>
+                                            <TableHead>Creator</TableHead>
+                                        </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                        {programs.map((program) => (
+                                            <TableRow key={program.id} className='relative' onClick={() => handleProgramClick(program.id)}>
+                                            
+                                            <TableCell key={program.name}>{program.name}</TableCell>
+                                            <TableCell className="font-medium p-6">{program.description}</TableCell>
+                                            <TableCell>{program.creator.username[0].toUpperCase() + program.creator.username.slice(1)}
+                                            <div className='hidden md:block absolute top-0 right-4' onClick={(event) => event.stopPropagation()}>
+                                                <Popover>
+                                                    <PopoverTrigger className='p-4'><FontAwesomeIcon size='lg' icon={faEllipsis} /></PopoverTrigger>
+                                                    <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md' >
+                                                        <Button onClick={() => deleteProgram(program.id)} className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>Delete Program</Button></PopoverContent>
+                                                </Popover>
+                                            </div> 
+                                            </TableCell>
+                                            </TableRow>
+                                        ))}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                            </TabsContent>
+                            <TabsContent value="workouts">
+                            <div className="rounded-md border">
+                                <Table>
+                                    <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Name</TableHead>
+                                        <TableHead>Descritpion</TableHead>
+                                        <TableHead>Creator</TableHead>
+                                    </TableRow>
+                                    </TableHeader>
+                                    
+                                    <TableBody className="overflow-y-auto">
+                                    {workouts && workouts.map((workout) => (
+                                        <TableRow onClick={() => ClickWorkout(workout.id)} key={workout.id} className='relative'>
+                                        <TableCell key={workout.name}>{workout.name}</TableCell>
+                                        <TableCell className="hidden md:block font-medium p-6">{workout.description}</TableCell>
+                                        <TableCell>{workout.creator.username[0].toUpperCase() + workout.creator.username.slice(1)}
+                                        <div className='hidden md:block absolute top-0 right-4'>
+                                            <Popover>
+                                                <PopoverTrigger className='p-4'><FontAwesomeIcon size='lg' icon={faEllipsis} /></PopoverTrigger>
+                                                <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md' >
+                                                    <Button className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>Delete Program</Button></PopoverContent>
+                                            </Popover>
+                                        </div> 
+                                        </TableCell>
+                                        </TableRow>
+                                    ))}
+                                    </TableBody>
+                                </Table>
+                                </div>
+                            </TabsContent>
+                        </Tabs>
+                        {/* <div className='flex items-center justify-end pb-2 space-x-2 w-full'>
                             <Label className='hidden md:block' htmlFor="sort">Sort by:</Label>
 
                             <Select className='self-end focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-none focus-visible:ring-offset-0' id='sort'>
@@ -154,36 +241,8 @@ export default function YourWorkouts() {
                                     <SelectItem value="name">Name</SelectItem>
                                 </SelectContent>
                             </Select>
-                        </div>
-                    <div className="rounded-md border">
-                    <Table>
-                        <TableHeader>
-                        <TableRow>
-                            <TableHead>Name</TableHead>
-                            <TableHead>Descritpion</TableHead>
-                            <TableHead>Creator</TableHead>
-                        </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                        {programs.map((program) => (
-                            <TableRow key={program.id} className='relative' onClick={() => handleProgramClick(program.id)}>
-                             
-                            <TableCell key={program.name}>{program.name}</TableCell>
-                            <TableCell className="font-medium p-6">{program.description}</TableCell>
-                            <TableCell>{program.creator.username[0].toUpperCase() + program.creator.username.slice(1)}
-                            <div className='hidden md:block absolute top-0 right-4' onClick={(event) => event.stopPropagation()}>
-                                <Popover>
-                                    <PopoverTrigger className='p-4'><FontAwesomeIcon size='lg' icon={faEllipsis} /></PopoverTrigger>
-                                    <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md' >
-                                        <Button onClick={() => deleteProgram(program.id)} className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>Delete Program</Button></PopoverContent>
-                                </Popover>
-                            </div> 
-                            </TableCell>
-                            </TableRow>
-                        ))}
-                        </TableBody>
-                    </Table>
-                    </div>
+                        </div> */}
+                    
 
                     </div>
                 </div>

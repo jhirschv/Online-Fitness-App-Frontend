@@ -33,16 +33,16 @@ const SideBar = () => {
           <NavLink  to="programs">
             <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md transition duration-150 ease-in-out">
               <FontAwesomeIcon className="mr-3" icon={faFolder} />
-              Programs
+              Workouts
             </li>
           </NavLink>
 
-          <NavLink  to="/workouts">
+          {/* <NavLink  to="/workouts">
             <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md transition duration-150 ease-in-out">
               <FontAwesomeIcon className="mr-3" icon={faDumbbell} />
               Workouts
             </li>
-          </NavLink>
+          </NavLink> */}
 
           <NavLink to='/Progress'> 
             <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md transition duration-150 ease-in-out">
