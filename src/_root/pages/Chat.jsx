@@ -104,9 +104,9 @@ const Chat = () => {
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
 
     return (
-        <div className={`w-full ${backgroundColorClass} border rounded-lg p-4`}>
-            <Card className='h-full w-full flex overflow-hidden'>
-                <Card className="hidden md:block flex-none w-1/3 rounded-none">
+        <div className={`w-full ${backgroundColorClass} md:border rounded-lg md:p-4`}>
+            <Card className='h-full w-full flex overflow-hidden border rounded-none md:rounded-lg'>
+                <Card className="hidden border-none md:block flex-none w-1/3 rounded-none">
                     <div className='flex justify-between items-center p-6'>
                         <h1 className='text-2xl font-semibold'>Chats</h1>
                         <FontAwesomeIcon size='lg' icon={faPenToSquare} />
@@ -159,7 +159,7 @@ const Chat = () => {
                         <Separator />
                     </div>
                 </Card>
-                <Card className="flex flex-col flex-grow rounded-none">
+                <Card className="flex flex-col flex-grow rounded-none border-none">
                     <CardHeader className="flex flex-row items-center">
                     <div className="flex items-center space-x-4">
                         <Avatar>

@@ -60,8 +60,8 @@ const Progress = () => {
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
 
     return (
-        <div className={`w-full border rounded-lg md:h-full ${backgroundColorClass} md:p-4 pb-24`}>
-            <Card className='h-full w-full md:border flex justify-center p-4'>
+        <div className={`w-full md:border rounded-lg md:h-full ${backgroundColorClass} md:p-4 pb-24`}>
+            <Card className='h-full w-full md:border rounded-none md:rounded-lg flex justify-center p-4'>
             <div class="w-full h-full grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="col-span-2 h-48">
                     <Card className='flex w-full h-full'>
