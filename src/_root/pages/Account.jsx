@@ -33,8 +33,8 @@ const Account = () => {
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
 
     return (
-        <div className={`w-full ${backgroundColorClass} border rounded-lg p-4`}>
-            <Card className='h-full w-full'>
+        <div className={`w-full ${backgroundColorClass} md:border rounded-lg md:p-4`}>
+            <Card className='h-full w-full rounded-none md:rounded-lg'>
                     <div className='p-6 flex justify-between items-center'>
                         <div className='w-full'>
                             <h1 className='text-2xl font-semibold '>Account</h1>
