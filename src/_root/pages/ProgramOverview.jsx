@@ -213,7 +213,7 @@ const ProgramOverview = () => {
 
     return (
     <div className={`w-full ${backgroundColorClass} md:border md:rounded-lg md:p-4`}>
-        <Card className='h-full w-full flex flex-col rounded-none md:rounded-lg'>
+        <Card className='border-0 md:border h-full w-full flex flex-col rounded-none md:rounded-lg'>
             <div className='p-6 flex justify-between items-center'>
                 <div className='flex'>
                 {program ? (

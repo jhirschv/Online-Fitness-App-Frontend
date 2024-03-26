@@ -321,7 +321,7 @@ const Train = () => {
 
     return (
         <div className={`${backgroundColorClass} w-full md:p-4 md:border md:rounded-lg`}>
-            <Card className='h-full w-full flex flex-col rounded-none md:rounded-lg'>
+            <Card className='border-0 md:border h-full w-full flex flex-col rounded-none md:rounded-lg'>
                 <div className='flex h-full w-full'>
 
                     <div className='flex flex-col h-full basis-full w-full md:basis-2/5 px-6 md:pl-6'>

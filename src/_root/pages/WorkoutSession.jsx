@@ -171,7 +171,7 @@ const WorkoutSession = () => {
     return (
         <div className={`w-full ${backgroundColorClass} md:border md:rounded-lg md:p-4`}>
 
-            <Card className='h-full w-full rounded-none md:rounded-lg relative'>
+            <Card className='border-0 md:border h-full w-full rounded-none md:rounded-lg relative'>
                 <FontAwesomeIcon className='hidden md:block absolute top-6 left-6' onClick={goBack} size="xl" icon={faAngleLeft} />
 
                 <div className='w-full h-full flex justify-center items-center'>

@@ -131,7 +131,7 @@ export default function YourWorkouts() {
     return (
 
         <div className={`w-full ${backgroundColorClass} md:border md:rounded-lg md:p-4`}>
-            <Card className='h-full w-full rounded-none md:rounded-lg'>
+            <Card className='border-0 md:border h-full w-full rounded-none md:rounded-lg'>
                 <div>
                     <div className='flex justify-between items-center mb-6'>
                         <div className='px-6 pt-6 pb-2'>

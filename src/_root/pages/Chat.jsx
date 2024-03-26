@@ -105,7 +105,7 @@ const Chat = () => {
 
     return (
         <div className={`w-full ${backgroundColorClass} md:border rounded-lg md:p-4`}>
-            <Card className='h-full w-full flex overflow-hidden rounded-none md:rounded-lg'>
+            <Card className='border-0 md:border h-full w-full flex overflow-hidden rounded-none md:rounded-lg'>
                 <Card className="hidden border-none md:block flex-none w-1/3 rounded-none">
                     <div className='flex justify-between items-center p-6'>
                         <h1 className='text-2xl font-semibold'>Chats</h1>

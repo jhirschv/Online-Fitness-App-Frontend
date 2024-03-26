@@ -384,7 +384,7 @@ const Create = () => {
         <div className={`w-full flex ${backgroundColorClass} md:border rounded-lg md:p-4`}>
             <div className='w-full md:w-3/5'>
                 
-                <Card className='md:mr-4 h-full flex flex-col'>
+                <Card className='border-0 md:border md:mr-4 h-full flex flex-col'>
                     <CardHeader className='flex flex-row items=center justify-between'>
                         <div>
                         {workout ? (
