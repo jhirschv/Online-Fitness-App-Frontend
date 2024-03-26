@@ -100,6 +100,18 @@ const Train = () => {
       }
     };
 
+    function turnOffProgram() {
+        apiClient.post(`/set_inactive_program/`, {program_id: activeProgram.id})
+        .then(response => {
+            setActiveProgram(null)
+            setCurrentWorkout(null)
+            console.log(response.data);
+        })
+        .catch(error => {
+            console.error('Error starting workout session:', error);
+        });
+    }
+
     function updateActiveProgram(selectedProgram) {
             const payload = {
                 program_id: selectedProgram, 
@@ -325,33 +337,42 @@ const Train = () => {
                 <div className='flex h-full w-full'>
 
                     <div className='flex flex-col h-full basis-full w-full md:basis-2/5 px-6 md:pl-6'>
-                        <div className='flex flex-col pr-2 py-6'>
-                            <div className='flex mb-4'>
+                        <div className='flex flex-col py-6'>
+                            <div className='w-full flex'>
                                 {activeProgram && <h1 className='mr-2 text-2xl font-semibold'>{activeProgram.name}</h1>}
-                                <Sheet>
-                                    <SheetTrigger asChild>
-                                        <Button variant="outline">Change Program</Button>
-                                    </SheetTrigger>
-                                    <SheetContent>
-                                        <SheetHeader>
-                                        <SheetTitle>Select Program</SheetTitle>
-                                        </SheetHeader>
-                                        {userPrograms.map((program) => (
-                                        <div
-                                            key={program.id}
-                                            className={`p-4 rounded ${selectedProgram === program.id ? 'bg-secondary' : 'bg-background'}`}
-                                            onClick={() => handleProgramClick(program.id)}
-                                        >
-                                            <h1>{program.name}</h1>
-                                        </div>
-                                        ))}
-                                        <SheetFooter className='mt-4'>
-                                        <SheetClose asChild>
-                                            <Button type="submit" onClick={() => updateActiveProgram(selectedProgram)}>Save changes</Button>
-                                        </SheetClose>
-                                        </SheetFooter>
-                                    </SheetContent>
-                                </Sheet>
+                                <div className='ml-auto flex gap-4'>
+                                    <Sheet>
+                                        <SheetTrigger asChild>
+                                            <Button variant="outline">All Programs</Button>
+                                        </SheetTrigger>
+                                        <SheetContent>
+                                            <SheetHeader>
+                                            <SheetTitle>Select Program</SheetTitle>
+                                            </SheetHeader>
+                                            {userPrograms.map((program) => (
+                                            <div
+                                                key={program.id}
+                                                className={`p-4 rounded ${selectedProgram === program.id ? 'bg-secondary' : 'bg-background'}`}
+                                                onClick={() => handleProgramClick(program.id)}
+                                            >
+                                                <h1>{program.name}</h1>
+                                            </div>
+                                            ))}
+                                            <SheetFooter className='mt-4'>
+                                            <SheetClose asChild>
+                                                <Button type="submit" onClick={() => updateActiveProgram(selectedProgram)}>Save changes</Button>
+                                            </SheetClose>
+                                            </SheetFooter>
+                                        </SheetContent>
+                                    </Sheet>
+                                    {activeProgram &&
+                                    <Popover>
+                                        <PopoverTrigger><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
+                                        <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md'>
+                                            <Button onClick={turnOffProgram} className='px-2 py-1.5 text-sm outline-none hover:bg-accent bg-popover text-secondary-foreground'>Turn off program</Button>
+                                        </PopoverContent>
+                                    </Popover>}
+                                </div>
                             </div>
                         </div>
 
@@ -365,13 +386,15 @@ const Train = () => {
                                         <div className='w-full flex flex-col gap-2 mt-[35%] items-center text-muted-foreground text-lg'>
                                             <h1>Nothing to see here!</h1>
                                             <h1>{date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h1>
+                                            <Button className='rounded-xs mt-4 mb-2' >Create Workout</Button>
+                                            <Button className='rounded-xs' variant='secondary'>Add From Library</Button>
                                         
                                         </div>
                                         
                                     )
                                 )}
                         </div>
-                        
+                        {currentWorkout && 
                         <div className='flex justify-center gap-4 items-center mb-6 '>
                             <Button onClick={startWorkoutSession} className='self-center p-6 text-lg'>Train!</Button>
                             <Sheet open={isSheetOpen} onOpenChange={handleSheetOpenChange}>
@@ -404,8 +427,7 @@ const Train = () => {
                                     </ScrollArea>
                                 </SheetContent>
                              </Sheet>
-                        </div>
-                        
+                        </div>}
                     </div>
 
                     <div className='hidden md:flex h-full items-center justify-center basis-3/5'>

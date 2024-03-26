@@ -120,7 +120,7 @@ const Chat = () => {
                             </Avatar>
                             <div className='h-full flex flex-col justify-center'>
                                 <h1 className='font-semibold'>John</h1>
-                                <p className='text-sm text-muted-foreground'>I fucked your bitch</p>
+                                <p className='text-sm text-muted-foreground'>I love cats</p>
                             </div>
                         </div>
                         <Separator />
@@ -131,7 +131,7 @@ const Chat = () => {
                             </Avatar>
                             <div className='h-full flex flex-col justify-center'>
                                 <h1 className='font-semibold'>McKay</h1>
-                                <p className='text-sm text-muted-foreground'>You should probably get tested</p>
+                                <p className='text-sm text-muted-foreground'>Did you see my message?</p>
                             </div>
                         </div>
                         <Separator />
@@ -142,7 +142,7 @@ const Chat = () => {
                             </Avatar>
                             <div className='h-full flex flex-col justify-center'>
                                 <h1 className='font-semibold'>Andreas</h1>
-                                <p className='text-sm text-muted-foreground'>Where did all my peanut butter go?</p>
+                                <p className='text-sm text-muted-foreground'>I just got Taylor Swift tickets!!!</p>
                             </div>
                         </div>
                         <Separator />
@@ -153,7 +153,7 @@ const Chat = () => {
                             </Avatar>
                             <div className='h-full flex flex-col justify-center'>
                                 <h1 className='font-semibold'>Caleb</h1>
-                                <p className='text-sm text-muted-foreground'>That wasnt mayo</p>
+                                <p className='text-sm text-muted-foreground'>My dog is still a puppy!</p>
                             </div>
                         </div>
                         <Separator />
