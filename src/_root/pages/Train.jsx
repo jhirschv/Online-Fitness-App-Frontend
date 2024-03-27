@@ -79,15 +79,17 @@ const Train = () => {
     const [activeProgram, setActiveProgram] = useState(null)
     const [workouts, setWorkouts] = useState([])
     const [clickedWorkout, setClickedWorkout] = useState()
+    const [carouselApi, setCarouselApi] = useState(null);
     useEffect(() => {
         if (workouts && workouts.length > 0) {
           setClickedWorkout(workouts[0]);
         }
       }, [workouts]);
     const handleWorkoutClick = (workout) => {
-        console.log(workout)
         setClickedWorkout(workout);
-        console.log(workout.workout_exercises)
+        if (carouselApi) {
+            carouselApi.scrollTo(1); // Navigate to the second item
+          }
     };
     const [selectedProgram, setSelectedProgram] = useState(null)
     const [userPrograms, setUserPrograms] = useState([])
@@ -429,7 +431,7 @@ const Train = () => {
                         <div className='flex-1 flex flex-col'>
                             {activeProgram ? (
                                 <div className='flex flex-col h-full'>
-                                    <Carousel className="flex flex-col w-full h-full">
+                                    <Carousel onApiChange={setCarouselApi} className="flex flex-col w-full h-full">
                                     <CarouselTabs />
                                     <CarouselContent className='flex-1 h-full'>
                                        

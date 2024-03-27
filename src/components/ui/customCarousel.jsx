@@ -24,6 +24,7 @@ const Carousel = React.forwardRef((
     orientation = "horizontal",
     opts,
     setApi,
+    onApiChange,
     plugins,
     className,
     children,
@@ -31,6 +32,7 @@ const Carousel = React.forwardRef((
   },
   ref
 ) => {
+
   const [carouselRef, api] = useEmblaCarousel({
     ...opts,
     axis: orientation === "horizontal" ? "x" : "y",
@@ -46,6 +48,12 @@ const Carousel = React.forwardRef((
     setCanScrollPrev(api.canScrollPrev())
     setCanScrollNext(api.canScrollNext())
   }, [])
+
+  React.useEffect(() => {
+    if (api) {
+      onApiChange(api); // Pass the api back up
+    }
+  }, [api, onApiChange]);
 
   const scrollPrev = React.useCallback(() => {
     api?.scrollPrev()
