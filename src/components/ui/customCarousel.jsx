@@ -223,12 +223,12 @@ const CarouselTabs = () => {
 
   return (
     <Tabs value={selectedIndex} onValueChange={setValue => selectSlide(Number(setValue))}>
-      <TabsList>
+      <TabsList className='rounded-xs'>
         {slides.map((label, index) => (
           <TabsTrigger
             key={index}
             value={String(index)} // Ensure the value is a string
-            className="tab"
+            className="rounded-xs"
           >
             {label}
           </TabsTrigger>

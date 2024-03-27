@@ -391,7 +391,7 @@ const Train = () => {
                             <div className='w-full flex'>
                                 {activeProgram && <h1 className='mr-2 text-2xl font-semibold'>{activeProgram.name}</h1>}
                                 <div className='ml-auto flex gap-4'>
-                                    {/* <Sheet>
+                                    {activeProgram && <Sheet>
                                         <SheetTrigger asChild>
                                             <Button variant="outline">All Programs</Button>
                                         </SheetTrigger>
@@ -414,7 +414,7 @@ const Train = () => {
                                             </SheetClose>
                                             </SheetFooter>
                                         </SheetContent>
-                                    </Sheet> */}
+                                    </Sheet>}
                                     {activeProgram &&
                                     <Popover>
                                         <PopoverTrigger><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
