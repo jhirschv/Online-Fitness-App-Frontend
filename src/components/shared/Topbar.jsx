@@ -36,7 +36,7 @@ const Topbar = () => {
   let { user, logoutUser } = useContext(AuthContext)
 
   return (
-    <div  className="fixed z-50 top-0 w-full h-16 flex items-center justify-between p-6 bg-background border-b md:border-none">
+    <div  className="fixed z-50 top-0 w-full h-0 flex items-center justify-between p-6 py-8 bg-background border-b md:border-none">
         <div className='flex font-bold text-3xl ml-4'><h1>Train.</h1><h1 className={`${fontColor}`}>io</h1></div>
         <div className='flex items-center'>
         

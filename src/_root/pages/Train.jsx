@@ -436,9 +436,9 @@ const Train = () => {
                                         <CarouselItem value='overview' className='flex flex-col'>
                                             <div className="flex-grow mt-2">
                                             <Card className='border-none rounded-none h-full'>
-                                                <CardContent className="p-0 items-center justify-center className='flex flex-col gap-2'">
+                                                <CardContent className="p-0 items-center justify-center flex flex-col gap-2">
                                                 {workouts && workouts.map((workout) => (
-                                                    <div className={`flex justify-between py-6 px-4 border rounded-sm ${clickedWorkout && clickedWorkout.id === workout.id ? 'bg-secondary' : 'bg-background'}`} 
+                                                    <div className={`w-full flex justify-between py-6 px-4 border rounded-xs ${clickedWorkout && clickedWorkout.id === workout.id ? 'bg-secondary' : 'bg-background'}`} 
                                                     key={workout.id} onClick={() => handleWorkoutClick(workout)}>
                                                         <div>{workout.name}</div>
                                                         <Popover>
@@ -450,7 +450,7 @@ const Train = () => {
                                                         </Popover>
                                                     </div>
                                                 ))}
-                                                    <div className='py-4 px-4 border rounded-sm'><FontAwesomeIcon className='mr-2' icon={faPlus}/>Add Workout</div>
+                                                    <div className='w-full py-4 px-4 border rounded-xs'><FontAwesomeIcon className='mr-2' icon={faPlus}/>Add Workout</div>
                                                 </CardContent>
                                             </Card>
                                             </div>
@@ -458,14 +458,14 @@ const Train = () => {
                                         <CarouselItem value='details' className='flex flex-col'>
                                             <div className="flex-grow mt-2">
                                             <Card className='border-none rounded-none h-full'>
-                                                <CardContent className="p-0 items-center justify-center className='flex flex-col gap-2'">
+                                                <CardContent className="p-0 items-center justify-center flex flex-col gap-2">
                                                 {clickedWorkout && clickedWorkout.workout_exercises.map((workout_exercise) => (
-                                                        <div>
-                                                            <div className='py-6 px-4 border rounded-sm'>{workout_exercise.exercise.name}</div>
+                                                        <div  className='w-full'>
+                                                            <div className='w-full py-6 px-4 border rounded-xs'>{workout_exercise.exercise.name}</div>
                                                         </div>
                                                         
                                                     ))}
-                                                    <div className='py-6 px-4 border rounded-sm'><FontAwesomeIcon className='mr-2' icon={faPlus}/>Add Exercise</div>
+                                                    <div className='py-6 px-4 border rounded-xs w-full'><FontAwesomeIcon className='mr-2' icon={faPlus}/>Add Exercise</div>
                                                 </CardContent>
                                             </Card>
                                             </div>

@@ -12,10 +12,10 @@ export default defineConfig({
         
         name: 'Train.io',
         short_name: 'Train.io',
-        theme_color: '#000000',
+        theme_color: '#030712',
         start_url: '/',
         display: 'standalone',
-        background_color: '#000000', 
+        background_color: '#030712', 
         icons: [
           {
             src: '/assets/images/handsomeSquidward.jpg',
