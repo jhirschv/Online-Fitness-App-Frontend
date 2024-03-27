@@ -61,6 +61,14 @@ import {
     AlertDialogTrigger,
   } from "@/components/ui/alert-dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+  CarouselTabs
+} from "@/components/ui/customCarousel"
   
 const Train = () => {
     const { theme } = useTheme();
@@ -418,10 +426,53 @@ const Train = () => {
                             </div>
                         </div>
 
-                        <div className='flex-1'>
+                        <div className='flex-1 flex flex-col'>
                             {activeProgram ? (
-                                <div>
-                                    <Tabs defaultValue="overview" className="w-full">
+                                <div className='flex flex-col h-full'>
+                                    <Carousel className="flex flex-col w-full h-full">
+                                    <CarouselTabs />
+                                    <CarouselContent className='flex-1 h-full'>
+                                       
+                                        <CarouselItem value='overview' className='flex flex-col'>
+                                            <div className="flex-grow mt-2">
+                                            <Card className='border-none rounded-none h-full'>
+                                                <CardContent className="p-0 items-center justify-center className='flex flex-col gap-2'">
+                                                {workouts && workouts.map((workout) => (
+                                                    <div className={`flex justify-between py-6 px-4 border rounded-sm ${clickedWorkout && clickedWorkout.id === workout.id ? 'bg-secondary' : 'bg-background'}`} 
+                                                    key={workout.id} onClick={() => handleWorkoutClick(workout)}>
+                                                        <div>{workout.name}</div>
+                                                        <Popover>
+                                                            <PopoverTrigger><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
+                                                            <PopoverContent>
+                                                                <p>Edit Name</p>
+                                                                <p>Delete</p>
+                                                                </PopoverContent>
+                                                        </Popover>
+                                                    </div>
+                                                ))}
+                                                    <div className='py-4 px-4 border rounded-sm'><FontAwesomeIcon className='mr-2' icon={faPlus}/>Add Workout</div>
+                                                </CardContent>
+                                            </Card>
+                                            </div>
+                                        </CarouselItem>
+                                        <CarouselItem value='details' className='flex flex-col'>
+                                            <div className="flex-grow mt-2">
+                                            <Card className='border-none rounded-none h-full'>
+                                                <CardContent className="p-0 items-center justify-center className='flex flex-col gap-2'">
+                                                {clickedWorkout && clickedWorkout.workout_exercises.map((workout_exercise) => (
+                                                        <div>
+                                                            <div className='py-6 px-4 border rounded-sm'>{workout_exercise.exercise.name}</div>
+                                                        </div>
+                                                        
+                                                    ))}
+                                                    <div className='py-6 px-4 border rounded-sm'><FontAwesomeIcon className='mr-2' icon={faPlus}/>Add Exercise</div>
+                                                </CardContent>
+                                            </Card>
+                                            </div>
+                                        </CarouselItem>
+                                    </CarouselContent>
+                                    </Carousel>
+                                    {/* <Tabs defaultValue="overview" className="w-full">
                                     <TabsList className='rounded-xs'>
                                         <TabsTrigger className='rounded-xs' value="overview">Overview</TabsTrigger>
                                         <TabsTrigger className='rounded-xs' value="details">Details</TabsTrigger>
@@ -454,7 +505,7 @@ const Train = () => {
                                         ))}
                                         <div className='py-6 px-4 border rounded-sm'><FontAwesomeIcon className='mr-2' icon={faPlus}/>Add Exercise</div>
                                     </TabsContent>
-                                    </Tabs>
+                                    </Tabs> */}
                                 </div>
                             ) : (
                                 <div className='w-full flex flex-col gap-2 mt-[35%] md:mt-[25%] items-center text-muted-foreground text-lg'>

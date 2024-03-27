@@ -2,6 +2,7 @@
 import * as React from "react"
 import useEmblaCarousel from "embla-carousel-react";
 import { ArrowLeft, ArrowRight } from "lucide-react"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -117,7 +118,7 @@ const CarouselContent = React.forwardRef(({ className, ...props }, ref) => {
   const { carouselRef, orientation } = useCarousel()
 
   return (
-    (<div ref={carouselRef} className="overflow-hidden">
+    (<div ref={carouselRef} className="overflow-hidden h-full">
       <div
         ref={ref}
         className={cn(
@@ -192,36 +193,49 @@ const CarouselNext = React.forwardRef(({ className, variant = "outline", size = 
 CarouselNext.displayName = "CarouselNext"
 
 const CarouselTabs = () => {
-    const { api } = useCarousel();
-    const [selectedIndex, setSelectedIndex] = React.useState(0);
-  
-    // Assume slides is an array representing your slides, adjust accordingly
-    const slides = ["Tab 1", "Tab 2", "Tab 3"];
-  
-    const selectSlide = (index) => {
-      api && api.scrollTo(index);
+  const { api } = useCarousel(); // This fetches your carousel API/context
+  const [selectedIndex, setSelectedIndex] = React.useState("0"); // Using string because Tabs value must be string
+  const slides = ["Overview", "Details"];
+
+  // Function to manually select a slide (called on tab click)
+  const selectSlide = (index) => {
+    api && api.scrollTo(index);
+    setSelectedIndex(String(index)); // Update selectedIndex when a tab is clicked
+  };
+
+  React.useEffect(() => {
+    if (!api) return;
+
+    // Function to update the selected tab based on the current slide
+    const updateSelectedIndex = () => {
+      const currentSlide = api.selectedScrollSnap();
+      setSelectedIndex(String(currentSlide)); // Ensure selectedIndex is a string to match Tabs value
     };
-  
-    React.useEffect(() => {
-      if (!api) return;
-      const updateSelectedIndex = () => setSelectedIndex(api.selectedScrollSnap());
-      api.on("select", updateSelectedIndex);
-      return () => api.off("select", updateSelectedIndex);
-    }, [api]);
-  
-    return (
-      <div className="carousel-tabs">
+
+    // Listen for slide changes
+    api.on("select", updateSelectedIndex);
+
+    // Cleanup listener on component unmount
+    return () => {
+      api.off("select", updateSelectedIndex);
+    };
+  }, [api]);
+
+  return (
+    <Tabs value={selectedIndex} onValueChange={setValue => selectSlide(Number(setValue))}>
+      <TabsList>
         {slides.map((label, index) => (
-          <button
+          <TabsTrigger
             key={index}
-            className={`tab ${index === selectedIndex ? 'active' : ''}`}
-            onClick={() => selectSlide(index)}
+            value={String(index)} // Ensure the value is a string
+            className="tab"
           >
             {label}
-          </button>
+          </TabsTrigger>
         ))}
-      </div>
-    );
-  };
+      </TabsList>
+    </Tabs>
+  );
+};
 
 export { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext, CarouselTabs };
