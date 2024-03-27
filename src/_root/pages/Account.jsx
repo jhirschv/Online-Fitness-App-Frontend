@@ -9,6 +9,15 @@ import {
     CardTitle,
   } from "@/components/ui/card"
   import { Separator } from '@/components/ui/separator';
+  import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+  import { faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
+  import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+  } from "@/components/ui/dropdown-menu"
+  import { Moon, Sun } from "lucide-react"
   import {
     AlertDialog,
     AlertDialogAction,
@@ -24,10 +33,15 @@ import {
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useContext } from 'react';
+import AuthContext from '../../context/AuthContext';
 
 
 const Account = () => {
+    const { setTheme } = useTheme()
     const { theme } = useTheme();
+    let { user, logoutUser } = useContext(AuthContext)
+    
 
     // Determine the background color class based on the theme
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
@@ -37,7 +51,11 @@ const Account = () => {
             <Card className='border-0 md:border h-full w-full rounded-none md:rounded-lg'>
                     <div className='p-6 flex justify-between items-center'>
                         <div className='w-full'>
-                            <h1 className='text-2xl font-semibold '>Account</h1>
+                            <div className='flex justify-between'>
+                                <h1 className='text-2xl font-semibold '>Account</h1>
+                                <FontAwesomeIcon icon={faRightFromBracket} onClick={logoutUser} className='md:block ml-4 md:mr-2' size="xl"/>
+                            </div>
+                            
                             <p className='text-sm text-muted-foreground'>Manage your account settings here</p>
                             <Separator className="my-6"/>
                             <div className='flex flex-col gap-6'>
@@ -51,6 +69,26 @@ const Account = () => {
                                         <p>John</p>
                                         <p className='text-primary underline-offset-4 hover:underline'>Change profile photo</p>
                                     </div>
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                        <Button className='md:flex ml-auto' variant="outline" size="icon">
+                                            <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                                            <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                                            <span className="sr-only">Toggle theme</span>
+                                        </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end">
+                                        <DropdownMenuItem onClick={() => setTheme("light")}>
+                                            Light
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => setTheme("dark")}>
+                                            Dark
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => setTheme("system")}>
+                                            System
+                                        </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
 
                                 </div>
 

@@ -48,7 +48,7 @@ import {
     SheetTrigger,
   } from "@/components/ui/sheet"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEllipsis, faPlus, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { faEllipsis, faPlus, faChevronRight, faXmark, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -69,6 +69,28 @@ import {
   CarouselPrevious,
   CarouselTabs
 } from "@/components/ui/customCarousel"
+import {
+    Drawer,
+    DrawerClose,
+    DrawerContent,
+    DrawerDescription,
+    DrawerFooter,
+    DrawerHeader,
+    DrawerTitle,
+    DrawerTrigger,
+  } from "@/components/ui/drawer"
+  import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectGroup,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+  } from "@/components/ui/select"
+  import { Search } from "lucide-react"
+  
+  
   
 const Train = () => {
     const { theme } = useTheme();
@@ -87,6 +109,7 @@ const Train = () => {
       }, [workouts]);
     const handleWorkoutClick = (workout) => {
         setClickedWorkout(workout);
+        console.log(workout)
         if (carouselApi) {
             carouselApi.scrollTo(1); // Navigate to the second item
           }
@@ -482,7 +505,7 @@ const Train = () => {
                                                         <div>
                                                             <FontAwesomeIcon className='mr-6' icon={faChevronRight} />
                                                             <Popover >
-                                                                <PopoverTrigger onClick={(event) => event.stopPropagation()} className='absolute top-0 right-2'><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
+                                                                <PopoverTrigger onClick={(event) => event.stopPropagation()} className='absolute top-1 right-3'><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
                                                                 <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md'>
                                                                     <Button onClick={(event) => {event.stopPropagation(); deleteWorkout(workout.id); }}  className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>
                                                                     Delete Workout</Button>
@@ -514,14 +537,213 @@ const Train = () => {
                                         <CarouselItem value='details' className='flex flex-col'>
                                             <div className="flex-grow mt-2">
                                             <Card className='border-none rounded-none h-full'>
-                                                <CardContent className="p-0 items-center justify-center flex flex-col gap-2">
-                                                {clickedWorkout && clickedWorkout.workout_exercises.map((workout_exercise) => (
-                                                        <div key={workout_exercise.id} className='w-full'>
-                                                            <div className='w-full py-6 px-4 border rounded-xs'>{workout_exercise.exercise.name}</div>
+                                                <CardContent className="p-0 justify-center flex flex-col gap-2">
+                                                    <div className='flex gap-10 items-center'>
+                                                        <h1 className='p-1 font-semibold text-xl'>{clickedWorkout && clickedWorkout.name}</h1>
+                                                        <p className='text-sm text-muted-foreground'>{clickedWorkout && clickedWorkout.workout_exercises ? clickedWorkout.workout_exercises.length : 0} exercises</p>
+                                                    </div>
+                                                    
+                                                {clickedWorkout && clickedWorkout.workout_exercises.map((workout_exercise, index) => (
+                                                        <div key={workout_exercise.id} className='py-6 px-4 w-full flex  border rounded-xs relative'>
+                                                            <div className='w-1/2 font-semibold'>{index + 1}. {workout_exercise.exercise.name}</div>
+                                                            <div className='ml-4'>{workout_exercise.sets} x {workout_exercise.reps}</div>
+                                                            <Drawer>
+                                                                <DrawerTrigger className='absolute top-1 right-3'><FontAwesomeIcon icon={faEllipsis} /></DrawerTrigger>
+                                                                <DrawerContent>
+                                                                    <DrawerHeader>
+                                                                    <DrawerTitle>Edit Exercise</DrawerTitle>
+                                                                    </DrawerHeader>
+                                                                    <div className='flex items-center p-6 border rounded-sm mx-4'>
+                                                                        <div className='w-1/3 font-semibold' >{workout_exercise.exercise.name}</div>
+                                                                        <Select  value={workout_exercise.sets > 0 ? workout_exercise.sets.toString() : ''}
+                                                                        onValueChange={(newValue) => handleSetsChange(exercise.id, parseInt(newValue, 10))}
+                                                                        >
+                                                                            <SelectTrigger className="w-[55px] md:w-[80px] focus:ring-0 focus:ring-offset-0">
+                                                                                <SelectValue placeholder='sets' />
+                                                                            </SelectTrigger>
+                                                                            <SelectContent>
+                                                                                <SelectGroup>
+                                                                                    <SelectLabel>sets</SelectLabel>
+                                                                                    <SelectItem value="1">1</SelectItem>
+                                                                                    <SelectItem value="2">2</SelectItem>
+                                                                                    <SelectItem value="3">3</SelectItem>
+                                                                                    <SelectItem value="4">4</SelectItem>
+                                                                                    <SelectItem value="5">5</SelectItem>
+                                                                                    <SelectItem value="6">6</SelectItem>
+                                                                                    <SelectItem value="7">7</SelectItem>
+                                                                                    <SelectItem value="8">8</SelectItem>
+                                                                                    <SelectItem value="9">9</SelectItem>
+                                                                                    <SelectItem value="10">10</SelectItem>
+                                                                                    <SelectItem value="11">11</SelectItem>
+                                                                                    <SelectItem value="12">12</SelectItem>
+                                                                                    <SelectItem value="13">13</SelectItem>
+                                                                                    <SelectItem value="14">14</SelectItem>
+                                                                                    <SelectItem value="15">15</SelectItem>
+                                                                                    <SelectItem value="16">16</SelectItem>
+                                                                                    <SelectItem value="17">17</SelectItem>
+                                                                                    <SelectItem value="18">18</SelectItem>
+                                                                                    <SelectItem value="19">19</SelectItem>
+                                                                                    <SelectItem value="20">20</SelectItem>
+                                                                                </SelectGroup>
+                                                                            </SelectContent>
+                                                                        </Select>
+                                                                        <FontAwesomeIcon className='m-2' icon={faXmark} />
+                                                                        <Select  value={workout_exercise.reps > 0 ? workout_exercise.reps.toString() : ''}
+                                                                        onValueChange={(newValue) => handlerepsChange(exercise.id, parseInt(newValue, 10))}
+                                                                        >
+                                                                            <SelectTrigger className="w-[55px] md:w-[80px] focus:ring-0 focus:ring-offset-0">
+                                                                                <SelectValue placeholder='reps' />
+                                                                            </SelectTrigger>
+                                                                            <SelectContent>
+                                                                                <SelectGroup>
+                                                                                    <SelectLabel>reps</SelectLabel>
+                                                                                    <SelectItem value="1">1</SelectItem>
+                                                                                    <SelectItem value="2">2</SelectItem>
+                                                                                    <SelectItem value="3">3</SelectItem>
+                                                                                    <SelectItem value="4">4</SelectItem>
+                                                                                    <SelectItem value="5">5</SelectItem>
+                                                                                    <SelectItem value="6">6</SelectItem>
+                                                                                    <SelectItem value="7">7</SelectItem>
+                                                                                    <SelectItem value="8">8</SelectItem>
+                                                                                    <SelectItem value="9">9</SelectItem>
+                                                                                    <SelectItem value="10">10</SelectItem>
+                                                                                    <SelectItem value="11">11</SelectItem>
+                                                                                    <SelectItem value="12">12</SelectItem>
+                                                                                    <SelectItem value="13">13</SelectItem>
+                                                                                    <SelectItem value="14">14</SelectItem>
+                                                                                    <SelectItem value="15">15</SelectItem>
+                                                                                    <SelectItem value="16">16</SelectItem>
+                                                                                    <SelectItem value="17">17</SelectItem>
+                                                                                    <SelectItem value="18">18</SelectItem>
+                                                                                    <SelectItem value="19">19</SelectItem>
+                                                                                    <SelectItem value="20">20</SelectItem>
+                                                                                </SelectGroup>
+                                                                            </SelectContent>
+                                                                        </Select>
+                                                                        <FontAwesomeIcon className='ml-auto' size='lg' icon={faTrashCan} />
+                                                                    </div>
+                                                                    <DrawerFooter>
+                                                                    <Button>Save</Button>
+                                                                    </DrawerFooter>
+                                                                </DrawerContent>
+                                                            </Drawer>
                                                         </div>
-                                                        
                                                     ))}
-                                                    <div className='py-4 px-4 w-full text-primary font-semibold underline-offset-4 hover:underline'><FontAwesomeIcon className='mr-2' icon={faPlus}/>Add Exercise</div>
+                                                    <Drawer>
+                                                        <DrawerTrigger className='w-full flex items-center'><div className='py-4 px-4  text-primary font-semibold underline-offset-4 hover:underline'><FontAwesomeIcon className='mr-2' icon={faPlus}/>
+                                                        Add Exercise</div>
+                                                        </DrawerTrigger>
+                                                        <DrawerContent className='h-screen'>
+                                                                <div className='flex flex-col'>
+                                                                    <Card className='m-2'>
+                                                                        <CardHeader className='pt-4 pb-0 px-4 '>
+                                                                            <CardTitle className='text-lg'>
+                                                                                Add New Exercise
+                                                                            </CardTitle>
+                                                                        </CardHeader>
+                                                                        <CardContent className='flex items-center gap-1 px-4 pb-3'>
+                                                                            <Input />
+                                                                            <Select 
+                                                                            >
+                                                                                <SelectTrigger className="w-[80px] md:w-[80px] focus:ring-0 focus:ring-offset-0">
+                                                                                    <SelectValue placeholder='sets' />
+                                                                                </SelectTrigger>
+                                                                                <SelectContent>
+                                                                                    <SelectGroup>
+                                                                                        <SelectLabel>sets</SelectLabel>
+                                                                                        <SelectItem value="1">1</SelectItem>
+                                                                                        <SelectItem value="2">2</SelectItem>
+                                                                                        <SelectItem value="3">3</SelectItem>
+                                                                                        <SelectItem value="4">4</SelectItem>
+                                                                                        <SelectItem value="5">5</SelectItem>
+                                                                                        <SelectItem value="6">6</SelectItem>
+                                                                                        <SelectItem value="7">7</SelectItem>
+                                                                                        <SelectItem value="8">8</SelectItem>
+                                                                                        <SelectItem value="9">9</SelectItem>
+                                                                                        <SelectItem value="10">10</SelectItem>
+                                                                                        <SelectItem value="11">11</SelectItem>
+                                                                                        <SelectItem value="12">12</SelectItem>
+                                                                                        <SelectItem value="13">13</SelectItem>
+                                                                                        <SelectItem value="14">14</SelectItem>
+                                                                                        <SelectItem value="15">15</SelectItem>
+                                                                                        <SelectItem value="16">16</SelectItem>
+                                                                                        <SelectItem value="17">17</SelectItem>
+                                                                                        <SelectItem value="18">18</SelectItem>
+                                                                                        <SelectItem value="19">19</SelectItem>
+                                                                                        <SelectItem value="20">20</SelectItem>
+                                                                                    </SelectGroup>
+                                                                                </SelectContent>
+                                                                            </Select>
+                                                                            <FontAwesomeIcon className='m-1' icon={faXmark} />
+                                                                            <Select>
+                                                                                <SelectTrigger className="w-[80px] md:w-[80px] focus:ring-0 focus:ring-offset-0">
+                                                                                    <SelectValue placeholder='reps' />
+                                                                                </SelectTrigger>
+                                                                                <SelectContent>
+                                                                                    <SelectGroup>
+                                                                                        <SelectLabel>reps</SelectLabel>
+                                                                                        <SelectItem value="1">1</SelectItem>
+                                                                                        <SelectItem value="2">2</SelectItem>
+                                                                                        <SelectItem value="3">3</SelectItem>
+                                                                                        <SelectItem value="4">4</SelectItem>
+                                                                                        <SelectItem value="5">5</SelectItem>
+                                                                                        <SelectItem value="6">6</SelectItem>
+                                                                                        <SelectItem value="7">7</SelectItem>
+                                                                                        <SelectItem value="8">8</SelectItem>
+                                                                                        <SelectItem value="9">9</SelectItem>
+                                                                                        <SelectItem value="10">10</SelectItem>
+                                                                                        <SelectItem value="11">11</SelectItem>
+                                                                                        <SelectItem value="12">12</SelectItem>
+                                                                                        <SelectItem value="13">13</SelectItem>
+                                                                                        <SelectItem value="14">14</SelectItem>
+                                                                                        <SelectItem value="15">15</SelectItem>
+                                                                                        <SelectItem value="16">16</SelectItem>
+                                                                                        <SelectItem value="17">17</SelectItem>
+                                                                                        <SelectItem value="18">18</SelectItem>
+                                                                                        <SelectItem value="19">19</SelectItem>
+                                                                                        <SelectItem value="20">20</SelectItem>
+                                                                                    </SelectGroup>
+                                                                                </SelectContent>
+                                                                            </Select>
+                                                                        </CardContent>
+                                                                    </Card>
+                                                                    <Tabs defaultValue='exerciseDatabase'>
+                                                                        <div className='flex justify-center items-center w-full pb-2'>
+                                                                        <TabsList className="mx-2 grid w-full grid-cols-2 gap-1 rounded-xs bg-muted">
+                                                                            <TabsTrigger className='rounded-xs' value="exerciseDatabase">Frequently Used</TabsTrigger>
+                                                                            <TabsTrigger className='rounded-xs' value="yourExercises">Exercise Database</TabsTrigger>
+                                                                        </TabsList>
+                                                                        </div>
+                                                                        <Card>
+                                                                        <div className="relative py-2 w-full flex justify-center items-center">
+                                                                            <Search className="absolute left-4 top-5 h-4 w-4 text-muted-foreground" />
+                                                                            <Input placeholder="Search" className="pl-8 w-full mx-2" />
+                                                                        </div>
+                                                                        <TabsContent className='m-0' value="exerciseDatabase">
+                                                                            <ScrollArea className="h-96 w-full rounded-md border-none bg-background">
+                                                                                <div className="p-4">
+                                                                                    
+                                                                                </div>
+                                                                            </ScrollArea>
+                                                                        </TabsContent>
+                                                                        <TabsContent className='m-0' value="yourExercises">
+                                                                            <ScrollArea className="h-96 w-full rounded-md border-none bg-background">
+                                                                                    <div className="p-4">
+                                                                                        
+                                                                                    </div>
+                                                                                </ScrollArea>
+                                                                        </TabsContent>
+                                                                        </Card>
+                                                                    </Tabs>
+                                                                </div>
+                                                            <DrawerFooter>
+                                                                <Button>Add</Button>
+                                                            <DrawerClose>
+                                                                <Button variant="outline">Cancel</Button>
+                                                            </DrawerClose>
+                                                            </DrawerFooter>
+                                                        </DrawerContent>
+                                                    </Drawer>
                                                 </CardContent>
                                             </Card>
                                             </div>
