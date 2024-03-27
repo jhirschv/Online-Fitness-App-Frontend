@@ -48,8 +48,20 @@ import {
     SheetTrigger,
   } from "@/components/ui/sheet"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEllipsis } from '@fortawesome/free-solid-svg-icons';
-
+import { faEllipsis, faPlus } from '@fortawesome/free-solid-svg-icons';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+  } from "@/components/ui/alert-dialog"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+  
 const Train = () => {
     const { theme } = useTheme();
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
@@ -57,6 +69,18 @@ const Train = () => {
 
     const [date, setDate] = React.useState(new Date())
     const [activeProgram, setActiveProgram] = useState(null)
+    const [workouts, setWorkouts] = useState([])
+    const [clickedWorkout, setClickedWorkout] = useState()
+    useEffect(() => {
+        if (workouts && workouts.length > 0) {
+          setClickedWorkout(workouts[0]);
+        }
+      }, [workouts]);
+    const handleWorkoutClick = (workout) => {
+        console.log(workout)
+        setClickedWorkout(workout);
+        console.log(workout.workout_exercises)
+    };
     const [selectedProgram, setSelectedProgram] = useState(null)
     const [userPrograms, setUserPrograms] = useState([])
     const [currentWorkout, setCurrentWorkout] = useState(null);
@@ -66,6 +90,25 @@ const Train = () => {
     const [userWorkoutSessions, setUserWorkoutSessions] = useState([])
     const [dayData, setDayData] = useState({});
     const [displayCurrentWorkout, setDisplayCurrentWorkout] = useState(true);
+    const [programName, setProgramName] = useState("");
+    const handleNameInputChange = (event) => {
+        setProgramName(event.target.value); // Update state with input value
+            };
+
+        function createAndActivateProgram() {
+            const programData = {
+                name: programName
+            };
+        
+            apiClient.post('create-and-activate/', programData)
+            .then(response => {
+                setActiveProgram(response.data)
+                setWorkouts(response.data.phases[0].workouts)
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+            });
+        }
 
     const handleDayData = (receivedDayData) => {
         console.log('Sending event data to parent:', receivedDayData);
@@ -78,10 +121,6 @@ const Train = () => {
             setDisplayCurrentWorkout(true);
         }
     };
-
-    useEffect(() => {
-        console.log(date);
-      }, [date]);
 
     const handleSelect = (newDate) => {
       setDate(newDate);
@@ -122,7 +161,9 @@ const Train = () => {
                 return apiClient.get('/get_active_program/'); 
             })
             .then(response => {
+                console.log(response.data)
                 setActiveProgram(response.data);
+                setWorkouts(response.data.phases[0].workouts)
                 return apiClient.get('/current_workout/');
             })
             .then(response => {
@@ -220,6 +261,7 @@ const Train = () => {
         apiClient.get('/get_active_program/') // Make sure the endpoint matches your Django URL configuration
         .then(response => {
             setActiveProgram(response.data);
+            setWorkouts(response.data.phases[0].workouts)
         })
         .catch(error => {
             console.error('Error fetching data:', error);
@@ -341,7 +383,7 @@ const Train = () => {
                             <div className='w-full flex'>
                                 {activeProgram && <h1 className='mr-2 text-2xl font-semibold'>{activeProgram.name}</h1>}
                                 <div className='ml-auto flex gap-4'>
-                                    <Sheet>
+                                    {/* <Sheet>
                                         <SheetTrigger asChild>
                                             <Button variant="outline">All Programs</Button>
                                         </SheetTrigger>
@@ -364,7 +406,7 @@ const Train = () => {
                                             </SheetClose>
                                             </SheetFooter>
                                         </SheetContent>
-                                    </Sheet>
+                                    </Sheet> */}
                                     {activeProgram &&
                                     <Popover>
                                         <PopoverTrigger><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
@@ -377,22 +419,161 @@ const Train = () => {
                         </div>
 
                         <div className='flex-1'>
-                                {displayCurrentWorkout && currentWorkout ? (
+                            {activeProgram ? (
+                                <div>
+                                    <Tabs defaultValue="overview" className="w-full">
+                                    <TabsList className='rounded-xs'>
+                                        <TabsTrigger className='rounded-xs' value="overview">Overview</TabsTrigger>
+                                        <TabsTrigger className='rounded-xs' value="details">Details</TabsTrigger>
+                                    </TabsList>
+                                    <TabsContent className='flex flex-col gap-2' value="overview">
+                                    {workouts && workouts.map((workout) => (
+                                        <div className={`flex justify-between py-6 px-4 border rounded-sm ${clickedWorkout && clickedWorkout.id === workout.id ? 'bg-secondary' : 'bg-background'}`} 
+                                        key={workout.id} onClick={() => handleWorkoutClick(workout)}>
+                                            <div>{workout.name}</div>
+                                            <Popover>
+                                                <PopoverTrigger><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
+                                                <PopoverContent>
+                                                    <p>Edit Name</p>
+                                                    <p>Delete</p>
+                                                    </PopoverContent>
+                                            </Popover>
+                                        </div>
+                                        
+                                       
+                                    ))}
+                                    <div className='py-4 px-4 border rounded-sm'><FontAwesomeIcon className='mr-2' icon={faPlus}/>Add Workout</div>
+
+                                    </TabsContent>
+                                    <TabsContent className='flex flex-col gap-2' value="details">
+                                        {clickedWorkout && clickedWorkout.workout_exercises.map((workout_exercise) => (
+                                            <div>
+                                                <div className='py-6 px-4 border rounded-sm'>{workout_exercise.exercise.name}</div>
+                                            </div>
+                                            
+                                        ))}
+                                        <div className='py-6 px-4 border rounded-sm'><FontAwesomeIcon className='mr-2' icon={faPlus}/>Add Exercise</div>
+                                    </TabsContent>
+                                    </Tabs>
+                                </div>
+                            ) : (
+                                <div className='w-full flex flex-col gap-2 mt-[35%] md:mt-[25%] items-center text-muted-foreground text-lg'>
+                                    <h1>Nothing to see here!</h1>
+                                    <h1>{date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h1>
+                                    <div className='flex items-center gap-2 mt-4'>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild><Button className='rounded-xs' >Create Program</Button></AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                <AlertDialogTitle>Create Program</AlertDialogTitle>
+                                                </AlertDialogHeader>
+                                                <Label htmlFor="programName">Name</Label><Input onChange={handleNameInputChange} value={programName} autoComplete="off" id="programName" />
+                                                <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction onClick={createAndActivateProgram}>Create</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>  
+                                        <p className='text-sm'>or</p>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild><Button className='rounded-xs text-primary-foreground border-2' variant='outline' >Create workout</Button></AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    This action cannot be undone. This will permanently delete your account
+                                                    and remove your data from our servers.
+                                                </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction>Continue</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>                                             
+                                    </div>
+                                    <Separator className='my-2'/>
+                                    <Sheet>
+                                        <SheetTrigger asChild>
+                                            <Button className='rounded-xs' variant='secondary'>All Programs</Button>
+                                        </SheetTrigger>
+                                        <SheetContent>
+                                            <SheetHeader>
+                                            <SheetTitle>Select Program</SheetTitle>
+                                            </SheetHeader>
+                                            {userPrograms.map((program) => (
+                                            <div
+                                                key={program.id}
+                                                className={`p-4 rounded ${selectedProgram === program.id ? 'bg-secondary' : 'bg-background'}`}
+                                                onClick={() => handleProgramClick(program.id)}
+                                            >
+                                                <h1>{program.name}</h1>
+                                            </div>
+                                            ))}
+                                            <SheetFooter className='mt-4'>
+                                            <SheetClose asChild>
+                                                <Button type="submit" onClick={() => updateActiveProgram(selectedProgram)}>Set Active</Button>
+                                            </SheetClose>
+                                            </SheetFooter>
+                                        </SheetContent>
+                                    </Sheet>
+                                </div>
+                            )
+                            }
+
+
+
+
+
+
+
+                                {/* {displayCurrentWorkout && currentWorkout ? (
                                     renderWorkoutDetails(currentWorkout)
                                 ) : (
                                     !displayCurrentWorkout && dayData && (typeof dayData === 'object' && Object.keys(dayData).length > 0) ? (
                                         renderWorkoutSessionDetails(dayData)
                                     ) : (
-                                        <div className='w-full flex flex-col gap-2 mt-[35%] items-center text-muted-foreground text-lg'>
+                                        <div className='w-full flex flex-col gap-2 mt-[35%] md:mt-[25%] items-center text-muted-foreground text-lg'>
                                             <h1>Nothing to see here!</h1>
                                             <h1>{date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h1>
-                                            <Button className='rounded-xs mt-4 mb-2' >Create Workout</Button>
+                                            <div className='flex items-center gap-2 mt-4'>
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger asChild><Button className='rounded-xs' >Create Program</Button></AlertDialogTrigger>
+                                                    <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                        <AlertDialogTitle>Create Program</AlertDialogTitle>
+                                                        </AlertDialogHeader>
+                                                        <Label htmlFor="programName">Name</Label><Input onChange={handleNameInputChange} value={programName} autoComplete="off" id="programName" />
+                                                        <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction onClick={createAndActivateProgram}>Create</AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>  
+                                                <p className='text-sm'>or</p>
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger asChild><Button className='rounded-xs text-primary-foreground border-2' variant='outline' >Create workout</Button></AlertDialogTrigger>
+                                                    <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            This action cannot be undone. This will permanently delete your account
+                                                            and remove your data from our servers.
+                                                        </AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction>Continue</AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>                                             
+                                            </div>
+                                            <Separator className='my-2'/>
                                             <Button className='rounded-xs' variant='secondary'>Add From Library</Button>
-                                        
                                         </div>
                                         
                                     )
-                                )}
+                                )} */}
                         </div>
                         {currentWorkout && 
                         <div className='flex justify-center gap-4 items-center mb-6 '>
