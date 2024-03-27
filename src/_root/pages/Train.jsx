@@ -48,7 +48,7 @@ import {
     SheetTrigger,
   } from "@/components/ui/sheet"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEllipsis, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faEllipsis, faPlus, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -119,6 +119,41 @@ const Train = () => {
                 console.error('Error fetching data:', error);
             });
         }
+
+        const [workoutName, setWorkoutName] = useState('')
+
+        const handleWorkoutNameChange = (event) => {
+            setWorkoutName(event.target.value)
+        }
+        function createWorkout() {
+            const workoutData = {
+                phase: 1,
+                name: workoutName,
+                workout_exercises: []
+            };
+        
+            apiClient.post('/workouts/', workoutData) 
+            .then(response => {
+                console.log(response)
+                const newWorkout = response.data;
+                setWorkouts(currentWorkouts => [...currentWorkouts, newWorkout]);
+                setWorkoutName("");
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+            });
+            }
+    
+        function deleteWorkout(workoutId) {
+            apiClient.delete(`/workouts/${workoutId}/`)
+            .then(() => {
+                setWorkouts(currentWorkouts => currentWorkouts.filter(workout => workout.id !== workoutId));
+                console.log(response)
+            })
+            .catch(error => {
+                console.error('Error deleting the phase:', error);
+            });
+            }
 
     const handleDayData = (receivedDayData) => {
         console.log('Sending event data to parent:', receivedDayData);
@@ -439,20 +474,39 @@ const Train = () => {
                                             <div className="flex-grow mt-2">
                                             <Card className='border-none rounded-none h-full'>
                                                 <CardContent className="p-0 items-center justify-center flex flex-col gap-2">
-                                                {workouts && workouts.map((workout) => (
-                                                    <div className={`w-full flex justify-between py-6 px-4 border rounded-xs ${clickedWorkout && clickedWorkout.id === workout.id ? 'bg-secondary' : 'bg-background'}`} 
+                                                {workouts && workouts.map((workout, index) => (
+                                                    <div className={`w-full flex justify-between py-6 px-4 border rounded-xs relative`} 
                                                     key={workout.id} onClick={() => handleWorkoutClick(workout)}>
-                                                        <div>{workout.name}</div>
-                                                        <Popover>
-                                                            <PopoverTrigger><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
-                                                            <PopoverContent>
-                                                                <p>Edit Name</p>
-                                                                <p>Delete</p>
+                                                        <div className={`absolute left-0 top-0 bottom-0 w-1 ${clickedWorkout && clickedWorkout.id === workout.id ? 'bg-primary' : 'bg-transparent'}`} style={{width: '5px'}}></div>
+                                                        <div className='font-semibold'>{index + 1}. {workout.name}</div>
+                                                        <div>
+                                                            <FontAwesomeIcon className='mr-6' icon={faChevronRight} />
+                                                            <Popover >
+                                                                <PopoverTrigger onClick={(event) => event.stopPropagation()} className='absolute top-0 right-2'><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
+                                                                <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md'>
+                                                                    <Button onClick={(event) => {event.stopPropagation(); deleteWorkout(workout.id); }}  className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>
+                                                                    Delete Workout</Button>
                                                                 </PopoverContent>
-                                                        </Popover>
+                                                            </Popover>
+                                                        </div>
                                                     </div>
                                                 ))}
-                                                    <div className='w-full py-4 px-4 border rounded-xs'><FontAwesomeIcon className='mr-2' icon={faPlus}/>Add Workout</div>
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger className='w-full flex items-center' asChild>
+                                                        <div className='w-full py-4 px-4 text-primary font-semibold underline-offset-4 hover:underline'><FontAwesomeIcon className='mr-2' icon={faPlus}/>Add Workout</div>
+                                                    </AlertDialogTrigger>
+                                                    <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                        <AlertDialogTitle>Create Workout</AlertDialogTitle>
+                                                        <Label htmlFor="programName">Name</Label><Input value={workoutName} onChange={handleWorkoutNameChange} autoComplete="off" id="workoutName" />
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction onClick={createWorkout}>Create Workout</AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
+                                                    
                                                 </CardContent>
                                             </Card>
                                             </div>
@@ -462,12 +516,12 @@ const Train = () => {
                                             <Card className='border-none rounded-none h-full'>
                                                 <CardContent className="p-0 items-center justify-center flex flex-col gap-2">
                                                 {clickedWorkout && clickedWorkout.workout_exercises.map((workout_exercise) => (
-                                                        <div  className='w-full'>
+                                                        <div key={workout_exercise.id} className='w-full'>
                                                             <div className='w-full py-6 px-4 border rounded-xs'>{workout_exercise.exercise.name}</div>
                                                         </div>
                                                         
                                                     ))}
-                                                    <div className='py-6 px-4 border rounded-xs w-full'><FontAwesomeIcon className='mr-2' icon={faPlus}/>Add Exercise</div>
+                                                    <div className='py-4 px-4 w-full text-primary font-semibold underline-offset-4 hover:underline'><FontAwesomeIcon className='mr-2' icon={faPlus}/>Add Exercise</div>
                                                 </CardContent>
                                             </Card>
                                             </div>
@@ -630,10 +684,10 @@ const Train = () => {
                         </div>
                         {currentWorkout && 
                         <div className='flex justify-center gap-4 items-center mb-6 '>
-                            <Button onClick={startWorkoutSession} className='self-center p-6 text-lg'>Train!</Button>
-                            <Sheet open={isSheetOpen} onOpenChange={handleSheetOpenChange}>
+                            <Button size='lg' onClick={startWorkoutSession} className='self-center p-6 text-lg'>Start Session!</Button>
+                            <Sheet  open={isSheetOpen} onOpenChange={handleSheetOpenChange}>
                                 <SheetTrigger asChild>
-                                    <Button variant='outline' onClick={() => setIsSheetOpen(true)} className='self-center w-1/2 md:w-2/5 p-6 text-lg'>Change Workout</Button>
+                                    <Button variant='outline' onClick={() => setIsSheetOpen(true)} className=' hidden self-center w-1/2 md:w-2/5 p-6 text-lg'>Change Workout</Button>
                                 </SheetTrigger>
                                 <SheetContent>
                                     <div className='w-full flex justify-center'>

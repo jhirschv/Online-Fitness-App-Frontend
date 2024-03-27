@@ -203,7 +203,7 @@ CarouselNext.displayName = "CarouselNext"
 const CarouselTabs = () => {
   const { api } = useCarousel(); // This fetches your carousel API/context
   const [selectedIndex, setSelectedIndex] = React.useState("0"); // Using string because Tabs value must be string
-  const slides = ["Overview", "Details"];
+  const slides = ["Workouts", "Exercises"];
 
   // Function to manually select a slide (called on tab click)
   const selectSlide = (index) => {

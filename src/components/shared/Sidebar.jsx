@@ -25,7 +25,7 @@ const SideBar = () => {
 
           <NavLink  to="/">
             <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md transition duration-150 ease-in-out">
-              <FontAwesomeIcon  size='lg' className="mr-3" icon={faPersonRunning} />
+              <FontAwesomeIcon  size='lg' className="mr-3" icon={faDumbbell} />
               Train!
             </li>
           </NavLink>
@@ -33,7 +33,7 @@ const SideBar = () => {
           <NavLink  to="programs">
             <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md transition duration-150 ease-in-out">
               <FontAwesomeIcon className="mr-3" icon={faFolder} />
-              Workouts
+              Resources
             </li>
           </NavLink>
 

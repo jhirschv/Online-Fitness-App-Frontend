@@ -163,6 +163,7 @@ export default function YourWorkouts() {
                             <TabsList className='rounded-xs'>
                                 <TabsTrigger className='rounded-xs' value="workouts">Workouts</TabsTrigger>
                                 <TabsTrigger className='rounded-xs' value="programs">Programs</TabsTrigger>
+                                <TabsTrigger className='rounded-xs' value="clients">Clients</TabsTrigger>
                             </TabsList>
                             <TabsContent value="programs">
                                 <div className="rounded-md border">
@@ -185,7 +186,8 @@ export default function YourWorkouts() {
                                                 <Popover>
                                                     <PopoverTrigger className='p-4'><FontAwesomeIcon size='lg' icon={faEllipsis} /></PopoverTrigger>
                                                     <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md' >
-                                                        <Button onClick={() => deleteProgram(program.id)} className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>Delete Program</Button></PopoverContent>
+                                                        <Button onClick={() => deleteProgram(program.id)} className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>Delete Program</Button>
+                                                    </PopoverContent>
                                                 </Popover>
                                             </div> 
                                             </TableCell>
