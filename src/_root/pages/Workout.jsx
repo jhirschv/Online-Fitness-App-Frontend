@@ -177,7 +177,6 @@ const Create = () => {
         setWorkoutExercises(updatedExercises);
     }
     function updateWorkout() {
-        console.log(workoutExercises)
         const workoutData = {
             id: workoutId,
             workout_exercises: workoutExercises.map(({id, exercise, sets, reps, note, video}) => ({

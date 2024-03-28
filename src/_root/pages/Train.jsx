@@ -93,6 +93,72 @@ import {
   
   
 const Train = () => {
+
+    const [exercises, setExercises] = useState([]);
+    const [newExercise, setNewExercise] = useState("")
+    const [newExerciseSets, setNewExerciseSets] = useState()
+    const [newExerciseReps, setNewExerciseReps] = useState()
+    const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
+
+    const openDrawer = () => setIsDrawerOpen(true);
+
+    const closeDrawer = () => setIsDrawerOpen(false);
+
+
+    const getActiveProgram = () => {
+        apiClient.get('/get_active_program/') // Make sure the endpoint matches your Django URL configuration
+        .then(response => {
+            setActiveProgram(response.data);
+            setWorkouts(response.data.phases[0].workouts)
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
+    }
+
+    const addNewExerciseToWorkout = () => {
+        let exerciseData = {
+            exercise_name: newExercise,
+            sets: newExerciseSets,
+            reps: newExerciseReps, 
+            workout: currentWorkout.id
+        }
+        apiClient.post('workout_exercises/', exerciseData)
+        .then(response => {
+            console.log(response)
+            getActiveProgram()
+            closeDrawer();
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
+    };
+
+    const deleteWorkoutExercise = (exerciseId) => {
+        apiClient.delete(`/workout_exercises/${exerciseId}/`)
+            .then(response => {
+                console.log(response)
+                getActiveProgram()
+            })
+
+        .catch(error => console.log('Error', error))
+    }
+
+    const fetchExercises = () => {
+        apiClient.get('exercises/').then((res) => {
+          setExercises(res.data)
+      })  
+    }
+    useEffect(() => {
+        fetchExercises()
+    }, [])
+
+    const clickToAddExercise = (exerciseName) => {
+        setNewExercise(exerciseName)
+    }
+
+
+
     const { theme } = useTheme();
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
     const navigate = useNavigate();
@@ -549,7 +615,7 @@ const Train = () => {
                                                             <div className='ml-4'>{workout_exercise.sets} x {workout_exercise.reps}</div>
                                                             <Drawer>
                                                                 <DrawerTrigger className='absolute top-1 right-3'><FontAwesomeIcon icon={faEllipsis} /></DrawerTrigger>
-                                                                <DrawerContent>
+                                                                <DrawerContent className='h-1/2'>
                                                                     <DrawerHeader>
                                                                     <DrawerTitle>Edit Exercise</DrawerTitle>
                                                                     </DrawerHeader>
@@ -620,7 +686,7 @@ const Train = () => {
                                                                                 </SelectGroup>
                                                                             </SelectContent>
                                                                         </Select>
-                                                                        <FontAwesomeIcon className='ml-auto' size='lg' icon={faTrashCan} />
+                                                                        <FontAwesomeIcon className='ml-auto' size='lg' onClick={() => deleteWorkoutExercise(workout_exercise.id)} icon={faTrashCan} />
                                                                     </div>
                                                                     <DrawerFooter>
                                                                     <Button>Save</Button>
@@ -629,7 +695,7 @@ const Train = () => {
                                                             </Drawer>
                                                         </div>
                                                     ))}
-                                                    <Drawer>
+                                                    <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
                                                         <DrawerTrigger className='w-full flex items-center'><div className='py-4 px-4  text-primary font-semibold underline-offset-4 hover:underline'><FontAwesomeIcon className='mr-2' icon={faPlus}/>
                                                         Add Exercise</div>
                                                         </DrawerTrigger>
@@ -637,14 +703,13 @@ const Train = () => {
                                                                 <div className='flex flex-col'>
                                                                     <Card className='m-2'>
                                                                         <CardHeader className='pt-4 pb-0 px-4 '>
-                                                                            <CardTitle className='text-lg'>
+                                                                            <CardTitle className='text-xl'>
                                                                                 Add New Exercise
                                                                             </CardTitle>
                                                                         </CardHeader>
-                                                                        <CardContent className='flex items-center gap-1 px-4 pb-3'>
-                                                                            <Input />
-                                                                            <Select 
-                                                                            >
+                                                                        <CardContent className='flex items-center gap-1 px-4 py-4'>
+                                                                            <Input placeholder="Add Exercise" onChange={(event) => setNewExercise(event.target.value)} value={newExercise}/>
+                                                                            <Select value={newExerciseSets} onValueChange={(newValue) => setNewExerciseSets(newValue)}>
                                                                                 <SelectTrigger className="w-[80px] md:w-[80px] focus:ring-0 focus:ring-offset-0">
                                                                                     <SelectValue placeholder='sets' />
                                                                                 </SelectTrigger>
@@ -675,7 +740,7 @@ const Train = () => {
                                                                                 </SelectContent>
                                                                             </Select>
                                                                             <FontAwesomeIcon className='m-1' icon={faXmark} />
-                                                                            <Select>
+                                                                            <Select value={newExerciseReps} onValueChange={(newValue) => setNewExerciseReps(newValue)}>
                                                                                 <SelectTrigger className="w-[80px] md:w-[80px] focus:ring-0 focus:ring-offset-0">
                                                                                     <SelectValue placeholder='reps' />
                                                                                 </SelectTrigger>
@@ -722,7 +787,14 @@ const Train = () => {
                                                                         <TabsContent className='m-0' value="exerciseDatabase">
                                                                             <ScrollArea className="h-96 w-full rounded-md border-none bg-background">
                                                                                 <div className="p-4">
-                                                                                    
+                                                                                {exercises.map((exercise)=> {
+                                                                                    return (
+                                                                                        <div onClick={() => clickToAddExercise(exercise.name)} key={exercise.name}>
+                                                                                            <div className="p-2 text-sm">{exercise.name}</div>
+                                                                                            <Separator className="my-2" />
+                                                                                        </div>
+                                                                                    )
+                                                                                })}
                                                                                 </div>
                                                                             </ScrollArea>
                                                                         </TabsContent>
@@ -737,9 +809,9 @@ const Train = () => {
                                                                     </Tabs>
                                                                 </div>
                                                             <DrawerFooter>
-                                                                <Button>Add</Button>
-                                                            <DrawerClose>
-                                                                <Button variant="outline">Cancel</Button>
+                                                                <Button onClick={addNewExerciseToWorkout} className='text-lg'>Add</Button>
+                                                            <DrawerClose asChild>
+                                                                <Button className='text-lg' variant="outline">Cancel</Button>
                                                             </DrawerClose>
                                                             </DrawerFooter>
                                                         </DrawerContent>
