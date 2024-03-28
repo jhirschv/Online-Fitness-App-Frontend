@@ -93,17 +93,21 @@ import {
   
   
 const Train = () => {
+    const { theme } = useTheme();
+    const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
+    const navigate = useNavigate();
 
-    const [exercises, setExercises] = useState([]);
-    const [newExercise, setNewExercise] = useState("")
-    const [newExerciseSets, setNewExerciseSets] = useState()
-    const [newExerciseReps, setNewExerciseReps] = useState()
-    const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
+    const [phasesDetails, setPhasesDetails] = useState([]);
+    const [userWorkoutSessions, setUserWorkoutSessions] = useState([])
+    const [dayData, setDayData] = useState({});
+    const [displayCurrentWorkout, setDisplayCurrentWorkout] = useState(true);
+    const [programName, setProgramName] = useState("");
 
+    //drawer
     const openDrawer = () => setIsDrawerOpen(true);
-
     const closeDrawer = () => setIsDrawerOpen(false);
-
+    const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
+    //drawer
 
     const getActiveProgram = () => {
         apiClient.get('/get_active_program/') // Make sure the endpoint matches your Django URL configuration
@@ -115,135 +119,228 @@ const Train = () => {
             console.error('Error fetching data:', error);
         });
     }
+    //fetch active program and workouts
+    const [activeProgram, setActiveProgram] = useState(null)
+    const [workouts, setWorkouts] = useState([])
+    useEffect(() => {
+        apiClient.get('/get_active_program/') // Make sure the endpoint matches your Django URL configuration
+        .then(response => {
+            setActiveProgram(response.data);
+            setWorkouts(response.data.phases[0].workouts)
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
+    }, []);
+    //fetch exercises
+    const [exercises, setExercises] = useState([]);
+    useEffect(() => {
+        apiClient.get('exercises/').then((res) => {
+            setExercises(res.data)
+        }) 
+    }, [])
+    
+    //get user workout sessions
+    useEffect(() => {
+    apiClient.get('/user_workout_sessions/')
+        .then(response => {
+            setUserWorkoutSessions(response.data)
+            })
+        
+        .catch(error => console.error('Error:', error));
+    }, []);
 
+    useEffect(() => {
+        if (activeProgram) { // Check if activeProgram is not null
+            const fetchData = async () => {
+                try {
+                    const programId = activeProgram.id; // Assuming activeProgram contains an id field
+                    const response = await apiClient.get(`phase_details/${programId}/`);
+                    setPhasesDetails(response.data);
+                } catch (error) {
+                    console.error('Error fetching phases and workouts:', error);
+                }
+            };
+            fetchData();
+        }
+    }, [activeProgram]); 
+    
+    useEffect(() => {
+        apiClient.get('/user_programs/') // Make sure the endpoint matches your Django URL configuration
+        .then(response => {
+            setUserPrograms(response.data);
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
+    }, []);
+
+    //create, delete, update workout_exercises
     const addNewExerciseToWorkout = () => {
         let exerciseData = {
             exercise_name: newExercise,
             sets: newExerciseSets,
             reps: newExerciseReps, 
-            workout: currentWorkout.id
+            workout: clickedWorkout.id
         }
         apiClient.post('workout_exercises/', exerciseData)
         .then(response => {
+            const newExerciseData = response.data; // The new exercise from the server response
+
+            // Update clickedWorkoutExercises with the new exercise
+            setClickedWorkoutExercises(prevExercises => [...prevExercises, newExerciseData]);
+
+            // Also, update the workouts state to include the new exercise in the corresponding workout
+            setWorkouts(currentWorkouts => currentWorkouts.map(workout => {
+                if (workout.id === clickedWorkout.id) {
+                    return {
+                        ...workout,
+                        workout_exercises: [...workout.workout_exercises, newExerciseData]
+                    };
+                }
+                return workout;
+            }));
             console.log(response)
-            getActiveProgram()
+            setNewExercise("")
+            setNewExerciseSets("")
+            setNewExerciseReps("")
             closeDrawer();
         })
         .catch(error => {
             console.error('Error fetching data:', error);
         });
     };
-
+    const [newExercise, setNewExercise] = useState("")
+    const [newExerciseSets, setNewExerciseSets] = useState()
+    const [newExerciseReps, setNewExerciseReps] = useState()
     const deleteWorkoutExercise = (exerciseId) => {
         apiClient.delete(`/workout_exercises/${exerciseId}/`)
             .then(response => {
                 console.log(response)
-                getActiveProgram()
+                setWorkouts(currentWorkouts => currentWorkouts.map(workout => {
+                    if (workout.id === clickedWorkout.id) {
+                        // Remove the deleted exercise from this workout's exercises
+                        return {
+                            ...workout,
+                            workout_exercises: workout.workout_exercises.filter(exercise => exercise.id !== exerciseId)
+                        };
+                    }
+                    return workout;
+                }));
+    
+                // Update clickedWorkoutExercises to reflect the deletion
+                setClickedWorkoutExercises(currentExercises =>
+                    currentExercises.filter(exercise => exercise.id !== exerciseId)
+                );
             })
 
         .catch(error => console.log('Error', error))
     }
-
-    const fetchExercises = () => {
-        apiClient.get('exercises/').then((res) => {
-          setExercises(res.data)
-      })  
+    function updateWorkout() {
+        const workoutData = {
+            id: clickedWorkout.id,
+            workout_exercises: clickedWorkoutExercises.map(({id, exercise, sets, reps, note, video}) => ({
+                exercise_name: exercise.name, 
+                sets,
+                reps,
+                note,
+                video,
+            })),
+            name: clickedWorkout.name,
+            phase: 1
+        }
+        apiClient.put(`/workouts/${clickedWorkout.id}/`, workoutData) 
+        .then(response => {
+            console.log('Workout updated successfully:', response.data);
+            closeDrawer();
+        })
+        .catch(error => {
+            console.error('Failed to update workout:', error);
+        });
+    } 
+    const handleEditSetsChange = (exerciseId, newSets) => {
+        const updatedExercises = clickedWorkoutExercises.map(exerciseDetail => {
+          if (exerciseDetail.exercise.id === exerciseId) {
+            return { ...exerciseDetail, sets: newSets };
+          }
+          return exerciseDetail;
+        });
+        setClickedWorkoutExercises(updatedExercises);
     }
-    useEffect(() => {
-        fetchExercises()
-    }, [])
-
+    const handleEditRepsChange = (exerciseId, newReps) => {
+        const updatedExercises = clickedWorkoutExercises.map(exerciseDetail => {
+          if (exerciseDetail.exercise.id === exerciseId) {
+            return { ...exerciseDetail, reps: newReps };
+          }
+          return exerciseDetail;
+        });
+        setClickedWorkoutExercises(updatedExercises);
+    }
     const clickToAddExercise = (exerciseName) => {
         setNewExercise(exerciseName)
     }
+    //create, delete, update workout_exercises
 
 
-
-    const { theme } = useTheme();
-    const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
-    const navigate = useNavigate();
-
-    const [date, setDate] = React.useState(new Date())
-    const [activeProgram, setActiveProgram] = useState(null)
-    const [workouts, setWorkouts] = useState([])
+    //carousel
     const [clickedWorkout, setClickedWorkout] = useState()
+    const [clickedWorkoutExercises, setClickedWorkoutExercises] = useState([])
     const [carouselApi, setCarouselApi] = useState(null);
-    useEffect(() => {
-        if (workouts && workouts.length > 0) {
-          setClickedWorkout(workouts[0]);
-        }
-      }, [workouts]);
     const handleWorkoutClick = (workout) => {
         setClickedWorkout(workout);
+        setClickedWorkoutExercises(workout.workout_exercises);
         console.log(workout)
         if (carouselApi) {
-            carouselApi.scrollTo(1); // Navigate to the second item
+            carouselApi.scrollTo(1); 
           }
     };
-    const [selectedProgram, setSelectedProgram] = useState(null)
-    const [userPrograms, setUserPrograms] = useState([])
-    const [currentWorkout, setCurrentWorkout] = useState(null);
-    const [phasesDetails, setPhasesDetails] = useState([]);
-    const [selectedWorkout, setSelectedWorkout] = useState(null);
-    const [isSheetOpen, setIsSheetOpen] = useState(false);
-    const [userWorkoutSessions, setUserWorkoutSessions] = useState([])
-    const [dayData, setDayData] = useState({});
-    const [displayCurrentWorkout, setDisplayCurrentWorkout] = useState(true);
-    const [programName, setProgramName] = useState("");
-    const handleNameInputChange = (event) => {
-        setProgramName(event.target.value); // Update state with input value
-            };
-
-        function createAndActivateProgram() {
-            const programData = {
-                name: programName
-            };
-        
-            apiClient.post('create-and-activate/', programData)
-            .then(response => {
-                setActiveProgram(response.data)
-                setWorkouts(response.data.phases[0].workouts)
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-            });
+    useEffect(() => {
+        if (!clickedWorkout && workouts && workouts.length > 0) {
+            setClickedWorkout(workouts[0]);
+            setClickedWorkoutExercises(workouts[0].workout_exercises);
         }
+    }, [workouts, clickedWorkout]);
+    //carousel
 
-        const [workoutName, setWorkoutName] = useState('')
-
-        const handleWorkoutNameChange = (event) => {
+    
+    //create and delete workout
+    const [workoutName, setWorkoutName] = useState('')
+    function createWorkout() {
+        const workoutData = {
+            phase: 1,
+            name: workoutName,
+            workout_exercises: []
+        };
+    
+        apiClient.post('/workouts/', workoutData) 
+        .then(response => {
+            console.log(response)
+            const newWorkout = response.data;
+            setWorkouts(currentWorkouts => [...currentWorkouts, newWorkout]);
+            setWorkoutName("");
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
+        }
+    function deleteWorkout(workoutId) {
+        apiClient.delete(`/workouts/${workoutId}/`)
+        .then(() => {
+            setWorkouts(currentWorkouts => currentWorkouts.filter(workout => workout.id !== workoutId));
+            console.log(response)
+        })
+        .catch(error => {
+            console.error('Error deleting the phase:', error);
+        });
+        }
+    const handleWorkoutNameChange = (event) => {
             setWorkoutName(event.target.value)
         }
-        function createWorkout() {
-            const workoutData = {
-                phase: 1,
-                name: workoutName,
-                workout_exercises: []
-            };
-        
-            apiClient.post('/workouts/', workoutData) 
-            .then(response => {
-                console.log(response)
-                const newWorkout = response.data;
-                setWorkouts(currentWorkouts => [...currentWorkouts, newWorkout]);
-                setWorkoutName("");
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-            });
-            }
-    
-        function deleteWorkout(workoutId) {
-            apiClient.delete(`/workouts/${workoutId}/`)
-            .then(() => {
-                setWorkouts(currentWorkouts => currentWorkouts.filter(workout => workout.id !== workoutId));
-                console.log(response)
-            })
-            .catch(error => {
-                console.error('Error deleting the phase:', error);
-            });
-            }
+    //create and delete workout
 
+
+    //calendar stuff
+    const [date, setDate] = React.useState(new Date())
     const handleDayData = (receivedDayData) => {
         console.log('Sending event data to parent:', receivedDayData);
         // Even if receivedDayData is undefined or null, setDayData to an empty object
@@ -255,7 +352,6 @@ const Train = () => {
             setDisplayCurrentWorkout(true);
         }
     };
-
     const handleSelect = (newDate) => {
       setDate(newDate);
       const today = new Date();
@@ -272,7 +368,32 @@ const Train = () => {
         setDisplayCurrentWorkout(false);
       }
     };
+    //calendar stuff
 
+
+    //program stuff
+    const [selectedProgram, setSelectedProgram] = useState(null)
+    const [userPrograms, setUserPrograms] = useState([])
+    const [currentWorkout, setCurrentWorkout] = useState(null);
+    const [selectedWorkout, setSelectedWorkout] = useState(null);
+    const [isSheetOpen, setIsSheetOpen] = useState(false);
+    function createAndActivateProgram() {
+        const programData = {
+            name: programName
+        };
+    
+        apiClient.post('create-and-activate/', programData)
+        .then(response => {
+            setActiveProgram(response.data)
+            setWorkouts(response.data.phases[0].workouts)
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
+    }
+    const handleNameInputChange = (event) => {
+        setProgramName(event.target.value)
+    }
     function turnOffProgram() {
         apiClient.post(`/set_inactive_program/`, {program_id: activeProgram.id})
         .then(response => {
@@ -284,7 +405,6 @@ const Train = () => {
             console.error('Error starting workout session:', error);
         });
     }
-
     function updateActiveProgram(selectedProgram) {
             const payload = {
                 program_id: selectedProgram, 
@@ -358,6 +478,9 @@ const Train = () => {
             console.error('Error fetching data:', error);
         });
     }
+    useEffect(() => {
+        fetchCurrentWorkout();
+    }, [activeProgram]);
     const handleSheetOpenChange = (open) => {
         setIsSheetOpen(open);
 
@@ -366,55 +489,7 @@ const Train = () => {
             setSelectedWorkout(null);
         }
     }
-
-    useEffect(() => {
-        apiClient.get('/user_workout_sessions/')
-            .then(response => {
-                setUserWorkoutSessions(response.data)
-                })
-            
-            .catch(error => console.error('Error:', error));
-        }, []);
-
-    useEffect(() => {
-        if (activeProgram) { // Check if activeProgram is not null
-            const fetchData = async () => {
-                try {
-                    const programId = activeProgram.id; // Assuming activeProgram contains an id field
-                    const response = await apiClient.get(`phase_details/${programId}/`);
-                    setPhasesDetails(response.data);
-                } catch (error) {
-                    console.error('Error fetching phases and workouts:', error);
-                }
-            };
-            fetchData();
-        }
-    }, [activeProgram]);
-     // This effect depends on programId   
-    useEffect(() => {
-        apiClient.get('/get_active_program/') // Make sure the endpoint matches your Django URL configuration
-        .then(response => {
-            setActiveProgram(response.data);
-            setWorkouts(response.data.phases[0].workouts)
-        })
-        .catch(error => {
-            console.error('Error fetching data:', error);
-        });
-    }, []);
-
-    useEffect(() => {
-        fetchCurrentWorkout();
-    }, [activeProgram]);
-
-    useEffect(() => {
-        apiClient.get('/user_programs/') // Make sure the endpoint matches your Django URL configuration
-        .then(response => {
-            setUserPrograms(response.data);
-        })
-        .catch(error => {
-            console.error('Error fetching data:', error);
-        });
-    }, []);
+    //program stuff
 
     const renderWorkoutDetails = (workout) => {
         return (
@@ -564,12 +639,12 @@ const Train = () => {
                                             <Card className='border-none rounded-none h-full'>
                                                 <CardContent className="p-0 items-center justify-center flex flex-col gap-2">
                                                 {workouts && workouts.map((workout, index) => (
-                                                    <div className={`w-full flex justify-between py-6 px-4 border rounded-xs relative`} 
+                                                    <div className={`w-full flex justify-between h-20 px-4 border rounded-xs relative`} 
                                                     key={workout.id} onClick={() => handleWorkoutClick(workout)}>
                                                         <div className={`absolute left-0 top-0 bottom-0 w-1 ${clickedWorkout && clickedWorkout.id === workout.id ? 'bg-primary' : 'bg-transparent'}`} style={{width: '5px'}}></div>
-                                                        <div className='font-semibold'>{index + 1}. {workout.name}</div>
+                                                        <div className='font-semibold p-2'>{index + 1}. {workout.name}</div>
                                                         <div>
-                                                            <FontAwesomeIcon className='mr-6' icon={faChevronRight} />
+                                                            <FontAwesomeIcon className='absolute top-8 right-8' icon={faChevronRight} />
                                                             <Popover >
                                                                 <PopoverTrigger onClick={(event) => event.stopPropagation()} className='absolute top-1 right-3'><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
                                                                 <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md'>
@@ -609,7 +684,7 @@ const Train = () => {
                                                         <p className='text-sm text-muted-foreground'>{clickedWorkout && clickedWorkout.workout_exercises ? clickedWorkout.workout_exercises.length : 0} exercises</p>
                                                     </div>
                                                     
-                                                {clickedWorkout && clickedWorkout.workout_exercises.map((workout_exercise, index) => (
+                                                {clickedWorkoutExercises && clickedWorkoutExercises.map((workout_exercise, index) => (
                                                         <div key={workout_exercise.id} className='py-6 px-4 w-full flex  border rounded-xs relative'>
                                                             <div className='w-1/2 font-semibold'>{index + 1}. {workout_exercise.exercise.name}</div>
                                                             <div className='ml-4'>{workout_exercise.sets} x {workout_exercise.reps}</div>
@@ -622,7 +697,7 @@ const Train = () => {
                                                                     <div className='flex items-center p-6 border rounded-sm mx-4'>
                                                                         <div className='w-1/3 font-semibold' >{workout_exercise.exercise.name}</div>
                                                                         <Select  value={workout_exercise.sets > 0 ? workout_exercise.sets.toString() : ''}
-                                                                        onValueChange={(newValue) => handleSetsChange(exercise.id, parseInt(newValue, 10))}
+                                                                        onValueChange={(newValue) => handleEditSetsChange(workout_exercise.exercise.id, parseInt(newValue, 10))}
                                                                         >
                                                                             <SelectTrigger className="w-[55px] md:w-[80px] focus:ring-0 focus:ring-offset-0">
                                                                                 <SelectValue placeholder='sets' />
@@ -655,7 +730,7 @@ const Train = () => {
                                                                         </Select>
                                                                         <FontAwesomeIcon className='m-2' icon={faXmark} />
                                                                         <Select  value={workout_exercise.reps > 0 ? workout_exercise.reps.toString() : ''}
-                                                                        onValueChange={(newValue) => handlerepsChange(exercise.id, parseInt(newValue, 10))}
+                                                                        onValueChange={(newValue) => handleEditRepsChange(workout_exercise.exercise.id, parseInt(newValue, 10))}
                                                                         >
                                                                             <SelectTrigger className="w-[55px] md:w-[80px] focus:ring-0 focus:ring-offset-0">
                                                                                 <SelectValue placeholder='reps' />
@@ -689,7 +764,9 @@ const Train = () => {
                                                                         <FontAwesomeIcon className='ml-auto' size='lg' onClick={() => deleteWorkoutExercise(workout_exercise.id)} icon={faTrashCan} />
                                                                     </div>
                                                                     <DrawerFooter>
-                                                                    <Button>Save</Button>
+                                                                        <DrawerClose asChild>
+                                                                            <Button onClick={() => updateWorkout()}>Save</Button>
+                                                                        </DrawerClose>
                                                                     </DrawerFooter>
                                                                 </DrawerContent>
                                                             </Drawer>
