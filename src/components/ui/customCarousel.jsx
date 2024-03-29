@@ -95,6 +95,7 @@ const Carousel = React.forwardRef((
     };
   }, [api, onSelect])
 
+
   return (
     (<CarouselContext.Provider
       value={{
@@ -246,4 +247,4 @@ const CarouselTabs = () => {
   );
 };
 
-export { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext, CarouselTabs };
+export { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext, CarouselTabs,  };

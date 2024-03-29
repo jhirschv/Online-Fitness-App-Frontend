@@ -90,7 +90,8 @@ import {
     SelectValue,
   } from "@/components/ui/select"
   import { Search } from "lucide-react"
-  
+  import { Reorder } from 'framer-motion';
+
   
   
 const Train = () => {
@@ -287,6 +288,7 @@ const Train = () => {
     const [clickedWorkout, setClickedWorkout] = useState()
     const [clickedWorkoutExercises, setClickedWorkoutExercises] = useState([])
     const [carouselApi, setCarouselApi] = useState(null);
+
     const handleWorkoutClick = (workout) => {
         setClickedWorkout(workout);
         setClickedWorkoutExercises(workout.workout_exercises);
@@ -642,10 +644,10 @@ const Train = () => {
                                                         <h1 className='mr-2 p-1 text-xl self-start font-semibold'>{activeProgram.name}</h1>
                                                         <p className='text-sm text-muted-foreground'>{activeProgram && activeProgram.phases ? activeProgram.phases[0].workouts.length : 0} workouts</p>
                                                     </div>
-                                               
+                                                <Reorder.Group axis="y" onReorder={setWorkouts} values={workouts} className="w-full">
                                                 {workouts && workouts.map((workout, index) => (
-                                                    <div className={`w-full flex justify-between h-20 px-4 border rounded-xs relative`} 
-                                                    key={workout.id} onClick={() => handleWorkoutClick(workout)}>
+                                                    <Reorder.Item key={workout.id} value={workout} className="w-full flex justify-between h-20 px-4 border rounded-xs relative my-2" 
+                                                    onClick={() => handleWorkoutClick(workout)}>
                                                         <div className={`absolute left-0 top-0 bottom-0 w-1 ${clickedWorkout && clickedWorkout.id === workout.id ? 'bg-primary' : 'bg-transparent'}`} style={{width: '5px'}}></div>
                                                         <div className='font-semibold p-2'>{index + 1}. {workout.name}</div>
                                                         <div>
@@ -658,8 +660,9 @@ const Train = () => {
                                                                 </PopoverContent>
                                                             </Popover>
                                                         </div>
-                                                    </div>
+                                                    </Reorder.Item>
                                                 ))}
+                                                </Reorder.Group>
                                                 <AlertDialog>
                                                     <AlertDialogTrigger className='w-full flex items-center' asChild>
                                                         <div className='w-full py-4 px-4 text-primary font-semibold underline-offset-4 hover:underline'><FontAwesomeIcon className='mr-2' icon={faPlus}/>Add Workout</div>
@@ -679,7 +682,7 @@ const Train = () => {
                                                             </AlertDialogFooter>
                                                         </TabsContent>
                                                         <TabsContent value="ai">
-                                                            <div className='flex gap-2 my-2'>
+                                                            <div className='flex flex-wrap gap-2 my-2'>
                                                                 <Select>
                                                                     <SelectTrigger className="w-20">
                                                                         <SelectValue placeholder="Level" />
