@@ -584,10 +584,10 @@ const Train = () => {
 
     return (
         <div className={`${backgroundColorClass} w-full md:p-4 md:border md:rounded-lg`}>
-            <Card className='border-0 md:border h-full w-full flex flex-col rounded-none md:rounded-lg'>
+            <Card className='relative border-0 md:border h-full w-full flex flex-col rounded-none md:rounded-lg'>
                 <div className='flex h-full w-full'>
 
-                    <div className='flex flex-col h-full basis-full w-full md:basis-2/5 px-6 md:pl-6'>
+                    <div className='flex flex-col h-full basis-full w-full md:basis-2/5 px-6  md:px-0 md:pl-6'>
                         <div className='flex flex-col py-6'>
                             <div className='w-full flex'>
                                 {activeProgram && <h1 className='mr-2 text-2xl font-semibold'>{activeProgram.name}</h1>}
@@ -634,7 +634,7 @@ const Train = () => {
                                     <CarouselTabs />
                                     <CarouselContent className='flex-1 h-full'>
                                        
-                                        <CarouselItem value='overview' className='flex flex-col'>
+                                        <CarouselItem value='overview' className='max-h-full flex flex-col'>
                                             <div className="flex-grow mt-2">
                                             <Card className='border-none rounded-none h-full'>
                                                 <CardContent className="p-0 items-center justify-center flex flex-col gap-2">
@@ -683,9 +683,9 @@ const Train = () => {
                                                         <h1 className='p-1 font-semibold text-xl'>{clickedWorkout && clickedWorkout.name}</h1>
                                                         <p className='text-sm text-muted-foreground'>{clickedWorkout && clickedWorkout.workout_exercises ? clickedWorkout.workout_exercises.length : 0} exercises</p>
                                                     </div>
-                                                    
+                                                <ScrollArea className='flex flex-col gap-2 max-h-[600px] md:max-h-[400px] overflow-y-auto pb-24 md:pb-0 md:pr-2'>
                                                 {clickedWorkoutExercises && clickedWorkoutExercises.map((workout_exercise, index) => (
-                                                        <div key={workout_exercise.id} className='py-6 px-4 w-full flex  border rounded-xs relative'>
+                                                        <div key={workout_exercise.id} className='py-6 my-2 px-4 w-full flex  border rounded-xs relative'>
                                                             <div className='w-1/2 font-semibold'>{index + 1}. {workout_exercise.exercise.name}</div>
                                                             <div className='ml-4'>{workout_exercise.sets} x {workout_exercise.reps}</div>
                                                             <Drawer>
@@ -772,8 +772,10 @@ const Train = () => {
                                                             </Drawer>
                                                         </div>
                                                     ))}
+                                                     
                                                     <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-                                                        <DrawerTrigger className='w-full flex items-center'><div className='py-4 px-4  text-primary font-semibold underline-offset-4 hover:underline'><FontAwesomeIcon className='mr-2' icon={faPlus}/>
+                                                        <DrawerTrigger className='w-full flex items-center'>
+                                                        <div className='py-4 px-4 text-lg text-primary font-semibold underline-offset-4 hover:underline'><FontAwesomeIcon className='mr-2' icon={faPlus}/>
                                                         Add Exercise</div>
                                                         </DrawerTrigger>
                                                         <DrawerContent className='h-screen'>
@@ -893,6 +895,7 @@ const Train = () => {
                                                             </DrawerFooter>
                                                         </DrawerContent>
                                                     </Drawer>
+                                                    </ScrollArea>
                                                 </CardContent>
                                             </Card>
                                             </div>
@@ -1055,7 +1058,7 @@ const Train = () => {
                         </div>
                         {currentWorkout && 
                         <div className='flex justify-center gap-4 items-center mb-6 '>
-                            <Button size='lg' onClick={startWorkoutSession} className='self-center p-6 text-lg'>Start Session!</Button>
+                            <Button size='lg' onClick={startWorkoutSession} className='fixed bottom-28 right-8 md:static self-center p-6 text-lg'>Start Session!</Button>
                             <Sheet  open={isSheetOpen} onOpenChange={handleSheetOpenChange}>
                                 <SheetTrigger asChild>
                                     <Button variant='outline' onClick={() => setIsSheetOpen(true)} className=' hidden self-center w-1/2 md:w-2/5 p-6 text-lg'>Change Workout</Button>
@@ -1095,7 +1098,7 @@ const Train = () => {
                         mode="single"
                         selected={date}
                         onSelect={handleSelect}
-                        className="h-[90%] m-4"
+                        className="h-[90%] my-4"
                         />
                     </div>
                     

@@ -19,7 +19,7 @@ const SideBar = () => {
                 <AvatarImage src="https://github.com/shadcn.png" />
                 <AvatarFallback>CN</AvatarFallback>
               </Avatar>
-              Account
+              <p className='md:hidden lg:block'>Account</p>
             </li>
           </NavLink>
 
