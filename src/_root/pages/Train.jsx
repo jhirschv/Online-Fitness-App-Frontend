@@ -780,85 +780,88 @@ const Train = () => {
                                                         </DrawerTrigger>
                                                         <DrawerContent className='h-screen'>
                                                                 <div className='flex flex-col'>
-                                                                    <Card className='m-2'>
+                                                                    <Card className='border-none m-2'>
                                                                         <CardHeader className='pt-4 pb-0 px-4 '>
                                                                             <CardTitle className='text-xl'>
                                                                                 Add New Exercise
                                                                             </CardTitle>
                                                                         </CardHeader>
-                                                                        <CardContent className='flex items-center gap-1 px-4 py-4'>
-                                                                            <Input placeholder="Add Exercise" onChange={(event) => setNewExercise(event.target.value)} value={newExercise}/>
-                                                                            <Select value={newExerciseSets} onValueChange={(newValue) => setNewExerciseSets(newValue)}>
-                                                                                <SelectTrigger className="w-[80px] md:w-[80px] focus:ring-0 focus:ring-offset-0">
-                                                                                    <SelectValue placeholder='sets' />
-                                                                                </SelectTrigger>
-                                                                                <SelectContent>
-                                                                                    <SelectGroup>
-                                                                                        <SelectLabel>sets</SelectLabel>
-                                                                                        <SelectItem value="1">1</SelectItem>
-                                                                                        <SelectItem value="2">2</SelectItem>
-                                                                                        <SelectItem value="3">3</SelectItem>
-                                                                                        <SelectItem value="4">4</SelectItem>
-                                                                                        <SelectItem value="5">5</SelectItem>
-                                                                                        <SelectItem value="6">6</SelectItem>
-                                                                                        <SelectItem value="7">7</SelectItem>
-                                                                                        <SelectItem value="8">8</SelectItem>
-                                                                                        <SelectItem value="9">9</SelectItem>
-                                                                                        <SelectItem value="10">10</SelectItem>
-                                                                                        <SelectItem value="11">11</SelectItem>
-                                                                                        <SelectItem value="12">12</SelectItem>
-                                                                                        <SelectItem value="13">13</SelectItem>
-                                                                                        <SelectItem value="14">14</SelectItem>
-                                                                                        <SelectItem value="15">15</SelectItem>
-                                                                                        <SelectItem value="16">16</SelectItem>
-                                                                                        <SelectItem value="17">17</SelectItem>
-                                                                                        <SelectItem value="18">18</SelectItem>
-                                                                                        <SelectItem value="19">19</SelectItem>
-                                                                                        <SelectItem value="20">20</SelectItem>
-                                                                                    </SelectGroup>
-                                                                                </SelectContent>
-                                                                            </Select>
-                                                                            <FontAwesomeIcon className='m-1' icon={faXmark} />
-                                                                            <Select value={newExerciseReps} onValueChange={(newValue) => setNewExerciseReps(newValue)}>
-                                                                                <SelectTrigger className="w-[80px] md:w-[80px] focus:ring-0 focus:ring-offset-0">
-                                                                                    <SelectValue placeholder='reps' />
-                                                                                </SelectTrigger>
-                                                                                <SelectContent>
-                                                                                    <SelectGroup>
-                                                                                        <SelectLabel>reps</SelectLabel>
-                                                                                        <SelectItem value="1">1</SelectItem>
-                                                                                        <SelectItem value="2">2</SelectItem>
-                                                                                        <SelectItem value="3">3</SelectItem>
-                                                                                        <SelectItem value="4">4</SelectItem>
-                                                                                        <SelectItem value="5">5</SelectItem>
-                                                                                        <SelectItem value="6">6</SelectItem>
-                                                                                        <SelectItem value="7">7</SelectItem>
-                                                                                        <SelectItem value="8">8</SelectItem>
-                                                                                        <SelectItem value="9">9</SelectItem>
-                                                                                        <SelectItem value="10">10</SelectItem>
-                                                                                        <SelectItem value="11">11</SelectItem>
-                                                                                        <SelectItem value="12">12</SelectItem>
-                                                                                        <SelectItem value="13">13</SelectItem>
-                                                                                        <SelectItem value="14">14</SelectItem>
-                                                                                        <SelectItem value="15">15</SelectItem>
-                                                                                        <SelectItem value="16">16</SelectItem>
-                                                                                        <SelectItem value="17">17</SelectItem>
-                                                                                        <SelectItem value="18">18</SelectItem>
-                                                                                        <SelectItem value="19">19</SelectItem>
-                                                                                        <SelectItem value="20">20</SelectItem>
-                                                                                    </SelectGroup>
-                                                                                </SelectContent>
-                                                                            </Select>
+                                                                        <CardContent className='px-4 py-4 flex flex-col items-end'>
+                                                                            <div className='flex items-center gap-1'>
+                                                                                <Input placeholder="Add Exercise" onChange={(event) => setNewExercise(event.target.value)} value={newExercise}/>
+                                                                                <Select value={newExerciseSets} onValueChange={(newValue) => setNewExerciseSets(newValue)}>
+                                                                                    <SelectTrigger className="w-[80px] md:w-[80px] focus:ring-0 focus:ring-offset-0">
+                                                                                        <SelectValue placeholder='sets' />
+                                                                                    </SelectTrigger>
+                                                                                    <SelectContent>
+                                                                                        <SelectGroup>
+                                                                                            <SelectLabel>sets</SelectLabel>
+                                                                                            <SelectItem value="1">1</SelectItem>
+                                                                                            <SelectItem value="2">2</SelectItem>
+                                                                                            <SelectItem value="3">3</SelectItem>
+                                                                                            <SelectItem value="4">4</SelectItem>
+                                                                                            <SelectItem value="5">5</SelectItem>
+                                                                                            <SelectItem value="6">6</SelectItem>
+                                                                                            <SelectItem value="7">7</SelectItem>
+                                                                                            <SelectItem value="8">8</SelectItem>
+                                                                                            <SelectItem value="9">9</SelectItem>
+                                                                                            <SelectItem value="10">10</SelectItem>
+                                                                                            <SelectItem value="11">11</SelectItem>
+                                                                                            <SelectItem value="12">12</SelectItem>
+                                                                                            <SelectItem value="13">13</SelectItem>
+                                                                                            <SelectItem value="14">14</SelectItem>
+                                                                                            <SelectItem value="15">15</SelectItem>
+                                                                                            <SelectItem value="16">16</SelectItem>
+                                                                                            <SelectItem value="17">17</SelectItem>
+                                                                                            <SelectItem value="18">18</SelectItem>
+                                                                                            <SelectItem value="19">19</SelectItem>
+                                                                                            <SelectItem value="20">20</SelectItem>
+                                                                                        </SelectGroup>
+                                                                                    </SelectContent>
+                                                                                </Select>
+                                                                                <FontAwesomeIcon className='m-1' icon={faXmark} />
+                                                                                <Select value={newExerciseReps} onValueChange={(newValue) => setNewExerciseReps(newValue)}>
+                                                                                    <SelectTrigger className="w-[80px] md:w-[80px] focus:ring-0 focus:ring-offset-0">
+                                                                                        <SelectValue placeholder='reps' />
+                                                                                    </SelectTrigger>
+                                                                                    <SelectContent>
+                                                                                        <SelectGroup>
+                                                                                            <SelectLabel>reps</SelectLabel>
+                                                                                            <SelectItem value="1">1</SelectItem>
+                                                                                            <SelectItem value="2">2</SelectItem>
+                                                                                            <SelectItem value="3">3</SelectItem>
+                                                                                            <SelectItem value="4">4</SelectItem>
+                                                                                            <SelectItem value="5">5</SelectItem>
+                                                                                            <SelectItem value="6">6</SelectItem>
+                                                                                            <SelectItem value="7">7</SelectItem>
+                                                                                            <SelectItem value="8">8</SelectItem>
+                                                                                            <SelectItem value="9">9</SelectItem>
+                                                                                            <SelectItem value="10">10</SelectItem>
+                                                                                            <SelectItem value="11">11</SelectItem>
+                                                                                            <SelectItem value="12">12</SelectItem>
+                                                                                            <SelectItem value="13">13</SelectItem>
+                                                                                            <SelectItem value="14">14</SelectItem>
+                                                                                            <SelectItem value="15">15</SelectItem>
+                                                                                            <SelectItem value="16">16</SelectItem>
+                                                                                            <SelectItem value="17">17</SelectItem>
+                                                                                            <SelectItem value="18">18</SelectItem>
+                                                                                            <SelectItem value="19">19</SelectItem>
+                                                                                            <SelectItem value="20">20</SelectItem>
+                                                                                        </SelectGroup>
+                                                                                    </SelectContent>
+                                                                                </Select>
+                                                                            </div>
+                                                                            <Button onClick={addNewExerciseToWorkout} className='text-lg w-1/3 mt-2'>Add</Button>
                                                                         </CardContent>
                                                                     </Card>
-                                                                    <Tabs defaultValue='exerciseDatabase'>
+                                                                    <Tabs  defaultValue='exerciseDatabase'>
                                                                         <div className='flex justify-center items-center w-full pb-2'>
                                                                         <TabsList className="mx-2 grid w-full grid-cols-2 gap-1 rounded-xs bg-muted">
                                                                             <TabsTrigger className='rounded-xs' value="exerciseDatabase">Frequently Used</TabsTrigger>
                                                                             <TabsTrigger className='rounded-xs' value="yourExercises">Exercise Database</TabsTrigger>
                                                                         </TabsList>
                                                                         </div>
-                                                                        <Card>
+                                                                        <Card className='border-none'>
                                                                         <div className="relative py-2 w-full flex justify-center items-center">
                                                                             <Search className="absolute left-4 top-5 h-4 w-4 text-muted-foreground" />
                                                                             <Input placeholder="Search" className="pl-8 w-full mx-2" />
@@ -888,7 +891,7 @@ const Train = () => {
                                                                     </Tabs>
                                                                 </div>
                                                             <DrawerFooter>
-                                                                <Button onClick={addNewExerciseToWorkout} className='text-lg'>Add</Button>
+                                                                
                                                             <DrawerClose asChild>
                                                                 <Button className='text-lg' variant="outline">Cancel</Button>
                                                             </DrawerClose>
