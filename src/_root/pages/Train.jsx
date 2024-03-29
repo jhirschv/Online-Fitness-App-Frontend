@@ -589,56 +589,60 @@ const Train = () => {
                 <div className='flex h-full w-full'>
 
                     <div className='flex flex-col h-full basis-full w-full lg:basis-2/5 px-6  md:px-0 md:pl-6'>
-                        <div className='flex flex-col py-6'>
-                            <div className='w-full flex'>
-                                {activeProgram && <h1 className='mr-2 text-2xl font-semibold'>{activeProgram.name}</h1>}
-                                <div className='ml-auto flex gap-4'>
-                                    {activeProgram && <Sheet>
-                                        <SheetTrigger asChild>
-                                            <Button variant="outline">All Programs</Button>
-                                        </SheetTrigger>
-                                        <SheetContent>
-                                            <SheetHeader>
-                                            <SheetTitle>Select Program</SheetTitle>
-                                            </SheetHeader>
-                                            {userPrograms.map((program) => (
-                                            <div
-                                                key={program.id}
-                                                className={`p-4 rounded ${selectedProgram === program.id ? 'bg-secondary' : 'bg-background'}`}
-                                                onClick={() => handleProgramClick(program.id)}
-                                            >
-                                                <h1>{program.name}</h1>
-                                            </div>
-                                            ))}
-                                            <SheetFooter className='mt-4'>
-                                            <SheetClose asChild>
-                                                <Button type="submit" onClick={() => updateActiveProgram(selectedProgram)}>Save changes</Button>
-                                            </SheetClose>
-                                            </SheetFooter>
-                                        </SheetContent>
-                                    </Sheet>}
-                                    {activeProgram &&
-                                    <Popover>
-                                        <PopoverTrigger><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
-                                        <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md'>
-                                            <Button onClick={turnOffProgram} className='px-2 py-1.5 text-sm outline-none hover:bg-accent bg-popover text-secondary-foreground'>Turn off program</Button>
-                                        </PopoverContent>
-                                    </Popover>}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className='flex-1 flex flex-col'>
+                        <div className='flex-1 flex flex-col mt-4'>
                             {activeProgram ? (
                                 <div className='flex flex-col h-full'>
                                     <Carousel onApiChange={setCarouselApi} className="flex flex-col w-full h-full">
-                                    <CarouselTabs />
+                                        <div className='flex'>
+                                        <CarouselTabs />
+                                        <div className='ml-auto flex gap-4'>
+                                        {activeProgram && 
+                                        <Sheet>
+                                            <SheetTrigger asChild>
+                                                <Button variant="outline">All Programs</Button>
+                                            </SheetTrigger>
+                                            <SheetContent>
+                                                <SheetHeader>
+                                                <SheetTitle>Select Program</SheetTitle>
+                                                </SheetHeader>
+                                                {userPrograms.map((program) => (
+                                                <div
+                                                    key={program.id}
+                                                    className={`p-4 rounded ${selectedProgram === program.id ? 'bg-secondary' : 'bg-background'}`}
+                                                    onClick={() => handleProgramClick(program.id)}
+                                                >
+                                                    <h1>{program.name}</h1>
+                                                </div>
+                                                ))}
+                                                <SheetFooter className='mt-4'>
+                                                <SheetClose asChild>
+                                                    <Button type="submit" onClick={() => updateActiveProgram(selectedProgram)}>Save changes</Button>
+                                                </SheetClose>
+                                                </SheetFooter>
+                                            </SheetContent>
+                                        </Sheet>}
+                                        {activeProgram &&
+                                        <Popover>
+                                            <PopoverTrigger><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
+                                            <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md'>
+                                                <Button onClick={turnOffProgram} className='px-2 py-1.5 text-sm outline-none hover:bg-accent bg-popover text-secondary-foreground'>Turn off program</Button>
+                                            </PopoverContent>
+                                        </Popover>}
+                                    </div>
+                                    </div>
+                                    
                                     <CarouselContent className='flex-1 h-full'>
                                        
                                         <CarouselItem value='overview' className='max-h-full flex flex-col'>
                                             <div className="flex-grow mt-2">
                                             <Card className='border-none rounded-none h-full'>
+                                            
                                                 <CardContent className="p-0 items-center justify-center flex flex-col gap-2">
+                                                    <div className='flex gap-10 self-start items-center'>
+                                                        <h1 className='mr-2 p-1 text-xl self-start font-semibold'>{activeProgram.name}</h1>
+                                                        <p className='text-sm text-muted-foreground'>{activeProgram && activeProgram.phases ? activeProgram.phases[0].workouts.length : 0} workouts</p>
+                                                    </div>
+                                               
                                                 {workouts && workouts.map((workout, index) => (
                                                     <div className={`w-full flex justify-between h-20 px-4 border rounded-xs relative`} 
                                                     key={workout.id} onClick={() => handleWorkoutClick(workout)}>
@@ -833,9 +837,9 @@ const Train = () => {
                                                         <div className='py-4 px-4 text-lg text-primary font-semibold underline-offset-4 hover:underline'><FontAwesomeIcon className='mr-2' icon={faPlus}/>
                                                         Add Exercise</div>
                                                         </DrawerTrigger>
-                                                        <DrawerContent className='h-3/4'>
+                                                        <DrawerContent className='h-4/5'>
                                                                 <div className='flex flex-col'>
-                                                                    <Card className='border-none m-2'>
+                                                                    <Card className='border-none m-0'>
                                                                         <CardHeader className='pt-4 pb-0 px-4 '>
                                                                             <CardTitle className='text-xl'>
                                                                                 Add New Exercise
@@ -906,7 +910,7 @@ const Train = () => {
                                                                                     </SelectContent>
                                                                                 </Select>
                                                                             </div>
-                                                                            <Button onClick={addNewExerciseToWorkout} className='text-lg w-1/3 mt-2'>Add</Button>
+                                                                            <Button onClick={addNewExerciseToWorkout} className='text-lg w-full mt-4'>Add</Button>
                                                                         </CardContent>
                                                                     </Card>
                                                                     <Tabs  defaultValue='exerciseDatabase'>
