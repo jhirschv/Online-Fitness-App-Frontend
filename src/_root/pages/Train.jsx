@@ -587,7 +587,7 @@ const Train = () => {
             <Card className='relative border-0 md:border h-full w-full flex flex-col rounded-none md:rounded-lg'>
                 <div className='flex h-full w-full'>
 
-                    <div className='flex flex-col h-full basis-full w-full md:basis-2/5 px-6  md:px-0 md:pl-6'>
+                    <div className='flex flex-col h-full basis-full w-full lg:basis-2/5 px-6  md:px-0 md:pl-6'>
                         <div className='flex flex-col py-6'>
                             <div className='w-full flex'>
                                 {activeProgram && <h1 className='mr-2 text-2xl font-semibold'>{activeProgram.name}</h1>}
@@ -1058,7 +1058,7 @@ const Train = () => {
                         </div>
                         {currentWorkout && 
                         <div className='flex justify-center gap-4 items-center mb-6 '>
-                            <Button size='lg' onClick={startWorkoutSession} className='fixed bottom-28 right-8 md:static self-center p-6 text-lg'>Start Session!</Button>
+                            <Button size='lg' onClick={startWorkoutSession} className='fixed bottom-28 right-8 lg:static self-center p-6 text-lg'>Start Session!</Button>
                             <Sheet  open={isSheetOpen} onOpenChange={handleSheetOpenChange}>
                                 <SheetTrigger asChild>
                                     <Button variant='outline' onClick={() => setIsSheetOpen(true)} className=' hidden self-center w-1/2 md:w-2/5 p-6 text-lg'>Change Workout</Button>
@@ -1092,7 +1092,7 @@ const Train = () => {
                         </div>}
                     </div>
 
-                    <div className='hidden md:flex h-full items-center justify-center basis-3/5'>
+                    <div className='hidden lg:flex h-full items-center justify-center basis-3/5'>
                         <Calendar
                         onDataReceive={handleDayData}
                         mode="single"
