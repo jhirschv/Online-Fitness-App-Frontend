@@ -15,6 +15,7 @@ import {
     PopoverContent,
     PopoverTrigger,
   } from "@/components/ui/popover"
+  import { Textarea } from '@/components/ui/textarea';
   import { ScrollArea } from "@/components/ui/scroll-area"
   import { Calendar } from "@/components/ui/calendar"
   import { Button } from "@/components/ui/button"
@@ -660,17 +661,71 @@ const Train = () => {
                                                         <div className='w-full py-4 px-4 text-primary font-semibold underline-offset-4 hover:underline'><FontAwesomeIcon className='mr-2' icon={faPlus}/>Add Workout</div>
                                                     </AlertDialogTrigger>
                                                     <AlertDialogContent>
-                                                        <AlertDialogHeader>
-                                                        <AlertDialogTitle>Create Workout</AlertDialogTitle>
-                                                        <Label htmlFor="programName">Name</Label><Input value={workoutName} onChange={handleWorkoutNameChange} autoComplete="off" id="workoutName" />
-                                                        </AlertDialogHeader>
-                                                        <AlertDialogFooter>
-                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                        <AlertDialogAction onClick={createWorkout}>Create Workout</AlertDialogAction>
-                                                        </AlertDialogFooter>
+                                                        <Tabs defaultValue="create">
+                                                        <TabsList>
+                                                            <TabsTrigger value="create">Create Workout</TabsTrigger>
+                                                            <TabsTrigger value="ai">AI Workout</TabsTrigger>
+                                                        </TabsList>
+
+                                                        <TabsContent value="create">
+                                                            <Label htmlFor="programName">Name</Label><Input className='mb-2' value={workoutName} onChange={handleWorkoutNameChange} autoComplete="off" id="workoutName" />
+                                                            <AlertDialogFooter>
+                                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                <AlertDialogAction onClick={createWorkout}>Create Workout</AlertDialogAction>
+                                                            </AlertDialogFooter>
+                                                        </TabsContent>
+                                                        <TabsContent value="ai">
+                                                            <div className='flex gap-2 my-2'>
+                                                                <Select>
+                                                                    <SelectTrigger className="w-20">
+                                                                        <SelectValue placeholder="Level" />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        <SelectItem value="light">Light</SelectItem>
+                                                                        <SelectItem value="dark">Dark</SelectItem>
+                                                                        <SelectItem value="system">System</SelectItem>
+                                                                    </SelectContent>
+                                                                </Select>
+                                                                <Select>
+                                                                    <SelectTrigger className="w-20">
+                                                                        <SelectValue placeholder="Split" />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        <SelectItem value="light">Light</SelectItem>
+                                                                        <SelectItem value="dark">Dark</SelectItem>
+                                                                        <SelectItem value="system">System</SelectItem>
+                                                                    </SelectContent>
+                                                                </Select>
+                                                                <Select>
+                                                                    <SelectTrigger className="w-20">
+                                                                        <SelectValue placeholder="Goal" />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        <SelectItem value="light">Light</SelectItem>
+                                                                        <SelectItem value="dark">Dark</SelectItem>
+                                                                        <SelectItem value="system">System</SelectItem>
+                                                                    </SelectContent>
+                                                                </Select>
+                                                                <Select>
+                                                                    <SelectTrigger className="w-28">
+                                                                        <SelectValue placeholder="Equipment" />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        <SelectItem value="light">Light</SelectItem>
+                                                                        <SelectItem value="dark">Dark</SelectItem>
+                                                                        <SelectItem value="system">System</SelectItem>
+                                                                    </SelectContent>
+                                                                </Select>
+                                                            </div>
+                                                            <Label htmlFor="prompt">Additional Details</Label><Textarea  className='mb-2' placeholder="Describe your workout here." id='prompt' />
+                                                            <AlertDialogFooter>
+                                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                <AlertDialogAction onClick={createWorkout}>Create Workout</AlertDialogAction>
+                                                            </AlertDialogFooter>
+                                                        </TabsContent>
+                                                        </Tabs>
                                                     </AlertDialogContent>
                                                 </AlertDialog>
-                                                    
                                                 </CardContent>
                                             </Card>
                                             </div>
@@ -778,7 +833,7 @@ const Train = () => {
                                                         <div className='py-4 px-4 text-lg text-primary font-semibold underline-offset-4 hover:underline'><FontAwesomeIcon className='mr-2' icon={faPlus}/>
                                                         Add Exercise</div>
                                                         </DrawerTrigger>
-                                                        <DrawerContent className='h-screen'>
+                                                        <DrawerContent className='h-3/4'>
                                                                 <div className='flex flex-col'>
                                                                     <Card className='border-none m-2'>
                                                                         <CardHeader className='pt-4 pb-0 px-4 '>
