@@ -14,10 +14,18 @@ export const ReorderItem = ({ isDragging, setIsDragging, onPointerDown, onPointe
   const dragControls = useDragControls();
   const onDragStart = (event) => {
     event.stopPropagation();
+    onPointerDown();
     dragControls.start(event); 
     setIsDragging(true); 
-    onPointerDown();
+  
+  };
 
+  const handleOnPointerUp = () => {
+    // Delay resetting isDragging to allow onClick to check its value
+    setTimeout(() => {
+      setIsDragging(false);
+    }, 100); // Short delay to differentiate between drag end and click
+    onPointerUp && onPointerUp(); // Call any additional logic provided by onPointerUp
   };
 
   return (
@@ -26,7 +34,7 @@ export const ReorderItem = ({ isDragging, setIsDragging, onPointerDown, onPointe
     >
         <div className={`absolute left-0 top-0 bottom-0 w-1 ${clickedWorkout && clickedWorkout.id === workout.id ? 'bg-primary' : 'bg-transparent'}`} style={{width: '5px'}}></div>
         <div className='font-semibold p-2'>{index + 1}. {workout.name}</div>
-        <div  onPointerDown={onDragStart} className='pr-4 pl-2 py-4 absolute top-4 left-0 text-border'>
+        <div  onPointerDown={onDragStart} onPointerUp={handleOnPointerUp} className='pr-4 pl-2 py-4 absolute top-4 left-0 text-border'>
             <FontAwesomeIcon size='lg' icon={faGripVertical} />
         </div>
         

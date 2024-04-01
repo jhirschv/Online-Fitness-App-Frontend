@@ -299,9 +299,7 @@ const Train = () => {
       };
 
     const handleWorkoutClick = (workout) => {
-        if (isDragging) {
-            // Reset the flag and don't execute further logic if the click was part of a drag
-            setIsDragging(false); 
+        if (isDragging) { 
             return;
         }
         setClickedWorkout(workout);
