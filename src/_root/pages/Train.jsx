@@ -49,7 +49,7 @@ import {
     SheetTrigger,
   } from "@/components/ui/sheet"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEllipsis, faPlus, faChevronRight, faXmark, faTrashCan } from '@fortawesome/free-solid-svg-icons';
+import { faEllipsis, faPlus, faChevronRight, faXmark, faTrashCan, faGripVertical } from '@fortawesome/free-solid-svg-icons';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -90,7 +90,8 @@ import {
     SelectValue,
   } from "@/components/ui/select"
   import { Search } from "lucide-react"
-  import { Reorder } from 'framer-motion';
+  import { Reorder, useDragControls } from 'framer-motion';
+  import { ReorderItem } from "@/components/ReorderItem";
 
   
   
@@ -98,6 +99,8 @@ const Train = () => {
     const { theme } = useTheme();
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
     const navigate = useNavigate();
+
+
 
     const [phasesDetails, setPhasesDetails] = useState([]);
     const [userWorkoutSessions, setUserWorkoutSessions] = useState([])
@@ -288,8 +291,19 @@ const Train = () => {
     const [clickedWorkout, setClickedWorkout] = useState()
     const [clickedWorkoutExercises, setClickedWorkoutExercises] = useState([])
     const [carouselApi, setCarouselApi] = useState(null);
+    const [watchDrag, setWatchDrag] = useState(true);
+    const [isDragging, setIsDragging] = useState(false);
+
+    const toggleWatchDrag = (shouldWatch) => {
+        setWatchDrag(shouldWatch);
+      };
 
     const handleWorkoutClick = (workout) => {
+        if (isDragging) {
+            // Reset the flag and don't execute further logic if the click was part of a drag
+            setIsDragging(false); 
+            return;
+        }
         setClickedWorkout(workout);
         setClickedWorkoutExercises(workout.workout_exercises);
         console.log(workout)
@@ -586,7 +600,7 @@ const Train = () => {
     }
 
     return (
-        <div className={`${backgroundColorClass} w-full md:p-4 md:border md:rounded-lg`}>
+        <div className={`${backgroundColorClass} overflow-hidden w-full md:p-4 md:border md:rounded-lg`}>
             <Card className='relative border-0 md:border h-full w-full flex flex-col rounded-none md:rounded-lg'>
                 <div className='flex h-full w-full'>
 
@@ -594,7 +608,7 @@ const Train = () => {
                         <div className='flex-1 flex flex-col mt-4'>
                             {activeProgram ? (
                                 <div className='flex flex-col h-full'>
-                                    <Carousel onApiChange={setCarouselApi} className="flex flex-col w-full h-full">
+                                    <Carousel watchDrag={watchDrag} onApiChange={setCarouselApi} className="flex flex-col w-full h-full">
                                         <div className='flex'>
                                         <CarouselTabs />
                                         <div className='ml-auto flex gap-4'>
@@ -646,21 +660,10 @@ const Train = () => {
                                                     </div>
                                                 <Reorder.Group axis="y" onReorder={setWorkouts} values={workouts} className="w-full">
                                                 {workouts && workouts.map((workout, index) => (
-                                                    <Reorder.Item key={workout.id} value={workout} className="w-full flex justify-between h-20 px-4 border rounded-xs relative my-2" 
-                                                    onClick={() => handleWorkoutClick(workout)}>
-                                                        <div className={`absolute left-0 top-0 bottom-0 w-1 ${clickedWorkout && clickedWorkout.id === workout.id ? 'bg-primary' : 'bg-transparent'}`} style={{width: '5px'}}></div>
-                                                        <div className='font-semibold p-2'>{index + 1}. {workout.name}</div>
-                                                        <div>
-                                                            <FontAwesomeIcon className='absolute top-8 right-8' icon={faChevronRight} />
-                                                            <Popover >
-                                                                <PopoverTrigger onClick={(event) => event.stopPropagation()} className='absolute top-1 right-3'><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
-                                                                <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md'>
-                                                                    <Button onClick={(event) => {event.stopPropagation(); deleteWorkout(workout.id); }}  className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>
-                                                                    Delete Workout</Button>
-                                                                </PopoverContent>
-                                                            </Popover>
-                                                        </div>
-                                                    </Reorder.Item>
+                                                    <ReorderItem isDragging={isDragging} setIsDragging={setIsDragging} onPointerDown={() => toggleWatchDrag(false)} onPointerUp={() => toggleWatchDrag(true)}
+                                                    onPointerCancel={() => toggleWatchDrag(true)} handleWorkoutClick={handleWorkoutClick} 
+                                                    clickedWorkout={clickedWorkout} deleteWorkout={deleteWorkout}  
+                                                    index={index} key={workout.id} workout={workout} />
                                                 ))}
                                                 </Reorder.Group>
                                                 <AlertDialog>

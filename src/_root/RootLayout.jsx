@@ -12,7 +12,7 @@ const RootLayout = () => {
   return (
     <div  className={`flex flex-col justify-between pb-24 pt-16 md:pb-0 h-screen`}>
       <Topbar />
-      <div className="overflow-hidden flex flex-1">
+      <div className="overflow-y-auto flex flex-1">
         <Sidebar />
         <Outlet />
       </div>
