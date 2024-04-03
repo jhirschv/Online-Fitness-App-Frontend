@@ -49,7 +49,7 @@ import {
     SheetTrigger,
   } from "@/components/ui/sheet"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEllipsis, faPlus, faChevronRight, faXmark, faTrashCan, faGripVertical } from '@fortawesome/free-solid-svg-icons';
+import { faEllipsis, faPlus, faChevronRight, faXmark, faTrashCan, faGripVertical, faWandMagicSparkles } from '@fortawesome/free-solid-svg-icons';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -99,6 +99,29 @@ const Train = () => {
     const { theme } = useTheme();
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
     const navigate = useNavigate();
+
+    //ai workout
+    const [prompt, setPrompt] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handlePromptChange = (e) => {
+        setPrompt(e.target.value);
+      };
+
+    const createAiWorkout = () => {
+        setIsLoading(true)
+        apiClient.post(`/api/openai/`, { prompt: prompt })
+            .then(response => {
+                console.log(response)
+                navigate(`/workout/${response.data.id}`);
+                })
+            
+            .catch(error => console.error('Error:', error))
+            .finally(() => {
+        setIsLoading(false); // Stop loading on completion
+      });
+    }
+    //ai workout
 
 
 
@@ -683,7 +706,7 @@ const Train = () => {
                                                             </AlertDialogFooter>
                                                         </TabsContent>
                                                         <TabsContent value="ai">
-                                                            <div className='flex flex-wrap gap-2 my-2'>
+                                                            {/* <div className='flex flex-wrap gap-2 my-2'>
                                                                 <Select>
                                                                     <SelectTrigger className="w-20">
                                                                         <SelectValue placeholder="Level" />
@@ -724,11 +747,11 @@ const Train = () => {
                                                                         <SelectItem value="system">System</SelectItem>
                                                                     </SelectContent>
                                                                 </Select>
-                                                            </div>
-                                                            <Label htmlFor="prompt">Additional Details</Label><Textarea  className='mb-2' placeholder="Describe your workout here." id='prompt' />
+                                                            </div> */}
+                                                            <Label htmlFor="prompt">Workout Description</Label><Textarea value={prompt} onChange={handlePromptChange} className='mb-2' placeholder="Describe your workout here." id='prompt' />
                                                             <AlertDialogFooter>
                                                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                                <AlertDialogAction onClick={createWorkout}>Create Workout</AlertDialogAction>
+                                                                <AlertDialogAction onClick={createAiWorkout}>Create<FontAwesomeIcon className='ml-1' icon={faWandMagicSparkles} /></AlertDialogAction>
                                                             </AlertDialogFooter>
                                                         </TabsContent>
                                                         </Tabs>
