@@ -35,6 +35,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { useEffect, useState } from 'react'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 
@@ -71,25 +72,30 @@ import { Separator } from "@/components/ui/separator";
 
 const Chat = () => {
   const { theme } = useTheme();
+  const [messages, setMessages] = useState([]);
+  const [webSocket, setWebSocket] = useState(null);
 
-  const [messages, setMessages] = React.useState([
-    {
-      role: "agent",
-      content: "Hi, how can I help you today?",
-    },
-    {
-      role: "user",
-      content: "Hey, I'm having trouble with my account.",
-    },
-    {
-      role: "agent",
-      content: "What seems to be the problem?",
-    },
-    {
-      role: "user",
-      content: "I can't log in.",
-    },
-  ]);
+  useEffect(() => {
+    // Define WebSocket URL
+    const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+    const wsURL = `${wsScheme}://localhost:8000/ws/chat/1/2/`;
+
+    // Create WebSocket connection
+    const ws = new WebSocket(wsURL);
+
+    // Set up WebSocket event listeners
+    ws.onopen = () => console.log("WebSocket connection established.");
+    ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        setMessages((prevMessages) => [...prevMessages, data.message]);
+    };
+    ws.onclose = () => console.log("WebSocket connection closed.");
+
+    // Cleanup function to close WebSocket connection when component unmounts
+    return () => ws.close();
+
+  }, []);
+  
   const [input, setInput] = React.useState("");
   const inputLength = input.trim().length;
   const [open, setOpen] = React.useState(false);
