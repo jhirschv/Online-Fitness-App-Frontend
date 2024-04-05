@@ -21,6 +21,7 @@ import WorkoutDetails from './_root/removedPages/WorkoutDetails';
 import ProgramOverview from './_root/pages/ProgramOverview';
 import WorkoutSession from './_root/pages/WorkoutSession';
 import Workout from './_root/pages/Workout'
+import ChatSession from './_root/pages/ChatSession';
 
 
 function App() {
@@ -42,7 +43,9 @@ function App() {
               <Route index element={<Train />} />
               <Route path="/workoutSession/:sessionId" element={<WorkoutSession />} />
               <Route path="/Progress" element={<Progress />} />
-              <Route path="/Chat" element={<Chat />} />
+              <Route path="/Chat" element={<Chat />} >
+                <Route path=":userId1/:userId2" element={<ChatSession />} />
+              </Route>
             </Route>
           </Route>
           <Route path="/login" element={<SigninForm />} />
