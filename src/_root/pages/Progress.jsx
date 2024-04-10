@@ -1,5 +1,7 @@
 import React from 'react'
+import { useEffect, useState } from 'react';
 import { useTheme } from '@/components/theme-provider';
+import apiClient from '../../services/apiClient';
 import {
     Card,
     CardContent,
@@ -58,6 +60,23 @@ const Progress = () => {
       ];
     // Determine the background color class based on the theme
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
+
+    const [consistencyData, setConsistencyData] = useState([]);
+
+    useEffect(() => {
+        const fetchConsistencyData = async () => {
+            try {
+                const response = await apiClient.get('workout_sessions_last_3_months/');
+                // Assume the response data is directly in the format expected by the chart
+                setConsistencyData(response.data);
+            } catch (error) {
+                console.error("Error fetching workout data:", error);
+                // Handle error, maybe set some error state to display
+            }
+        };
+
+        fetchConsistencyData();
+    }, []);
 
     return (
         <div className={`w-full md:border rounded-lg md:h-full ${backgroundColorClass} md:p-4 pb-24`}>
@@ -194,10 +213,10 @@ const Progress = () => {
                     <Card className='w-full h-full pt-2'>
                         <h1 className='text-xl font-semibold px-6'>Consistency</h1>
                         <ResponsiveContainer width="100%" height={150}>
-                            <BarChart data={data}
+                            <BarChart data={consistencyData}
                             margin={{ top: 15, right: 50 }}>
                                 <XAxis
-                                dataKey="date"
+                                dataKey="week"
                                 stroke="#888888"
                                 fontSize={12}
                                 tickLine={false}
@@ -208,10 +227,10 @@ const Progress = () => {
                                 fontSize={12}
                                 tickLine={false}
                                 axisLine={false}
-                                tickFormatter={(value) => `$${value}`}
+                                tickFormatter={(value) => `${value}`}
                                 />
                                 <Bar
-                                dataKey="weight"
+                                dataKey="workouts"
                                 fill="currentColor"
                                 radius={[4, 4, 0, 0]}
                                 className="fill-primary"
