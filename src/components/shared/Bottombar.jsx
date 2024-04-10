@@ -35,7 +35,7 @@ const Bottombar = () => {
             </li>
             </NavLink>
 
-            <NavLink className='flex justify-center items-center ' to='/Chat'> 
+            <NavLink className='flex justify-center items-center ' to='/chat'> 
             <li className="flex items-center text-lg hover:bg-muted p-8 w-full h-16 rounded-md transition duration-150 ease-in-out">
                 <FontAwesomeIcon size='lg' icon={faComments} />
             </li>

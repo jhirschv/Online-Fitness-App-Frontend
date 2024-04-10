@@ -2,7 +2,9 @@ import React from "react";
 import { useContext } from 'react';
 import AuthContext from '../../context/AuthContext';
 import { useTheme } from "@/components/theme-provider";
+import apiClient from '../../services/apiClient';
 import { Outlet } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 import {
   Card,
   CardContent,
@@ -41,41 +43,49 @@ import {
 import { useEffect, useState } from 'react'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
-
-const users = [
-  {
-    name: "Olivia Martin",
-    email: "m@example.com",
-    avatar: "/avatars/01.png",
-  },
-  {
-    name: "Isabella Nguyen",
-    email: "isabella.nguyen@email.com",
-    avatar: "/avatars/03.png",
-  },
-  {
-    name: "Emma Wilson",
-    email: "emma@example.com",
-    avatar: "/avatars/05.png",
-  },
-  {
-    name: "Jackson Lee",
-    email: "lee@example.com",
-    avatar: "/avatars/02.png",
-  },
-  {
-    name: "William Kim",
-    email: "will@email.com",
-    avatar: "/avatars/04.png",
-  },
-];
-
+import { faComments } from "@fortawesome/free-regular-svg-icons";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
+import { useOutlet } from 'react-router-dom';
 
 const Chat = () => {
   const { theme } = useTheme();
   const backgroundColorClass = theme === "dark" ? "bg-popover" : "bg-secondary";
+  const [users, setUsers] = useState([])
+  let { user } = useContext(AuthContext)
+
+  const ConditionalOutlet = () => {
+    const outlet = useOutlet(); // This checks if there's an outlet to render
+    return outlet ? (
+      outlet // If there's an outlet, render it
+    ) : (
+      <>
+        <CardHeader className="flex items-center justify-center w-full h-full">
+          <FontAwesomeIcon className="fa-5x" icon={faComments} />
+          <h1 className="text-xl font-semibold">Your Messages</h1>
+          <p className="text-sm text-muted-foreground">Send messages to a friend</p>
+          <Button size="sm">Send Message</Button>
+        </CardHeader>
+      </>
+    );
+  };
+
+  useEffect(() => {
+    apiClient.get(`/users/`)
+        .then(response => {
+            const filteredUsers = response.data.filter(u => u.id !== user.user_id);
+            setUsers(filteredUsers)
+        })
+        .catch(error => console.error('Error:', error));
+    }, []);
+
+  const navigate = useNavigate();
+
+  const handleUserClick = (userId) => {
+    const sortedIds = [user.user_id, userId].sort();
+    const url = `/chat/${sortedIds[0]}/${sortedIds[1]}/`;
+    navigate(url, { state: { recipient: userId } });
+  }
 
   return (
     <div
@@ -88,61 +98,28 @@ const Chat = () => {
             <FontAwesomeIcon size="lg" icon={faPenToSquare} />
           </div>
           <div className="h-full p-6">
-            <Separator />
-            <div className="w-full flex items-center gap-4 p-3">
-              <Avatar className="">
-                <AvatarImage src="https://github.com/shadcn.png" />
-                <AvatarFallback>CN</AvatarFallback>
-              </Avatar>
-              <div className="h-full flex flex-col justify-center">
-                <h1 className="font-semibold">John</h1>
-                <p className="text-sm text-muted-foreground">I love cats</p>
-              </div>
-            </div>
-            <Separator />
-            <div className="w-full flex items-center gap-4 p-3">
-              <Avatar className="">
-                <AvatarImage src="https://github.com/shadcn.png" />
-                <AvatarFallback>CN</AvatarFallback>
-              </Avatar>
-              <div className="h-full flex flex-col justify-center">
-                <h1 className="font-semibold">McKay</h1>
-                <p className="text-sm text-muted-foreground">
-                  Did you see my message?
-                </p>
-              </div>
-            </div>
-            <Separator />
-            <div className="w-full flex items-center gap-4 p-3">
-              <Avatar className="">
-                <AvatarImage src="https://github.com/shadcn.png" />
-                <AvatarFallback>CN</AvatarFallback>
-              </Avatar>
-              <div className="h-full flex flex-col justify-center">
-                <h1 className="font-semibold">Andreas</h1>
-                <p className="text-sm text-muted-foreground">
-                  I just got Taylor Swift tickets!!!
-                </p>
-              </div>
-            </div>
-            <Separator />
-            <div className="w-full flex items-center gap-4 p-3">
-              <Avatar className="">
-                <AvatarImage src="https://github.com/shadcn.png" />
-                <AvatarFallback>CN</AvatarFallback>
-              </Avatar>
-              <div className="h-full flex flex-col justify-center">
-                <h1 className="font-semibold">Caleb</h1>
-                <p className="text-sm text-muted-foreground">
-                  My dog is still a puppy!
-                </p>
-              </div>
-            </div>
+            {users.map((user) => {
+              return (
+                <div key={user.id} onClick={() => handleUserClick(user.id)}>
+                  <Separator />
+                  <div className="w-full flex items-center gap-4 p-3">
+                    <Avatar className="">
+                      <AvatarImage src="https://github.com/shadcn.png" />
+                      <AvatarFallback>CN</AvatarFallback>
+                    </Avatar>
+                    <div className="h-full flex flex-col justify-center">
+                      <h1 className="font-semibold">{user.username}</h1>
+                      <p className="text-sm text-muted-foreground">I love cats</p>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
             <Separator />
           </div>
         </Card>
-        <Card className="flex flex-col flex-grow rounded-none border-none">
-          <Outlet />
+        <Card className="flex flex-col flex-grow rounded-none border-l border-r-0 border-y-0">
+          <ConditionalOutlet />
         </Card>
       </Card>
     </div>

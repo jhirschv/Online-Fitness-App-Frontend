@@ -107,7 +107,7 @@ const Topbar = () => {
                       </li>
                     </NavLink>
 
-                    <NavLink to='/Chat'> 
+                    <NavLink to='/chat'> 
                       <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md transition duration-150 ease-in-out">
                         <FontAwesomeIcon className="mr-3" icon={faComments} />
                         Messages

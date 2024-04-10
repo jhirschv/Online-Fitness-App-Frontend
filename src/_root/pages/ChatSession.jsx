@@ -1,5 +1,6 @@
 import React from 'react'
 import { useEffect, useState } from 'react'
+import { cn } from "@/lib/utils"
 import {
     Card,
     CardContent,
@@ -15,6 +16,8 @@ import { useTheme } from "@/components/theme-provider";
 import { useContext } from 'react';
 import AuthContext from '../../context/AuthContext';
 import { Check, Plus, Send } from "lucide-react";
+import { useLocation } from 'react-router-dom';
+import apiClient from '../../services/apiClient';
 
 const ChatSession = () => {
   const [input, setInput] = React.useState("");
@@ -23,15 +26,41 @@ const ChatSession = () => {
   const [webSocket, setWebSocket] = useState(null);
   let { user } = useContext(AuthContext)
 
-  useEffect(() => {
-    // Define WebSocket URL
-    const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
-    const wsURL = `${wsScheme}://localhost:8000/ws/chat/1/2/`;
+  const location = useLocation();
+  const recipientId = location.state?.recipient;
+  const [recipientData, setRecipientData] = useState(null);
 
-    // Create WebSocket connection
+  useEffect(() => {
+    if (recipientId) {
+      apiClient.get(`/users/${recipientId}/`)
+          .then(response => {
+              setRecipientData(response.data)
+              console.log(response.data)
+          })
+          .catch(error => console.error('Error:', error));
+    }
+  }, [recipientId]);
+
+  useEffect(() => {
+    if (recipientId) {
+      apiClient.get(`/chat/${recipientId}/`)
+          .then(response => {
+              setMessages(response.data)
+              console.log(response.data)
+          })
+          .catch(error => {
+            console.error('Error:', error)
+            setMessages([])
+          });
+    }
+  }, [recipientId]);
+  
+
+  useEffect(() => {
+    const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+    const wsURL = `${wsScheme}://localhost:8000/ws/chat/${user.user_id}/${recipientId}/`;
     const ws = new WebSocket(wsURL);
 
-    // Set up WebSocket event listeners
     ws.onopen = () => console.log("WebSocket connection established.")
     setWebSocket(ws);
     ws.onmessage = (event) => {
@@ -40,15 +69,18 @@ const ChatSession = () => {
     };
     ws.onclose = () => console.log("WebSocket connection closed.");
 
-    // Cleanup function to close WebSocket connection when component unmounts
     return () => ws.close();
 
-  }, []);
+  }, [recipientData]);
 
     const sendMessage = () => {
         if (input.trim()) {
-          webSocket.send(JSON.stringify({ message: input})); // Adjust payload as needed
-          setInput(''); // Clear input after sending
+          const messageObject = {
+            senderId: user.user_id, 
+            content: input.trim()
+        };
+          webSocket.send(JSON.stringify(messageObject)); 
+          setInput(''); 
         }
       };
 
@@ -58,11 +90,10 @@ const ChatSession = () => {
         <div className="flex items-center space-x-4">
             <Avatar>
             <AvatarImage src="/avatars/01.png" alt="Image" />
-            <AvatarFallback>OM</AvatarFallback>
+            <AvatarFallback>NA</AvatarFallback>
             </Avatar>
             <div>
-            <p className="text-sm font-medium leading-none">Sofia Davis</p>
-            <p className="text-sm text-muted-foreground">m@example.com</p>
+            <p className="text-sm font-medium leading-none">{recipientData && recipientData.username}</p>
             </div>
         </div>
         </CardHeader>
@@ -73,12 +104,12 @@ const ChatSession = () => {
                 key={index}
                 className={cn(
                 "flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm",
-                message.role === "user"
+                message.sender === user.user_id
                     ? "ml-auto bg-primary text-primary-foreground"
                     : "bg-muted"
                 )}
             >
-                {message}
+                {message.content}
             </div>
             ))}
         </div>

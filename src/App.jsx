@@ -43,7 +43,7 @@ function App() {
               <Route index element={<Train />} />
               <Route path="/workoutSession/:sessionId" element={<WorkoutSession />} />
               <Route path="/Progress" element={<Progress />} />
-              <Route path="/Chat" element={<Chat />} >
+              <Route path="/chat" element={<Chat />} >
                 <Route path=":userId1/:userId2" element={<ChatSession />} />
               </Route>
             </Route>
