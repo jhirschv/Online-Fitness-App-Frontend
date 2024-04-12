@@ -1187,7 +1187,7 @@ const Train = () => {
                         mode="single"
                         selected={date}
                         onSelect={handleSelect}
-                        className="h-[90%] my-4"
+                        className="h-[90%] w-full my-4"
                         />
                     </div>
                     

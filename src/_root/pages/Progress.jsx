@@ -175,7 +175,6 @@ const Progress = () => {
                             </Avatar>
                             <div className='h-full flex flex-col justify-center'>
                                 <h1 className='text-2xl font-semibold'>John</h1>
-                                <p>Weight: 180</p>
                             </div>
                         </div>
                         <div className='w-1/2 hidden md:block h-full'>
@@ -257,7 +256,7 @@ const Progress = () => {
                         <ProCalendar
                             mode="single"
                             selected={date}
-                            className="h-[100%] pt-4"
+                            className="h-[100%] w-full pt-4 px-1"
                             />
 
                     </Card>
@@ -306,7 +305,7 @@ const Progress = () => {
                 </div>
 
 
-                <div class="h-48 col-span-2 md:col-span-1 md:row-span-1">
+                <div class="mb-[1px] h-48 col-span-2 md:col-span-1 md:row-span-1">
                     <Card className='w-full h-full pt-2'>
                         <h1 className='text-xl font-semibold px-6 py-2'>Workouts Per Week</h1>
                         <ResponsiveContainer width="100%" height={135}>
