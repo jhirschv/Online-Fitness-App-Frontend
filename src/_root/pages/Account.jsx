@@ -66,7 +66,7 @@ const Account = () => {
                                         <AvatarFallback>CN</AvatarFallback>
                                     </Avatar>
                                     <div className='flex flex-col justify-center font-semibold text-sm'>
-                                        <p>John</p>
+                                        <p>{user.username}</p>
                                         <p className='text-primary underline-offset-4 hover:underline'>Change profile photo</p>
                                     </div>
                                     <DropdownMenu>

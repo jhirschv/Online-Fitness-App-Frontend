@@ -35,40 +35,16 @@ import {
     SelectTrigger,
     SelectValue,
   } from "@/components/ui/select"
-  import moment from 'moment';
-  
+import moment from 'moment';
+import { useContext } from 'react';
+import AuthContext from '../../context/AuthContext';
 
 
 const Progress = () => {
     const [date, setDate] = React.useState()
     const { theme } = useTheme();
-    const data1 = [
-        { date: '2024-01-01', weight: 200 },
-        { date: '2024-01-31', weight: 204 },
-        { date: '2024-03-01', weight: 210 },
-        { date: '2024-03-31', weight: 212 },
-        { date: '2024-04-30', weight: 216 },
-        { date: '2024-05-30', weight: 225 },
-        { date: '2024-06-29', weight: 212 },
-        { date: '2024-07-29', weight: 228 },
-        { date: '2024-08-28', weight: 240 },
-        { date: '2024-09-27', weight: 236 },
-        { date: '2024-10-27', weight: 230 },
-        { date: '2024-11-26', weight: 233 },
-        { date: '2024-12-26', weight: 248 },
-        { date: '2025-01-25', weight: 252 },
-        { date: '2025-02-24', weight: 256 }
-      ];
-      const data2 = [
-        { month: '2024-04', weight: 120, volume: 100 },
-        { month: '2024-05', weight: 118, volume: 110 },
-        { month: '2024-06', weight: 115, volume: 120 },
-        { month: '2024-07', weight: 105, volume: 135 },
-        { month: '2024-08', weight: 94, volume: 140 },
-        { month: '2024-09', weight: 80, volume: 160 },
-      ];
-    // Determine the background color class based on the theme
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
+    let { user } = useContext(AuthContext)
 
     //Total weight lifted
     const [totalWeightLifted, setTotalWeightLifted] = useState()
@@ -142,7 +118,7 @@ const Progress = () => {
     useEffect(() => {
         const fetch1RMData = async () => {
           try {
-            const response = await apiClient.get(`/exercise/${exerciseId}/1rm/`);
+            const response = await apiClient.get(`/exercise/${exerciseId.id}/1rm/`);
             setData1rm(response.data); // Assuming the data is in the response body directly
             console.log(response.data)
           } catch (err) {
@@ -157,15 +133,15 @@ const Progress = () => {
 
     useEffect(() => {
     if (exercises1rm.length > 0) {
-        setExerciseId(exercises1rm[0].id);
+        setExerciseId(exercises1rm[0]);
     }
     }, [exercises1rm]);
 
 
     return (
         <div className={`w-full md:border rounded-lg md:h-full ${backgroundColorClass} md:p-4 pb-24`}>
-            <Card className='border-0 md:border h-full w-full md:border rounded-none md:rounded-lg flex justify-center p-4'>
-            <div class="w-full h-full grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card className='border-0 md:border h-screen lg:h-full w-full md:border rounded-none md:rounded-lg flex justify-center p-4'>
+            <div class="w-full h-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 <div class="col-span-2 h-48">
                     <Card className='flex w-full h-full'>
                         <div className='w-1/2 md:border-r h-full flex items-center gap-4'>
@@ -174,22 +150,17 @@ const Progress = () => {
                                 <AvatarFallback>CN</AvatarFallback>
                             </Avatar>
                             <div className='h-full flex flex-col justify-center'>
-                                <h1 className='text-2xl font-semibold'>John</h1>
+                                <h1 className='text-2xl font-semibold'>{user.username}</h1>
                             </div>
                         </div>
-                        <div className='w-1/2 hidden md:block h-full'>
-                            <h1 className='font-semibold pt-2 pl-6'>Total Weight Lifted</h1>
-                            <ResponsiveContainer width="100%" height="83%">
+                        <div className='w-1/2 hidden md:block h-[80%]'>
+                            <h1 className='font-semibold py-2 pl-4'>Total Weight Lifted</h1>
+                            <ResponsiveContainer width="100%" height="100%">
                                 <LineChart
                                 width={500}
                                 height={300}
                                 data={totalWeightLifted}
-                                margin={{
-                                    top: 10,
-                                    right: 0,
-                                    left: -5,
-                                    bottom: 6,
-                                }}
+                                margin={{ top: 10, right: -35, bottom: 15, left: 5 }}
                                 >
                                 <XAxis dataKey="date" 
                                 tick={{ angle: -45, textAnchor: 'end' }}
@@ -200,6 +171,8 @@ const Progress = () => {
                                 fontSize={9}/>
                                 <YAxis yAxisId="left" 
                                 tickFormatter={(value) => `${value} lbs`}
+                                tickCount={7} // Example: Creates 5 evenly spaced ticks
+                                domain={[0, 'dataMax']}
                                 tickLine={false}
                                 axisLine={false}
                                 fontSize={12}/>
@@ -218,24 +191,25 @@ const Progress = () => {
                 </div>
 
                 <div className='border rounded-lg col-span-2 md:hidden h-full'>
-                    <h1 className='font-semibold pt-2 pl-6'>Total Weight Lifted</h1>
-                    <ResponsiveContainer width="100%" height="85%">
+                <h1 className='font-semibold py-2 pl-4'>Total Weight Lifted</h1>
+                    <ResponsiveContainer width="100%" height="83%">
                         <LineChart
                         width={500}
                         height={300}
-                        data={data2}
-                        margin={{
-                            top: 10,
-                            right: 0,
-                            left: 0,
-                            bottom: 0,
-                        }}
+                        data={totalWeightLifted}
+                        margin={{ top: 10, right: -35, bottom: 15, left: 5 }}
                         >
-                        <XAxis dataKey="month" 
+                        <XAxis dataKey="date" 
+                        tick={{ angle: -45, textAnchor: 'end' }}
+                        padding={{ left: 20, bottom: 5}}
+                        tickFormatter={(tickItem) => moment(tickItem).format('MM-DD')}
                         tickLine={false}
                         axisLine={false}
-                        fontSize={12}/>
+                        fontSize={9}/>
                         <YAxis yAxisId="left" 
+                        tickFormatter={(value) => `${value} lbs`}
+                        tickCount={7} // Example: Creates 5 evenly spaced ticks
+                        domain={[0, 'dataMax']}
                         tickLine={false}
                         axisLine={false}
                         fontSize={12}/>
@@ -245,8 +219,7 @@ const Progress = () => {
                         fontSize={0}
                         />
                         <Tooltip />
-                        <Line yAxisId="left" type="monotone" dataKey="weight" stroke="#471fad" activeDot={{ r: 8 }} />
-                        <Line yAxisId="right" type="monotone" dataKey="volume" stroke="#00ace6" />
+                        <Line yAxisId="left" type="monotone" dataKey="total_weight_lifted" stroke="#471fad" activeDot={{ r: 8 }} />
                         </LineChart>
                     </ResponsiveContainer>
                 </div>
@@ -261,17 +234,17 @@ const Progress = () => {
 
                     </Card>
                 </div>
-                <div class="row-span-2 col-span-2 h-[400px]">
+                <div class="row-span-2 col-span-2 lg:col-span-1 xl:col-span-2 h-[400px]">
                     <Card className='w-full h-full flex flex-col'>
                     <div className='flex justify-between items-center px-4 py-6'>
-                        <h1 className='text-xl font-semibold'>Back Squat Estimated 1RM</h1>
+                        <h1 className='text-xl font-semibold'>{exerciseId && exerciseId.name} Estimated 1RM</h1>
                         <Select value={exerciseId} onValueChange={(newValue) => setExerciseId(newValue)} defaultValue="">
                             <SelectTrigger className="w-[150px]">
                                 <SelectValue placeholder="Exercise" />
                             </SelectTrigger>
                             <SelectContent>
                                 {exercises1rm.map((exercise) => (
-                                    <SelectItem value={exercise.id} key={exercise.id}>{exercise.name}</SelectItem>
+                                    <SelectItem value={exercise} key={exercise.id}>{exercise.name}</SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
@@ -282,7 +255,7 @@ const Progress = () => {
                             width={500}
                             height={300}
                             data={data1rm}
-                            margin={{ top: 5, right: 30, left: 5, bottom: 5 }}
+                            margin={{ top: 10, right: 30, left: 5, bottom: 5 }}
                         >
                             <XAxis dataKey="day" 
                             stroke="#888888"
@@ -305,12 +278,12 @@ const Progress = () => {
                 </div>
 
 
-                <div class="mb-[1px] h-48 col-span-2 md:col-span-1 md:row-span-1">
-                    <Card className='w-full h-full pt-2'>
-                        <h1 className='text-xl font-semibold px-6 py-2'>Workouts Per Week</h1>
-                        <ResponsiveContainer width="100%" height={135}>
+                <div class="mb-[1px] h-48 col-span-2 xl:col-span-1 xl:row-span-1">
+                    <Card className='w-full h-full'>
+                        <h1 className='font-semibold px-4 py-2'>Workouts Per Week</h1>
+                        <ResponsiveContainer width="100%" height={145}>
                             <BarChart data={processedData}
-                             margin={{ top: 15, right: 25, left: -20 }}>
+                             margin={{ top: 15, right: 25, bottom: 5, left: -25 }}>
 
                                 <XAxis
                                 dataKey="week"
