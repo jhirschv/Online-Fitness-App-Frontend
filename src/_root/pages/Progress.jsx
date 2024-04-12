@@ -28,12 +28,21 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { SelectSeparator } from '@/components/ui/select';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+  } from "@/components/ui/select"
+  import moment from 'moment';
+  
 
 
 const Progress = () => {
     const [date, setDate] = React.useState()
     const { theme } = useTheme();
-    const data = [
+    const data1 = [
         { date: '2024-01-01', weight: 200 },
         { date: '2024-01-31', weight: 204 },
         { date: '2024-03-01', weight: 210 },
@@ -61,6 +70,21 @@ const Progress = () => {
     // Determine the background color class based on the theme
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
 
+    //Total weight lifted
+    const [totalWeightLifted, setTotalWeightLifted] = useState()
+    useEffect(() => {
+        const fetchVolume = async () => {
+        try {
+            const response = await apiClient.get('/cumulative-weight/');
+            setTotalWeightLifted(response.data);
+            console.log(response.data)
+        } catch (error) {
+            console.error("Failed to fetch exercises:", error);
+        }
+        };
+        fetchVolume();
+    }, []);
+
     const [consistencyData, setConsistencyData] = useState([]);
 
     useEffect(() => {
@@ -77,6 +101,66 @@ const Progress = () => {
 
         fetchConsistencyData();
     }, []);
+
+    const convertWeekToDate = (week) => {
+        // Split the week string to get the year and week number
+        const [year, weekNumber] = week.split('-');
+    
+        // Calculate the first day of the given week number
+        let date = moment().year(year).week(weekNumber).startOf('week');
+    
+        // Format the date as "MM-DD"
+        return date.format('MM-DD');
+    };
+    
+    // Preprocess the data to include a formatted date
+    const processedData = consistencyData.map(data => ({
+        ...data,
+        week: convertWeekToDate(data.week)
+    }));
+
+
+    //FETCH EXERCISES FOR SELECT DROPDOWN
+    const [exercises1rm, setExercises1rm] = useState([]);
+
+    useEffect(() => {
+        const fetchExercises1rm = async () => {
+        try {
+            const response = await apiClient.get('/exercises_with_weights/');
+            setExercises1rm(response.data);
+            console.log(response.data)
+        } catch (error) {
+            console.error("Failed to fetch exercises:", error);
+        }
+        };
+        fetchExercises1rm();
+    }, []);
+
+    const [data1rm, setData1rm] = useState()
+    const [exerciseId, setExerciseId] = useState()
+    //FETCH EXERCISE 1RM DATA
+    useEffect(() => {
+        const fetch1RMData = async () => {
+          try {
+            const response = await apiClient.get(`/exercise/${exerciseId}/1rm/`);
+            setData1rm(response.data); // Assuming the data is in the response body directly
+            console.log(response.data)
+          } catch (err) {
+            console.error("Failed to fetch 1RM data:", err);
+            setData1rm([]); // Reset data on error
+          }
+        };
+        if (exerciseId) {
+          fetch1RMData();
+        }
+      }, [exerciseId]);
+
+    useEffect(() => {
+    if (exercises1rm.length > 0) {
+        setExerciseId(exercises1rm[0].id);
+    }
+    }, [exercises1rm]);
+
 
     return (
         <div className={`w-full md:border rounded-lg md:h-full ${backgroundColorClass} md:p-4 pb-24`}>
@@ -95,24 +179,28 @@ const Progress = () => {
                             </div>
                         </div>
                         <div className='w-1/2 hidden md:block h-full'>
-                            <h1 className='font-semibold pt-2 pl-6'>Volume X Intensity</h1>
-                            <ResponsiveContainer width="100%" height="85%">
+                            <h1 className='font-semibold pt-2 pl-6'>Total Weight Lifted</h1>
+                            <ResponsiveContainer width="100%" height="83%">
                                 <LineChart
                                 width={500}
                                 height={300}
-                                data={data2}
+                                data={totalWeightLifted}
                                 margin={{
                                     top: 10,
                                     right: 0,
-                                    left: 0,
-                                    bottom: 0,
+                                    left: -5,
+                                    bottom: 6,
                                 }}
                                 >
-                                <XAxis dataKey="month" 
+                                <XAxis dataKey="date" 
+                                tick={{ angle: -45, textAnchor: 'end' }}
+                                padding={{ left: 20, bottom: 5}}
+                                tickFormatter={(tickItem) => moment(tickItem).format('MM-DD')}
                                 tickLine={false}
                                 axisLine={false}
-                                fontSize={12}/>
+                                fontSize={9}/>
                                 <YAxis yAxisId="left" 
+                                tickFormatter={(value) => `${value} lbs`}
                                 tickLine={false}
                                 axisLine={false}
                                 fontSize={12}/>
@@ -122,8 +210,7 @@ const Progress = () => {
                                 fontSize={0}
                                 />
                                 <Tooltip />
-                                <Line yAxisId="left" type="monotone" dataKey="weight" stroke="#471fad" activeDot={{ r: 8 }} />
-                                <Line yAxisId="right" type="monotone" dataKey="volume" stroke="#00ace6" />
+                                <Line yAxisId="left" type="monotone" dataKey="total_weight_lifted" stroke="#471fad" activeDot={{ r: 8 }} />
                                 </LineChart>
                             </ResponsiveContainer>
                         </div>
@@ -132,7 +219,7 @@ const Progress = () => {
                 </div>
 
                 <div className='border rounded-lg col-span-2 md:hidden h-full'>
-                    <h1 className='font-semibold pt-2 pl-6'>Volume X Intensity</h1>
+                    <h1 className='font-semibold pt-2 pl-6'>Total Weight Lifted</h1>
                     <ResponsiveContainer width="100%" height="85%">
                         <LineChart
                         width={500}
@@ -175,52 +262,64 @@ const Progress = () => {
 
                     </Card>
                 </div>
-
-            
                 <div class="row-span-2 col-span-2 h-[400px]">
                     <Card className='w-full h-full flex flex-col'>
-                    <h1 className='px-4 py-6 text-xl font-semibold'>Back Squat Estimated 1RM</h1>
-                                        <ResponsiveContainer width="100%" height={300}>
-                                        
-                                            <LineChart
-                                                width={500}
-                                                height={300}
-                                                data={data}
-                                                margin={{ top: 5, right: 30, left: 5, bottom: 5 }}
-                                            >
-                                                <XAxis dataKey="date" 
-                                                stroke="#888888"
-                                                padding={{ left: 20, right: 20 }}
-                                                tickFormatter={(value) => format(parseISO(value), 'MMM dd')}
-                                                fontSize={12}
-                                                tickLine={false}
-                                                axisLine={false} />
-                                                <YAxis 
-                                                stroke="#888888"
-                                                tickFormatter={(value) => `${value} lbs`}
-                                                fontSize={12}
-                                                tickLine={false}
-                                                axisLine={false}/>
-                                                <Tooltip />
-                                                <Line type="monotone" strokeWidth={2} dataKey="weight" stroke="#471fad" activeDot={{r: 8, style: { fill: "var(--theme-primary)" },}} />
-                                            </LineChart>
-                                        </ResponsiveContainer>
+                    <div className='flex justify-between items-center px-4 py-6'>
+                        <h1 className='text-xl font-semibold'>Back Squat Estimated 1RM</h1>
+                        <Select value={exerciseId} onValueChange={(newValue) => setExerciseId(newValue)} defaultValue="">
+                            <SelectTrigger className="w-[150px]">
+                                <SelectValue placeholder="Exercise" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {exercises1rm.map((exercise) => (
+                                    <SelectItem value={exercise.id} key={exercise.id}>{exercise.name}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <ResponsiveContainer width="100%" height={300}>
+                    
+                        <LineChart
+                            width={500}
+                            height={300}
+                            data={data1rm}
+                            margin={{ top: 5, right: 30, left: 5, bottom: 5 }}
+                        >
+                            <XAxis dataKey="day" 
+                            stroke="#888888"
+                            padding={{ left: 20, right: 20 }}
+                            tickFormatter={(value) => format(parseISO(value), 'MMM dd')}
+                            fontSize={12}
+                            tickLine={false}
+                            axisLine={false} />
+                            <YAxis 
+                            stroke="#888888"
+                            tickFormatter={(value) => `${value} lbs`}
+                            fontSize={12}
+                            tickLine={false}
+                            axisLine={false}/>
+                            <Tooltip />
+                            <Line type="monotone" strokeWidth={2} dataKey="one_rm" stroke="#471fad" activeDot={{r: 8, style: { fill: "var(--theme-primary)" },}} />
+                        </LineChart>
+                    </ResponsiveContainer>
                     </Card>
                 </div>
 
 
                 <div class="h-48 col-span-2 md:col-span-1 md:row-span-1">
                     <Card className='w-full h-full pt-2'>
-                        <h1 className='text-xl font-semibold px-6'>Consistency</h1>
-                        <ResponsiveContainer width="100%" height={150}>
-                            <BarChart data={consistencyData}
-                            margin={{ top: 15, right: 50 }}>
+                        <h1 className='text-xl font-semibold px-6 py-2'>Workouts Per Week</h1>
+                        <ResponsiveContainer width="100%" height={135}>
+                            <BarChart data={processedData}
+                             margin={{ top: 15, right: 25, left: -20 }}>
+
                                 <XAxis
                                 dataKey="week"
                                 stroke="#888888"
-                                fontSize={12}
+                                fontSize={9}
                                 tickLine={false}
                                 axisLine={false}
+                                tick={{ angle: -45, textAnchor: 'end' }}
                                 />
                                 <YAxis
                                 stroke="#888888"
@@ -228,6 +327,7 @@ const Progress = () => {
                                 tickLine={false}
                                 axisLine={false}
                                 tickFormatter={(value) => `${value}`}
+                                
                                 />
                                 <Bar
                                 dataKey="workouts"
