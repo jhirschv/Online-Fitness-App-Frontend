@@ -67,7 +67,7 @@ function Calendar({
             <span>{date.getDate()}</span>
           </div>
           <div onClick={() => handleOpenDialog(dayData)} className="absolute top-2 right-1 text-xs px-2">
-            <FontAwesomeIcon size='lg' icon={faCheck} />
+            <FontAwesomeIcon className='hidden' size='lg' icon={faCheck} />
           </div>
       </div>
       );

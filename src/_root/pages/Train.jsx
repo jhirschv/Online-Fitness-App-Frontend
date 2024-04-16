@@ -92,10 +92,16 @@ import {
   import { Search } from "lucide-react"
   import { Reorder, useDragControls } from 'framer-motion';
   import { ReorderItem } from "@/components/ReorderItem";
+  import { useContext } from 'react'
+import AuthContext from '@/context/AuthContext';
 
   
   
 const Train = () => {
+    let { user } = useContext(AuthContext);
+    useEffect(() => {
+        console.log(user)
+    }, [])
     const { theme } = useTheme();
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
     const navigate = useNavigate();
@@ -390,10 +396,13 @@ const Train = () => {
             setDisplayCurrentWorkout(true);
         }
     };
+    
     const handleSelect = (newDate) => {
       setDate(newDate);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
+      setIsSheetOpen(true);
+      
     
       // Create a new Date object from newDate and strip time for comparison
       const selectedDate = new Date(newDate);
@@ -532,6 +541,7 @@ const Train = () => {
     const renderWorkoutDetails = (workout) => {
         return (
             <>
+            
                 <div className='flex w-full items-center justify-between pr-2'>
                     <h1 className='font-semibold text-lg'>{workout.name}</h1>
                     <Popover>
@@ -574,26 +584,25 @@ const Train = () => {
         });
         
         return (
-        <>
+        <div className='h-full'>
                 <div className='flex items-center justify-between pr-2'>
                     <h1 className='font-semibold text-lg'>{workout.workout.name}</h1>
                     <h1>{formattedDate}</h1>
-                    <h1>Completed: {workout.completed.toString()}</h1>
                 </div>
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Exercise</TableHead>
+                            <TableHead>Exercises</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         <ScrollArea className='h-92 W-full'>
-                            {workout.exercise_logs.map((exercise) => (
+                            {workout.exercise_logs.map((exercise, index) => (
                                 <TableRow key={exercise.id}>
                                     <Accordion type="single" collapsible>
                                         <AccordionItem value="item-1">
                                             <AccordionTrigger className='p-0 pr-4'>
-                                                <TableCell className="font-medium pl-0">{exercise.workout_exercise.exercise.name}</TableCell>
+                                                <TableCell className="font-medium pl-0">{index + 1}. {exercise.workout_exercise.exercise.name}</TableCell>
                                             </AccordionTrigger>
                                             <AccordionContent>
                                                 {exercise.sets.map((set) => (
@@ -616,7 +625,7 @@ const Train = () => {
                         </ScrollArea>
                     </TableBody>
                 </Table>
-            </>
+            </div>
         )
     }
 
@@ -1148,7 +1157,7 @@ const Train = () => {
                         {currentWorkout && 
                         <div className='flex justify-center gap-4 items-center mb-6 '>
                             <Button size='lg' onClick={startWorkoutSession} className='fixed bottom-28 right-8 lg:static self-center p-6 text-lg'>Start Session!</Button>
-                            <Sheet  open={isSheetOpen} onOpenChange={handleSheetOpenChange}>
+                           {/*  <Sheet  open={isSheetOpen} onOpenChange={handleSheetOpenChange}>
                                 <SheetTrigger asChild>
                                     <Button variant='outline' onClick={() => setIsSheetOpen(true)} className=' hidden self-center w-1/2 md:w-2/5 p-6 text-lg'>Change Workout</Button>
                                 </SheetTrigger>
@@ -1158,7 +1167,6 @@ const Train = () => {
                                     </div>
                                     <ScrollArea className="h-full w-full">
                                     <div>
-                                        {/* Render phases, weeks, and workouts based on the fetched data */}
                                         {phasesDetails.map((phase) => (
                                             <div key={phase.id}>
                                             <h3 className='font-bold text-center p-2'>{phase.name}</h3>
@@ -1177,7 +1185,7 @@ const Train = () => {
                                         </div>
                                     </ScrollArea>
                                 </SheetContent>
-                             </Sheet>
+                             </Sheet> */}
                         </div>}
                     </div>
 
@@ -1189,6 +1197,13 @@ const Train = () => {
                         onSelect={handleSelect}
                         className="h-[85%] w-full my-4"
                         />
+                        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+                            <SheetContent>
+                                {!displayCurrentWorkout && dayData && (typeof dayData === 'object' && Object.keys(dayData).length > 0) ? (
+                                        renderWorkoutSessionDetails(dayData)
+                                    ) : (<div>No workout recorded</div>)}
+                            </SheetContent>
+                        </Sheet>
                     </div>
                     
 

@@ -10,6 +10,16 @@ import {
     CardHeader,
     CardTitle,
   } from "@/components/ui/card"
+import {
+Sheet,
+SheetClose,
+SheetContent,
+SheetDescription,
+SheetFooter,
+SheetHeader,
+SheetTitle,
+SheetTrigger,
+} from "@/components/ui/sheet"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import { Bar, BarChart, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -35,6 +45,23 @@ import {
     SelectTrigger,
     SelectValue,
   } from "@/components/ui/select"
+import {
+Table,
+TableBody,
+TableCaption,
+TableCell,
+TableHead,
+TableHeader,
+TableFooter,
+TableRow,
+} from "@/components/ui/table"
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+  } from "@/components/ui/accordion"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import moment from 'moment';
 import { useContext } from 'react';
 import AuthContext from '../../context/AuthContext';
@@ -45,6 +72,24 @@ const Progress = () => {
     const { theme } = useTheme();
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
     let { user } = useContext(AuthContext)
+
+    const handleSelect = (newDate) => {
+        setDate(newDate);
+        setIsSheetOpen(true);
+    }
+    const [dayData, setDayData] = useState({
+        workout: {
+          workout_exercises: []
+        }
+      });
+    const [isSheetOpen, setIsSheetOpen] = useState(false);
+    const handleDayData = (receivedDayData) => {
+        console.log('Sending event data to parent:', receivedDayData);
+        // Even if receivedDayData is undefined or null, setDayData to an empty object
+        setDayData(receivedDayData || {});
+    };
+    
+
 
     //Total weight lifted
     const [totalWeightLifted, setTotalWeightLifted] = useState()
@@ -227,10 +272,62 @@ const Progress = () => {
                 <div class="h-[400px] col-span-2 md:col-span-1 row-span-2 ">
                     <Card className='w-full h-full flex justify-center pt-1'>
                         <ProCalendar
+                            onDataReceive={handleDayData}
+                            onSelect={handleSelect}
                             mode="single"
                             selected={date}
                             className="h-[100%] w-full pt-4 px-1"
                             />
+                        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+                            <SheetContent>
+                            
+                                {dayData ? 
+                                <div className='h-full'>
+                                <div className='flex items-center justify-between pr-2'>
+                                <h1 className='font-semibold text-lg'>{dayData.workout.name}</h1>
+                            </div>
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Exercises</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    <ScrollArea className='h-92 W-full'>
+                                        {dayData.exercise_logs?.map((exercise, index) => (
+                                            <TableRow key={exercise.id}>
+                                                <Accordion type="single" collapsible>
+                                                    <AccordionItem value="item-1">
+                                                        <AccordionTrigger className='p-0 pr-4'>
+                                                            <TableCell className="font-medium pl-0">{index + 1}. {exercise.workout_exercise.exercise.name}</TableCell>
+                                                        </AccordionTrigger>
+                                                        <AccordionContent>
+                                                            {exercise.sets.map((set) => (
+                                                                <div className='px-3'>
+                                                                    <div className='p-4 w-full flex justify-between items-center'>
+                                                                        <p >Set: {set.set_number}</p>
+                                                                        <p>Reps: {set.reps}</p> 
+                                                                        <p>weight: {set.weight_used? set.weight_used: 0}</p>
+                                                                    </div>
+                                                                    
+                                                                    <Separator/>
+                                                                </div>
+                                                            ))}
+                                                        </AccordionContent>
+                                                    </AccordionItem>
+                                                    </Accordion>
+                                                
+                                            </TableRow>
+                                        ))}
+                                    </ScrollArea>
+                                </TableBody>
+                            </Table>
+                        </div>
+                        : <div>no</div>
+                            }
+                                
+                            </SheetContent>
+                        </Sheet>
 
                     </Card>
                 </div>

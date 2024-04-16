@@ -67,6 +67,12 @@ export const AuthProvider = ({ children }) => {
     logoutUser,
   };
 
+  /* useEffect(()=>{
+    if(!authTokens){
+      setUser(null)
+    }
+  }, []) */
+
   useEffect(() => {
     if (loading) {
       updateToken();
