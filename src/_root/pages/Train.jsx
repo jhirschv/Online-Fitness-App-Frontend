@@ -95,14 +95,12 @@ import {
   import { ReorderItem } from "@/components/ReorderItem";
   import { useContext } from 'react'
 import AuthContext from '@/context/AuthContext';
+import { PacmanLoader } from 'react-spinners';
 
   
   
 const Train = () => {
     let { user } = useContext(AuthContext);
-    useEffect(() => {
-        console.log(user)
-    }, [])
     const { theme } = useTheme();
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
     const navigate = useNavigate();
@@ -116,11 +114,15 @@ const Train = () => {
       };
 
     const createAiWorkout = () => {
+        const workoutData = {
+            prompt: prompt,
+            phase: activeProgram.phases[0].id // Assuming you have access to `activeProgram` here
+        };
         setIsLoading(true)
-        apiClient.post(`/api/openai/`, { prompt: prompt })
+        apiClient.post(`/api/openai/`, workoutData)
             .then(response => {
+                getActiveProgram()
                 console.log(response)
-                navigate(`/workout/${response.data.id}`);
                 })
             
             .catch(error => console.error('Error:', error))
@@ -154,6 +156,7 @@ const Train = () => {
             console.error('Error fetching data:', error);
         });
     }
+
     //fetch active program and workouts
     const [activeProgram, setActiveProgram] = useState(null)
     const [workouts, setWorkouts] = useState([])
@@ -167,6 +170,7 @@ const Train = () => {
             console.error('Error fetching data:', error);
         });
     }, []);
+
     //fetch exercises
     const [exercises, setExercises] = useState([]);
     useEffect(() => {
@@ -352,7 +356,7 @@ const Train = () => {
     const [workoutName, setWorkoutName] = useState('')
     function createWorkout() {
         const workoutData = {
-            phase: 1,
+            phase: activeProgram.phases[0].id,
             name: workoutName,
             workout_exercises: []
         };
@@ -368,6 +372,7 @@ const Train = () => {
             console.error('Error fetching data:', error);
         });
         }
+
     function deleteWorkout(workoutId) {
         apiClient.delete(`/workouts/${workoutId}/`)
         .then(() => {
@@ -425,11 +430,11 @@ const Train = () => {
     const [currentWorkout, setCurrentWorkout] = useState(null);
     const [selectedWorkout, setSelectedWorkout] = useState(null);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
+
     function createAndActivateProgram() {
         const programData = {
             name: programName
         };
-    
         apiClient.post('create-and-activate/', programData)
         .then(response => {
             setActiveProgram(response.data)
@@ -453,6 +458,7 @@ const Train = () => {
             console.error('Error starting workout session:', error);
         });
     }
+
     function updateActiveProgram(selectedProgram) {
             const payload = {
                 program_id: selectedProgram, 
@@ -637,7 +643,12 @@ const Train = () => {
 
     return (
         <div className={`${backgroundColorClass} overflow-hidden w-full md:p-4 md:border md:rounded-lg`}>
-            <Card className='relative border-0 md:border h-full w-full flex flex-col rounded-none md:rounded-lg'>
+            {isLoading && (
+                <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-25 z-10 rounded-lg">
+                <PacmanLoader color="hsla(257, 70%, 40%, 1)" size={40} />
+                </div>
+            )}
+            <Card className='relative border-0 md:border h-full w-full flex flex-col rounded-none md:rounded-lg overflow-y-auto'>
                 <div className='flex h-full w-full'>
 
                     <div className='flex flex-col h-full basis-full w-full lg:basis-2/5 px-6  md:px-0 md:pl-6'>
@@ -692,7 +703,7 @@ const Train = () => {
                                                 <CardContent className="p-0 items-center justify-center flex flex-col gap-2">
                                                     <div className='flex gap-10 self-start items-center'>
                                                         <h1 className='mr-2 p-1 text-xl self-start font-semibold'>{activeProgram.name}</h1>
-                                                        <p className='text-sm text-muted-foreground'>{activeProgram && activeProgram.phases ? activeProgram.phases[0].workouts.length : 0} workouts</p>
+                                                        <p className='text-sm text-muted-foreground'>{activeProgram?.phases?.[0]?.workouts?.length ?? 0} workouts</p>
                                                     </div>
                                                 <Reorder.Group axis="y" onReorder={setWorkouts} values={workouts} className="w-full">
                                                 {workouts && workouts.map((workout, index) => (
@@ -704,7 +715,7 @@ const Train = () => {
                                                 </Reorder.Group>
                                                 <AlertDialog>
                                                     <AlertDialogTrigger className='w-full flex items-center' asChild>
-                                                        <div className='w-full py-4 px-4 text-primary font-semibold underline-offset-4 hover:underline'><FontAwesomeIcon className='mr-2' icon={faPlus}/>Add Workout</div>
+                                                        <div className='w-full py-4 px-4 text-primary font-semibold underline-offset-4 hover:underline text-x'><FontAwesomeIcon className='mr-2' icon={faPlus}/>Add Workout</div>
                                                     </AlertDialogTrigger>
                                                     <AlertDialogContent>
                                                         <Tabs defaultValue="create">

@@ -17,11 +17,11 @@ const Bottombar = () => {
             </li>
             </NavLink>
 
-            <NavLink className='flex justify-center items-center ' to="/programs">
+            {/* <NavLink className='flex justify-center items-center ' to="/programs">
             <li className="flex items-center text-lg hover:bg-muted p-8 w-full h-16 rounded-md transition duration-150 ease-in-out">
                 <FontAwesomeIcon size='lg' icon={faFolder} />
             </li>
-            </NavLink>
+            </NavLink> */}
 
 {/*             <NavLink className='flex justify-center items-center ' to="/workouts">
             <li className="flex items-center text-lg hover:bg-muted w-f p-8ull h-16 rounded-md transition duration-150 ease-in-out">

@@ -11,7 +11,7 @@ const SideBar = () => {
   return (
     <nav className="hidden bg-background xl:flex h-full w-1/6 pt-6 pl-4">
       <div className="w-5/6">
-        <ul className="flex flex-col gap-1">
+        <ul className="flex flex-col gap-4">
 
           <NavLink to='/account'>
             <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md transition duration-300 ease-in-out">
@@ -30,12 +30,12 @@ const SideBar = () => {
             </li>
           </NavLink>
           
-          <NavLink  to="programs">
+          {/* <NavLink  to="programs">
             <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md transition duration-150 ease-in-out">
               <FontAwesomeIcon className="mr-3" icon={faFolder} />
               Resources
             </li>
-          </NavLink>
+          </NavLink> */}
 
           {/* <NavLink  to="/workouts">
             <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md transition duration-150 ease-in-out">
