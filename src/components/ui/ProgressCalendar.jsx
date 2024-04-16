@@ -77,7 +77,7 @@ function ProCalendar({
     return (
       <div onClick={() => sendDataToParent(null)} {...props} className={`day-cell flex h-full w-full items-center justify-center`}>
         <p className="relative">{date.getDate()}</p>
-        {activeModifiers.today? <div className="text-xs absolute top-11 right-4">Today</div> : <></>}
+        {/* {activeModifiers.today? <div className="text-xs absolute top-11 right-4"></div> : <></>} */}
       </div>
     );
   };

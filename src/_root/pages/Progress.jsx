@@ -22,6 +22,7 @@ SheetTrigger,
 } from "@/components/ui/sheet"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+import { faFaceFrown } from '@fortawesome/free-regular-svg-icons';
 import { Bar, BarChart, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { format, parseISO } from 'date-fns';
 import { Calendar as CalendarIcon } from "lucide-react"
@@ -65,6 +66,16 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import moment from 'moment';
 import { useContext } from 'react';
 import AuthContext from '../../context/AuthContext';
+import {
+    Drawer,
+    DrawerClose,
+    DrawerContent,
+    DrawerDescription,
+    DrawerFooter,
+    DrawerHeader,
+    DrawerTitle,
+    DrawerTrigger,
+  } from "@/components/ui/drawer"
 
 
 const Progress = () => {
@@ -82,6 +93,14 @@ const Progress = () => {
           workout_exercises: []
         }
       });
+    const workoutDate = new Date(dayData.date);
+
+    // Format the date
+    const formattedDate = workoutDate.toLocaleDateString('en-US', {
+        year: 'numeric', // "2024"
+        month: 'long', // "March"
+        day: 'numeric', // "8"
+    });
     const [isSheetOpen, setIsSheetOpen] = useState(false);
     const handleDayData = (receivedDayData) => {
         console.log('Sending event data to parent:', receivedDayData);
@@ -278,57 +297,63 @@ const Progress = () => {
                             selected={date}
                             className="h-[100%] w-full pt-4 px-1"
                             />
-                        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-                            <SheetContent>
-                            
-                                {dayData ? 
-                                <div className='h-full'>
-                                <div className='flex items-center justify-between pr-2'>
-                                <h1 className='font-semibold text-lg'>{dayData.workout.name}</h1>
-                            </div>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Exercises</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    <ScrollArea className='h-92 W-full'>
-                                        {dayData.exercise_logs?.map((exercise, index) => (
-                                            <TableRow key={exercise.id}>
-                                                <Accordion type="single" collapsible>
-                                                    <AccordionItem value="item-1">
-                                                        <AccordionTrigger className='p-0 pr-4'>
-                                                            <TableCell className="font-medium pl-0">{index + 1}. {exercise.workout_exercise.exercise.name}</TableCell>
-                                                        </AccordionTrigger>
-                                                        <AccordionContent>
-                                                            {exercise.sets.map((set) => (
-                                                                <div className='px-3'>
-                                                                    <div className='p-4 w-full flex justify-between items-center'>
-                                                                        <p >Set: {set.set_number}</p>
-                                                                        <p>Reps: {set.reps}</p> 
-                                                                        <p>weight: {set.weight_used? set.weight_used: 0}</p>
-                                                                    </div>
-                                                                    
-                                                                    <Separator/>
-                                                                </div>
-                                                            ))}
-                                                        </AccordionContent>
-                                                    </AccordionItem>
-                                                    </Accordion>
-                                                
+                        <Drawer open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+                            <DrawerContent className='h-full pt-2'>
+                                {dayData.workout ? 
+                                <div className='h-full overflow-auto px-4 pt-8 pb-4'>
+                                    <div className='flex items-center justify-between pr-2'>
+                                    <h1 className='font-semibold text-lg'>{dayData.workout.name}</h1>
+                                    <h1>{formattedDate}</h1>
+                                    </div>
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead className='pl-0'>Exercises</TableHead>
                                             </TableRow>
-                                        ))}
-                                    </ScrollArea>
-                                </TableBody>
-                            </Table>
-                        </div>
-                        : <div>no</div>
-                            }
-                                
-                            </SheetContent>
-                        </Sheet>
-
+                                        </TableHeader>
+                                        <TableBody>
+                                            {dayData.exercise_logs && dayData.exercise_logs.length > 0 ? (
+                                                dayData.exercise_logs.map((exercise, index) => (
+                                                    <TableRow key={exercise.id}>
+                                                        <Accordion type="single" collapsible>
+                                                            <AccordionItem value="item-1">
+                                                                <AccordionTrigger className='p-0 pr-4'>
+                                                                    <TableCell className="font-medium pl-0 flex gap-2">
+                                                                        {index + 1}. {exercise.workout_exercise.exercise.name}
+                                                                        <p className='text-sm text-muted-foreground'>{exercise.sets.length} sets</p>
+                                                                    </TableCell>
+                                                                </AccordionTrigger>
+                                                                <AccordionContent>
+                                                                    {exercise.sets.map((set) => (
+                                                                        <div className='px-3'>
+                                                                            <div className='p-4 w-full flex justify-between items-center'>
+                                                                                <p className='w-2/5'>Set: {set.set_number}</p>
+                                                                                <p className='w-2/5'>Reps: {set.reps}</p>
+                                                                                <p className='w-1/2'>Weight: {set.weight_used ? set.weight_used : 0} lbs</p>
+                                                                            </div>
+                                                                            <Separator />
+                                                                        </div>
+                                                                    ))}
+                                                                </AccordionContent>
+                                                            </AccordionItem>
+                                                        </Accordion>
+                                                    </TableRow>
+                                                ))
+                                            ) : (
+                                                <TableRow>
+                                                    <TableCell className="text-center pt-8 text-xl font-semibold" colSpan="100%">No exercises logged for this day.</TableCell>
+                                                </TableRow>
+                                            )}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                            : <div className='h-full flex flex items-center justify-center gap-1'>
+                                <h1 className='font-semibold text-xl'>No data available for this day</h1>
+                                <FontAwesomeIcon size='xl' className='mt-1' icon={faFaceFrown} />
+                              </div>
+                                }
+                            </DrawerContent>
+                        </Drawer>
                     </Card>
                 </div>
                 <div class="row-span-2 col-span-2 lg:col-span-1 xl:col-span-2 h-[400px]">
@@ -375,8 +400,8 @@ const Progress = () => {
                 </div>
 
 
-                <div class="mb-[1px] h-48 col-span-2 xl:col-span-1 xl:row-span-1">
-                    <Card className='w-full h-full'>
+                <div class="mb-[1px] h-52 col-span-2 xl:col-span-1 xl:row-span-1">
+                    <Card className='w-full h-48'>
                         <h1 className='font-semibold px-4 py-2'>Workouts Per Week</h1>
                         <ResponsiveContainer width="100%" height={145}>
                             <BarChart data={processedData}

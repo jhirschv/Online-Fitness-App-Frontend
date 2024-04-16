@@ -50,6 +50,7 @@ import {
   } from "@/components/ui/sheet"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEllipsis, faPlus, faChevronRight, faXmark, faTrashCan, faGripVertical, faWandMagicSparkles } from '@fortawesome/free-solid-svg-icons';
+import { faFaceFrown } from '@fortawesome/free-regular-svg-icons';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -584,7 +585,7 @@ const Train = () => {
         });
         
         return (
-        <div className='h-full'>
+            <div className='h-full overflow-auto pt-4 pb-4'>
                 <div className='flex items-center justify-between pr-2'>
                     <h1 className='font-semibold text-lg'>{workout.workout.name}</h1>
                     <h1>{formattedDate}</h1>
@@ -592,37 +593,42 @@ const Train = () => {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Exercises</TableHead>
+                            <TableHead className='pl-0'>Exercises</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <ScrollArea className='h-92 W-full'>
-                            {workout.exercise_logs.map((exercise, index) => (
+                        {workout.exercise_logs && workout.exercise_logs.length > 0 ? (
+                            dayData.exercise_logs.map((exercise, index) => (
                                 <TableRow key={exercise.id}>
                                     <Accordion type="single" collapsible>
                                         <AccordionItem value="item-1">
                                             <AccordionTrigger className='p-0 pr-4'>
-                                                <TableCell className="font-medium pl-0">{index + 1}. {exercise.workout_exercise.exercise.name}</TableCell>
+                                                <TableCell className="font-medium pl-0 flex gap-2">
+                                                    {index + 1}. {exercise.workout_exercise.exercise.name}
+                                                    <p className='text-sm text-muted-foreground'>{exercise.sets.length} sets</p>
+                                                </TableCell>
                                             </AccordionTrigger>
                                             <AccordionContent>
                                                 {exercise.sets.map((set) => (
                                                     <div className='px-3'>
-                                                        <div className='p-4 w-full flex justify-between items-center'>
-                                                            <p >Set: {set.set_number}</p>
-                                                            <p>Reps: {set.reps}</p> 
-                                                            <p>weight: {set.weight_used? set.weight_used: 0}</p>
+                                                        <div className='p-4 w-full flex items-center'>
+                                                            <p className='w-2/5'>Set: {set.set_number}</p>
+                                                            <p className='w-2/5'>Reps: {set.reps}</p>
+                                                            <p className='w-1/2'>Weight: {set.weight_used ? set.weight_used : 0} lbs</p>
                                                         </div>
-                                                        
-                                                        <Separator/>
+                                                        <Separator />
                                                     </div>
                                                 ))}
                                             </AccordionContent>
                                         </AccordionItem>
-                                        </Accordion>
-                                    
+                                    </Accordion>
                                 </TableRow>
-                            ))}
-                        </ScrollArea>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell className="text-center" colSpan="100%">No exercises logged for this day.</TableCell>
+                            </TableRow>
+                        )}
                     </TableBody>
                 </Table>
             </div>
@@ -1201,7 +1207,12 @@ const Train = () => {
                             <SheetContent>
                                 {!displayCurrentWorkout && dayData && (typeof dayData === 'object' && Object.keys(dayData).length > 0) ? (
                                         renderWorkoutSessionDetails(dayData)
-                                    ) : (<div>No workout recorded</div>)}
+                                    ) : (
+                                        <div className='h-full flex flex items-center justify-center gap-1'>
+                                            <h1 className='font-semibold text-xl'>No data available for this day</h1>
+                                            <FontAwesomeIcon size='xl' className='mt-1' icon={faFaceFrown} />
+                                        </div>
+                                    )}
                             </SheetContent>
                         </Sheet>
                     </div>
