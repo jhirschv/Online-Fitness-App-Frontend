@@ -39,6 +39,10 @@ function ProCalendar({
   const handleOpenDialog = (event) => {
     setSelectedEvent(event);
   };
+
+  const sendDataToParent = (childData) => {
+    onDataReceive(childData);
+  };
   
   const CustomDay = ({ date, activeModifiers, displayMonth, ...props }) => {
     const dateString = date.toISOString().split('T')[0];
