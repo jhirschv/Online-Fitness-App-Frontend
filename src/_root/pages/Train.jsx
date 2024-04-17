@@ -99,11 +99,12 @@ import { PacmanLoader } from 'react-spinners';
 
   
   
-const Train = () => {
+const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts}) => {
     let { user } = useContext(AuthContext);
     const { theme } = useTheme();
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
     const navigate = useNavigate();
+    
 
     //ai workout
     const [prompt, setPrompt] = useState('');
@@ -157,19 +158,7 @@ const Train = () => {
         });
     }
 
-    //fetch active program and workouts
-    const [activeProgram, setActiveProgram] = useState(null)
-    const [workouts, setWorkouts] = useState([])
-    useEffect(() => {
-        apiClient.get('/get_active_program/') // Make sure the endpoint matches your Django URL configuration
-        .then(response => {
-            setActiveProgram(response.data);
-            setWorkouts(response.data.phases[0].workouts)
-        })
-        .catch(error => {
-            console.error('Error fetching data:', error);
-        });
-    }, []);
+    
 
     //fetch exercises
     const [exercises, setExercises] = useState([]);

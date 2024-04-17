@@ -97,7 +97,7 @@ const ChatSession = () => {
             </div>
         </div>
         </CardHeader>
-        <CardContent className="flex flex-col flex-grow overflow-auto">
+        <CardContent className="flex flex-col flex-grow overflow-y-auto">
         <div className="space-y-4 flex flex-col justify-end h-full">
             {messages.map((message, index) => (
             <div

@@ -22,10 +22,27 @@ import ProgramOverview from './_root/pages/ProgramOverview';
 import WorkoutSession from './_root/pages/WorkoutSession';
 import Workout from './_root/pages/Workout'
 import ChatSession from './_root/pages/ChatSession';
+import React, { useState, useEffect } from 'react';
+import apiClient from './services/apiClient';
 
 
 function App() {
   useDisableZoom();
+
+  //fetch active program and workouts
+  const [activeProgram, setActiveProgram] = useState(null)
+  const [workouts, setWorkouts] = useState([])
+  useEffect(() => {
+      apiClient.get('/get_active_program/') // Make sure the endpoint matches your Django URL configuration
+      .then(response => {
+          setActiveProgram(response.data);
+          setWorkouts(response.data.phases[0].workouts)
+          console.log(response.data.phases[0].workouts)
+      })
+      .catch(error => {
+          console.error('Error fetching data:', error);
+      });
+  }, []);
   
 
   return (
@@ -40,7 +57,11 @@ function App() {
               <Route path='programs' element={<Programs />} />       
               <Route path="workouts" element={<Workouts />} />       
               <Route path="/program_overview/:programId" element={<ProgramOverview />} />
-              <Route index element={<Train />} />
+              <Route index element={<Train 
+              activeProgram={activeProgram}
+              setActiveProgram={setActiveProgram}
+              workouts={workouts}
+              setWorkouts={setWorkouts}/>} />
               <Route path="/workoutSession/:sessionId" element={<WorkoutSession />} />
               <Route path="/Progress" element={<Progress />} />
               <Route path="/chat" element={<Chat />} >
