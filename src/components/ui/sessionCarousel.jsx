@@ -24,6 +24,7 @@ const Carousel = React.forwardRef((
     opts,
     setApi,
     plugins,
+    onApiChange,
     className,
     children,
     ...props
@@ -45,6 +46,12 @@ const Carousel = React.forwardRef((
     setCanScrollPrev(api.canScrollPrev())
     setCanScrollNext(api.canScrollNext())
   }, [])
+
+  React.useEffect(() => {
+    if (api) {
+      onApiChange(api); // Pass the api back up
+    }
+  }, [api, onApiChange]);
 
   const scrollPrev = React.useCallback(() => {
     api?.scrollPrev()

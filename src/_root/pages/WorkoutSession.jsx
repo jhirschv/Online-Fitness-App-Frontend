@@ -26,7 +26,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@/components/ui/carousel"
+} from "@/components/ui/sessionCarousel"
 import {
     Drawer,
     DrawerClose,
@@ -44,9 +44,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClock} from '@fortawesome/free-regular-svg-icons';
 import { faAngleLeft, faEllipsis} from '@fortawesome/free-solid-svg-icons';
 import { useTheme } from '@/components/theme-provider';
+
+import { Toaster } from "@/components/ui/toaster"
+import { ToastAction } from "@/components/ui/toast"
+import { useToast } from "@/components/ui/use-toast"
   
 
 const WorkoutSession = () => {
+
+    const { toast } = useToast()
 
     const currentDate = new Date().toLocaleDateString('en-US', {
         year: 'numeric', // "2024"
@@ -60,17 +66,17 @@ const WorkoutSession = () => {
 
     const { sessionId } = useParams();
     const [sessionDetails, setSessionDetails] = useState(null);
-    const [selectedSet, setSelectedSet] = useState(null);
+    const [selectedSets, setSelectedSets] = useState({});
+    const [carouselApi, setCarouselApi] = useState(null);
 
-    const selectSet = (set) => {
-        setSelectedSet(set);
-        
+    const selectSet = (exerciseId, setId) => {
+        const selectedExerciseLog = sessionDetails.exercise_logs.find(log => log.id === exerciseId);
+        const setSelected = selectedExerciseLog.sets.find(set => set.id === setId);
+        setSelectedSets(prev => ({
+            ...prev,
+            [exerciseId]: setSelected
+        }));
     };
-
-    useEffect(()=> {
-        console.log(sessionDetails)
-    }, [sessionDetails])
-
 
     const handleRepsChange = (exerciseLogId, setId, newReps) => {
         const updatedSessionDetails = {
@@ -126,20 +132,27 @@ const WorkoutSession = () => {
     };
 
     
-
-    
  
     useEffect(() => {
         // Fetch the workout session details by sessionId
         apiClient.get(`/workoutSession/${sessionId}/`)
             .then(response => {
                 setSessionDetails(response.data);
+                const initialSelectedSets = {};
+                response.data.exercise_logs.forEach(log => {
+                    const nonLoggedSet = log.sets.find(set => set.weight_used === null || set.weight_used === 0);
+                    if (nonLoggedSet) {
+                        initialSelectedSets[log.id] = nonLoggedSet;
+                    } else {
+                        initialSelectedSets[log.id] = log.sets[0]; // Assuming we select the first set if all are logged
+                    }
+                });
+                setSelectedSets(initialSelectedSets);
             })
             .catch(error => {
                 console.error('Error fetching workout session details:', error);
             });
     }, [sessionId]);
-
 
     const navigate = useNavigate();
 
@@ -147,7 +160,8 @@ const WorkoutSession = () => {
         navigate(-1);
     }
 
-    const updateExerciseSet = () => {
+    const updateExerciseSet = (exerciseId) => {
+        const selectedSet = selectedSets[exerciseId];
         if (!selectedSet) return;
 
         const updatedSet = findUpdatedSet(selectedSet.id);
@@ -162,21 +176,73 @@ const WorkoutSession = () => {
         apiClient.patch(`/exercise_set_update/${id}/`, { reps, weight_used })
             .then(response => {
                 console.log(response.data)
+
+                const currentLog = sessionDetails.exercise_logs.find(log => log.id === exerciseId);
+                const currentIndex = currentLog.sets.findIndex(set => set.id === id);
+                const nextUnloggedSet = currentLog.sets.slice(currentIndex + 1).find(set => set.weight_used === null || set.weight_used === 0);
+                const allSetsLogged = currentLog.sets.every(set => set.weight_used !== null && set.weight_used !== 0);
+
+                if (allSetsLogged) {
+                    const currentLogIndex = sessionDetails.exercise_logs.findIndex(log => log.id === exerciseId);
+                    if (currentLogIndex !== -1 && currentLogIndex + 1 < sessionDetails.exercise_logs.length) {
+                        carouselApi.scrollTo(currentLogIndex + 1); // Scroll to next log
+                    }
+                }
+
+                setSelectedSets(prev => ({
+                    ...prev,
+                    [exerciseId]: nextUnloggedSet || currentLog.sets.find(set => set.weight_used === null || set.weight_used === 0) || null
+                }));
+
+                toast({
+                    title: "Set Updated",
+                    description: "The exercise set has been successfully logged."
+                });
             })
             .catch(error => {
                 console.error('Error fetching workout session details:', error);
+                toast({
+                    title: "Set Update Failed",
+                    description: "The exercise set has not been logged.",
+                    variant: "destructive"
+                });
             });
     }
 
+    function determineTargetIndex(logs) {
+        let lastLoggedIndex = -1;
+        for (let i = 0; i < logs.length; i++) {
+            const hasLoggedSet = logs[i].sets.some(set => set.weight_used !== null && set.weight_used !== 0);
+            if (hasLoggedSet) {
+                lastLoggedIndex = i;
+            }
+        }
+        return lastLoggedIndex;
+    }
+
+    useEffect(() => {
+        console.log('carouselApi updated', carouselApi);
+        console.log('sessionDetails updated', sessionDetails);
+        if (!carouselApi || !sessionDetails) return; // Ensure API and data are loaded
+    
+        // Logic to determine the slide index to navigate to
+        const targetIndex = determineTargetIndex(sessionDetails.exercise_logs);
+        if (targetIndex !== -1) {
+            setTimeout(() => {
+                carouselApi.scrollTo(targetIndex);
+            }, 20); // Introduce a 100ms delay
+        }
+    }, [carouselApi, sessionDetails]); // Depend on carouselApi and session details
+
     return (
         <div className={`w-full ${backgroundColorClass} md:border md:rounded-lg md:p-4`}>
-
+            <Toaster />
             <Card className='border-0 md:border h-full w-full rounded-none md:rounded-lg relative'>
                 <FontAwesomeIcon className='hidden md:block absolute top-6 left-6' onClick={goBack} size="xl" icon={faAngleLeft} />
 
                 <div className='w-full h-full flex justify-center items-center'>
                     
-                        <Carousel className="w-full md:mx-16 md:mt-6 md:max-w-md md:max-w-3xl">
+                        <Carousel onApiChange={setCarouselApi} className="w-full md:mx-16 md:mt-6 md:max-w-md md:max-w-3xl">
                             <CarouselContent className='w-100vw min-w-full'>
                                 {sessionDetails && sessionDetails.exercise_logs.map((exercise, index) => (
                                 <CarouselItem className='w-full' key={exercise.id}   >
@@ -189,18 +255,19 @@ const WorkoutSession = () => {
                                                     <Button variant='outline' className='ml-2'>History</Button>
                                                 </div>
                                                 {exercise.sets.map((set) => (
-                                                    <div className={`${selectedSet === set? "bg-muted" : "bg-background"}`}key={set.id} onClick={() => selectSet(set)}>
+                                                    <div key={set.id} onClick={() => selectSet(exercise.id, set.id)} className={`${selectedSets[exercise.id]?.id === set.id ? "bg-muted" : "bg-background"}`}>
                                                         <Separator/>
                                                             <div className='flex items-center m-2 py-2'>
                                                                 <p>{set.set_number}</p>
                                                                 <Label htmlFor="reps" className='mr-2'>. Reps</Label>
                                                                 <Input value={set.reps !== 0 ? set.reps : ''} onChange={(e) => handleRepsChange(exercise.id, set.id, e.target.value)} 
-                                                                placeholder={String(exercise.workout_exercise.reps)} id='reps' className='w-20 mr-2 text-center'></Input>
+                                                                placeholder={String(exercise.workout_exercise.reps)} id='reps' className='w-12 mr-2 text-center'></Input>
 
                                                                 <Label htmlFor="weight" className='mr-2'>Weight</Label>
-                                                                <Input id='weight' className='w-20'
+                                                                <Input id='weight' className='w-12 mr-1'
                                                                 value={set.weight_used || ''} // Handle potential null or undefined values
                                                                 onChange={(e) => handleWeightChange(exercise.id, set.id, e.target.value)}></Input>
+                                                                <p>lbs</p>
 
                                                                 <Button variant='outline' className='hidden md:block mx-2'>Add Note</Button>
                                                                 <Button variant='outline' className='hidden md:block'>Add Video</Button>
@@ -223,7 +290,7 @@ const WorkoutSession = () => {
                                                             </div>
                                                         </DrawerContent>
                                                     </Drawer>
-                                                    <Button onClick={updateExerciseSet} size='lg'>Log Set</Button>
+                                                    <Button onClick={() => updateExerciseSet(exercise.id)} size='lg'>Log Set</Button>
                                                 </div>
                                             </div>
                                             

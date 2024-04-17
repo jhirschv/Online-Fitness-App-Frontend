@@ -205,8 +205,8 @@ const Progress = ({userWorkoutSessions}) => {
     return (
         <div className={`w-full md:border rounded-lg md:h-full ${backgroundColorClass} md:p-4 pb-24`}>
             <Card className='border-0 md:border h-screen lg:h-full w-full md:border rounded-none md:rounded-lg flex justify-center p-4'>
-            <div class="w-full h-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                <div class="col-span-2 h-48">
+            <div className="w-full h-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                <div className="col-span-2 h-48">
                     <Card className='flex w-full h-full'>
                         <div className='w-1/2 md:border-r h-full flex items-center gap-4'>
                             <Avatar className="ml-6 h-32 w-32">
@@ -288,7 +288,7 @@ const Progress = ({userWorkoutSessions}) => {
                     </ResponsiveContainer>
                 </div>
 
-                <div class="h-[400px] col-span-2 md:col-span-1 row-span-2 ">
+                <div className="h-[400px] col-span-2 md:col-span-1 row-span-2 ">
                     <Card className='w-full h-full flex justify-center pt-1'>
                         <ProCalendar
                             onDataReceive={handleDayData}
@@ -357,7 +357,7 @@ const Progress = ({userWorkoutSessions}) => {
                         </Drawer>
                     </Card>
                 </div>
-                <div class="row-span-2 col-span-2 lg:col-span-1 xl:col-span-2 h-[400px]">
+                <div className="row-span-2 col-span-2 lg:col-span-1 xl:col-span-2 h-[400px]">
                     <Card className='w-full h-full flex flex-col'>
                     <div className='flex justify-between items-center px-4 py-6'>
                         <h1 className='text-xl font-semibold'>{exerciseId && exerciseId.name} Estimated 1RM</h1>
@@ -401,7 +401,7 @@ const Progress = ({userWorkoutSessions}) => {
                 </div>
 
 
-                <div class="mb-[1px] h-52 col-span-2 xl:col-span-1 xl:row-span-1">
+                <div className="mb-[1px] h-52 col-span-2 xl:col-span-1 xl:row-span-1">
                     <Card className='w-full h-48'>
                         <h1 className='font-semibold px-4 py-2'>Workouts Per Week</h1>
                         <ResponsiveContainer width="100%" height={145}>
