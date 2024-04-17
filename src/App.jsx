@@ -44,6 +44,20 @@ function App() {
       });
   }, []);
   
+  //fetch user workout sessions
+  const [userWorkoutSessions, setUserWorkoutSessions] = useState([])
+  useEffect(() => {
+    apiClient.get('/user_workout_sessions/')
+        .then(response => {
+            setUserWorkoutSessions(response.data)
+            })
+        
+        .catch(error => console.error('Error:', error));
+    }, []);
+  
+    const sendDataToParent = (childData) => {
+      onDataReceive(childData);
+    };
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
@@ -61,9 +75,10 @@ function App() {
               activeProgram={activeProgram}
               setActiveProgram={setActiveProgram}
               workouts={workouts}
-              setWorkouts={setWorkouts}/>} />
+              setWorkouts={setWorkouts}
+              userWorkoutSessions={userWorkoutSessions}/>} />
               <Route path="/workoutSession/:sessionId" element={<WorkoutSession />} />
-              <Route path="/Progress" element={<Progress />} />
+              <Route path="/Progress" element={<Progress userWorkoutSessions={userWorkoutSessions}/>} />
               <Route path="/chat" element={<Chat />} >
                 <Route path=":userId1/:userId2" element={<ChatSession />} />
               </Route>

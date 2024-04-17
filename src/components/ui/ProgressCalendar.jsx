@@ -28,32 +28,17 @@ function ProCalendar({
   classNames,
   showOutsideDays = true,
   onDataReceive,
+  userWorkoutSessions,
 
   ...props
 }) {
 
   const [selectedEvent, setSelectedEvent] = React.useState(null);
-  const [userWorkoutSessions, setUserWorkoutSessions] = React.useState([])
 
   // Handler to open the dialog for a specific event
   const handleOpenDialog = (event) => {
     setSelectedEvent(event);
   };
-
-
-  React.useEffect(() => {
-    apiClient.get('/user_workout_sessions/')
-        .then(response => {
-            setUserWorkoutSessions(response.data)
-            })
-        
-        .catch(error => console.error('Error:', error));
-    }, []);
-  
-    const sendDataToParent = (childData) => {
-      onDataReceive(childData);
-    };
-
   
   const CustomDay = ({ date, activeModifiers, displayMonth, ...props }) => {
     const dateString = date.toISOString().split('T')[0];

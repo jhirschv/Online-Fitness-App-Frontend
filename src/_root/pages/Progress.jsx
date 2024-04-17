@@ -78,7 +78,7 @@ import {
   } from "@/components/ui/drawer"
 
 
-const Progress = () => {
+const Progress = ({userWorkoutSessions}) => {
     const [date, setDate] = React.useState()
     const { theme } = useTheme();
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
@@ -292,6 +292,7 @@ const Progress = () => {
                     <Card className='w-full h-full flex justify-center pt-1'>
                         <ProCalendar
                             onDataReceive={handleDayData}
+                            userWorkoutSessions={userWorkoutSessions}
                             onSelect={handleSelect}
                             mode="single"
                             selected={date}

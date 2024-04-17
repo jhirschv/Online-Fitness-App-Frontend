@@ -99,7 +99,7 @@ import { PacmanLoader } from 'react-spinners';
 
   
   
-const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts}) => {
+const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWorkoutSessions}) => {
     let { user } = useContext(AuthContext);
     const { theme } = useTheme();
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
@@ -136,7 +136,6 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts}) => {
 
 
     const [phasesDetails, setPhasesDetails] = useState([]);
-    const [userWorkoutSessions, setUserWorkoutSessions] = useState([])
     const [dayData, setDayData] = useState({});
     const [displayCurrentWorkout, setDisplayCurrentWorkout] = useState(true);
     const [programName, setProgramName] = useState("");
@@ -167,16 +166,6 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts}) => {
             setExercises(res.data)
         }) 
     }, [])
-    
-    //get user workout sessions
-    useEffect(() => {
-    apiClient.get('/user_workout_sessions/')
-        .then(response => {
-            setUserWorkoutSessions(response.data)
-            })
-        
-        .catch(error => console.error('Error:', error));
-    }, []);
 
     useEffect(() => {
         if (activeProgram) { // Check if activeProgram is not null
@@ -1160,7 +1149,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts}) => {
                                     )
                                 )} */}
                         </div>
-                        {currentWorkout && 
+                        {activeProgram && 
                         <div className='flex justify-center gap-4 items-center mb-6 '>
                             <Button size='lg' onClick={startWorkoutSession} className='fixed bottom-28 right-8 lg:static self-center p-6 text-lg'>Start Session!</Button>
                            {/*  <Sheet  open={isSheetOpen} onOpenChange={handleSheetOpenChange}>
@@ -1201,6 +1190,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts}) => {
                         mode="single"
                         selected={date}
                         onSelect={handleSelect}
+                        userWorkoutSessions={userWorkoutSessions}
                         className="h-[85%] w-full my-4"
                         />
                         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
