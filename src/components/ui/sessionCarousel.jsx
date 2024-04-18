@@ -2,6 +2,7 @@
 import * as React from "react"
 import useEmblaCarousel from "embla-carousel-react";
 import { ArrowLeft, ArrowRight } from "lucide-react"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -198,4 +199,56 @@ const CarouselNext = React.forwardRef(({ className, variant = "outline", size = 
 })
 CarouselNext.displayName = "CarouselNext"
 
-export { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext };
+const CarouselTabs = ({ sessionDetails }) => {
+  const { api } = useCarousel(); // This fetches your carousel API/context
+  const [selectedIndex, setSelectedIndex] = React.useState("0"); // Using string because Tabs value must be string
+
+  // Dynamically set slides from sessionDetails
+  const slides = sessionDetails ? sessionDetails.exercise_logs.map(log => log.workout_exercise.exercise.name) : [];
+
+  // Append an additional tab for the extra slide
+  const allTabs = [...slides, "Extra Slide"];
+
+  // Function to manually select a slide (called on tab click)
+  const selectSlide = (index) => {
+      if (api) {
+          api.scrollTo(index);
+          setSelectedIndex(String(index)); // Update selectedIndex when a tab is clicked
+      }
+  };
+
+  React.useEffect(() => {
+      if (!api) return;
+
+      // Function to update the selected tab based on the current slide
+      const updateSelectedIndex = () => {
+          const currentSlide = api.selectedScrollSnap();
+          setSelectedIndex(String(currentSlide)); // Ensure selectedIndex is a string to match Tabs value
+      };
+
+      // Listen for slide changes
+      api.on("select", updateSelectedIndex);
+
+      // Cleanup listener on component unmount
+      return () => {
+          api.off("select", updateSelectedIndex);
+      };
+  }, [api]);
+
+  return (
+    <Tabs value={selectedIndex} onValueChange={setValue => selectSlide(Number(setValue))}>
+        <TabsList className='px-3 rounded-xs w-full flex bg-background gap-1'>
+            {allTabs.map((label, index) => (
+                <TabsTrigger
+                    key={index}
+                    value={String(index)} // Ensure the value is a string
+                    className="p-1 rounded-xs bg-muted flex-1 data-[state=active]:bg-primary"
+                >
+                </TabsTrigger>
+            ))}
+        </TabsList>
+    </Tabs>
+  );
+};
+
+export { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext, CarouselTabs };

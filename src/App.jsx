@@ -50,6 +50,7 @@ function App() {
     apiClient.get('/user_workout_sessions/')
         .then(response => {
             setUserWorkoutSessions(response.data)
+            console.log(response.data)
             })
         
         .catch(error => console.error('Error:', error));

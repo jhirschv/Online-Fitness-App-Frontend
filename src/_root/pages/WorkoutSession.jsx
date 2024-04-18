@@ -26,6 +26,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  CarouselTabs
 } from "@/components/ui/sessionCarousel"
 import {
     Drawer,
@@ -48,6 +49,7 @@ import { useTheme } from '@/components/theme-provider';
 import { Toaster } from "@/components/ui/toaster"
 import { ToastAction } from "@/components/ui/toast"
 import { useToast } from "@/components/ui/use-toast"
+import { ScrollArea } from "@/components/ui/scroll-area"
   
 
 const WorkoutSession = () => {
@@ -246,9 +248,9 @@ const WorkoutSession = () => {
                             <CarouselContent className='w-100vw min-w-full'>
                                 {sessionDetails && sessionDetails.exercise_logs.map((exercise, index) => (
                                 <CarouselItem className='w-full' key={exercise.id}   >
-                                    <div >
+                                    <div>
                                     <Card className='h-full w-full border-none md:border' >
-                                        <CardContent className="flex p-6 ">
+                                        <CardContent className="flex p-3 md:p-6 ">
                                             <div className='flex flex-col w-full'>
                                                 <div className='flex items-center pb-4'>
                                                     <h1 className='font-semibold text-xl'>{index + 1}. {exercise.workout_exercise.exercise.name}</h1>
@@ -313,6 +315,7 @@ const WorkoutSession = () => {
                                     
                                 </CarouselItem>
                             </CarouselContent>
+                            <CarouselTabs sessionDetails={sessionDetails} />
                             <CarouselPrevious className='hidden md:flex'/>
                             <CarouselNext className='hidden md:flex'/>
                         </Carousel>   
