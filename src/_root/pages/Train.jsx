@@ -104,6 +104,27 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
     const { theme } = useTheme();
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
     const navigate = useNavigate();
+
+    //fetch active session
+    const [isActiveSession, setIsActiveSession] = useState(false);
+    const [activeSessionDetails, setActiveSessionDetails] = useState({});
+
+    useEffect(() => {
+    apiClient.get('/check_active_session/')
+        .then(response => {
+            if (response.data.active) {
+                setIsActiveSession(true);
+                setActiveSessionDetails(response.data);
+            } else {
+                setIsActiveSession(false);
+            }
+            console.log(response.data); // Optional: Log the data for debugging
+        })
+        .catch(error => {
+            console.error('Error fetching active session:', error);
+            setIsActiveSession(false); // Ensure state is consistent on error
+        });
+    }, []);
     
 
     //ai workout
@@ -461,6 +482,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
         });
         
     }
+
     const startWorkoutSession = () => {
         const payload = {
             workout_id: currentWorkout.id, 
@@ -475,6 +497,14 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
                 console.error('Error starting workout session:', error);
             });
     }
+
+    const resumeSession = () => {
+        // Navigate to the session details page using the session ID from activeSessionDetails
+        if (activeSessionDetails && activeSessionDetails.id) {
+            
+            navigate(`/workoutSession/${activeSessionDetails.id}`);
+        }
+    };
     const handleProgramClick = (programId) => {
         setSelectedProgram(programId)
     }
@@ -1149,39 +1179,26 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
                                     )
                                 )} */}
                         </div>
-                        {activeProgram && 
-                        <div className='flex justify-center gap-4 items-center mb-6 '>
-                            <Button size='lg' onClick={startWorkoutSession} className='fixed bottom-28 right-8 lg:static self-center p-6 text-lg'>Start Session!</Button>
-                           {/*  <Sheet  open={isSheetOpen} onOpenChange={handleSheetOpenChange}>
-                                <SheetTrigger asChild>
-                                    <Button variant='outline' onClick={() => setIsSheetOpen(true)} className=' hidden self-center w-1/2 md:w-2/5 p-6 text-lg'>Change Workout</Button>
-                                </SheetTrigger>
-                                <SheetContent>
-                                    <div className='w-full flex justify-center'>
-                                        <Button onClick={() => { updateWorkoutProgress(selectedWorkout); setIsSheetOpen(false); }}  disabled={!selectedWorkout} className='self-center w-1/2 p-6 text-lg'>Save</Button>
-                                    </div>
-                                    <ScrollArea className="h-full w-full">
-                                    <div>
-                                        {phasesDetails.map((phase) => (
-                                            <div key={phase.id}>
-                                            <h3 className='font-bold text-center p-2'>{phase.name}</h3>
-                                            {phase.workouts_by_week.map((week, index) => (
-                                                <div key={index}>
-                                                <h4 className='font-semibold text-center p-2'>Week {week.week}</h4>
-                                                {week.workouts.map((workout) => (
-                                                    <p  onClick={() => handleSelectedWorkout({ phaseId: phase.id, week: week.week, workoutId: workout.id, workoutName: workout.name })}
-                                                    className={`ml-4 p-4 border mr-4 ${selectedWorkout?.workoutId === workout.id && selectedWorkout?.week === week.week ? 'bg-secondary' : 'bg-background'}`} key={workout.id}>{workout.name}
-                                                    </p>
-                                                ))}
-                                                </div>
-                                            ))}
-                                            </div>
-                                        ))}
-                                        </div>
-                                    </ScrollArea>
-                                </SheetContent>
-                             </Sheet> */}
-                        </div>}
+                        {activeProgram && (
+                            <div className='flex justify-center gap-4 items-center mb-6'>
+                                {isActiveSession ? (
+                                    <Button
+                                        variant='secondary'
+                                        size='lg'
+                                        onClick={resumeSession}
+                                        className='fixed bottom-28 right-8 lg:static self-center p-6 text-lg'>
+                                        Resume Workout
+                                    </Button>
+                                ) : (
+                                    <Button
+                                        size='lg'
+                                        onClick={startWorkoutSession}
+                                        className='fixed bottom-28 right-8 lg:static self-center p-6 text-lg'>
+                                        Start Session!
+                                    </Button>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     <div className='hidden lg:flex h-full items-center justify-center basis-3/5'>
@@ -1217,3 +1234,40 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
 }
 
 export default Train
+
+
+
+
+
+
+
+
+{/*  <Sheet  open={isSheetOpen} onOpenChange={handleSheetOpenChange}>
+                                <SheetTrigger asChild>
+                                    <Button variant='outline' onClick={() => setIsSheetOpen(true)} className=' hidden self-center w-1/2 md:w-2/5 p-6 text-lg'>Change Workout</Button>
+                                </SheetTrigger>
+                                <SheetContent>
+                                    <div className='w-full flex justify-center'>
+                                        <Button onClick={() => { updateWorkoutProgress(selectedWorkout); setIsSheetOpen(false); }}  disabled={!selectedWorkout} className='self-center w-1/2 p-6 text-lg'>Save</Button>
+                                    </div>
+                                    <ScrollArea className="h-full w-full">
+                                    <div>
+                                        {phasesDetails.map((phase) => (
+                                            <div key={phase.id}>
+                                            <h3 className='font-bold text-center p-2'>{phase.name}</h3>
+                                            {phase.workouts_by_week.map((week, index) => (
+                                                <div key={index}>
+                                                <h4 className='font-semibold text-center p-2'>Week {week.week}</h4>
+                                                {week.workouts.map((workout) => (
+                                                    <p  onClick={() => handleSelectedWorkout({ phaseId: phase.id, week: week.week, workoutId: workout.id, workoutName: workout.name })}
+                                                    className={`ml-4 p-4 border mr-4 ${selectedWorkout?.workoutId === workout.id && selectedWorkout?.week === week.week ? 'bg-secondary' : 'bg-background'}`} key={workout.id}>{workout.name}
+                                                    </p>
+                                                ))}
+                                                </div>
+                                            ))}
+                                            </div>
+                                        ))}
+                                        </div>
+                                    </ScrollArea>
+                                </SheetContent>
+                             </Sheet> */}

@@ -50,7 +50,6 @@ function App() {
     apiClient.get('/user_workout_sessions/')
         .then(response => {
             setUserWorkoutSessions(response.data)
-            console.log(response.data)
             })
         
         .catch(error => console.error('Error:', error));
@@ -59,6 +58,27 @@ function App() {
     const sendDataToParent = (childData) => {
       onDataReceive(childData);
     };
+
+  //fetch active session
+  const [isActiveSession, setIsActiveSession] = useState(false);
+  const [activeSessionDetails, setActiveSessionDetails] = useState({});
+
+  useEffect(() => {
+    apiClient.get('/check_active_session/')
+        .then(response => {
+            if (response.data.active) {
+                setIsActiveSession(true);
+                setActiveSessionDetails(response.data);
+            } else {
+                setIsActiveSession(false);
+            }
+            console.log(response.data); // Optional: Log the data for debugging
+        })
+        .catch(error => {
+            console.error('Error fetching active session:', error);
+            setIsActiveSession(false); // Ensure state is consistent on error
+        });
+  }, []);
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
@@ -77,8 +97,11 @@ function App() {
               setActiveProgram={setActiveProgram}
               workouts={workouts}
               setWorkouts={setWorkouts}
-              userWorkoutSessions={userWorkoutSessions}/>} />
-              <Route path="/workoutSession/:sessionId" element={<WorkoutSession />} />
+              userWorkoutSessions={userWorkoutSessions}
+              activeSessionDetails={activeSessionDetails}
+              isActiveSession={isActiveSession}
+              />} />
+              <Route path="/workoutSession/:sessionId" element={<WorkoutSession/>} />
               <Route path="/Progress" element={<Progress userWorkoutSessions={userWorkoutSessions}/>} />
               <Route path="/chat" element={<Chat />} >
                 <Route path=":userId1/:userId2" element={<ChatSession />} />

@@ -50,6 +50,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { ToastAction } from "@/components/ui/toast"
 import { useToast } from "@/components/ui/use-toast"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { useLocation } from 'react-router-dom';
   
 
 const WorkoutSession = () => {
@@ -134,23 +135,23 @@ const WorkoutSession = () => {
     };
 
     
- 
+
     useEffect(() => {
         // Fetch the workout session details by sessionId
         apiClient.get(`/workoutSession/${sessionId}/`)
             .then(response => {
                 setSessionDetails(response.data);
-                const initialSelectedSets = {};
-                response.data.exercise_logs.forEach(log => {
-                    const nonLoggedSet = log.sets.find(set => set.weight_used === null || set.weight_used === 0);
-                    if (nonLoggedSet) {
-                        initialSelectedSets[log.id] = nonLoggedSet;
-                    } else {
-                        initialSelectedSets[log.id] = log.sets[0]; // Assuming we select the first set if all are logged
-                    }
-                });
-                setSelectedSets(initialSelectedSets);
-            })
+            const initialSelectedSets = {};
+            response.data.exercise_logs.forEach(log => {
+                const nonLoggedSet = log.sets.find(set => set.weight_used === null || set.weight_used === 0);
+                if (nonLoggedSet) {
+                    initialSelectedSets[log.id] = nonLoggedSet;
+                } else {
+                    initialSelectedSets[log.id] = log.sets[0]; // Assuming we select the first set if all are logged
+                }
+            });
+            setSelectedSets(initialSelectedSets);
+        })
             .catch(error => {
                 console.error('Error fetching workout session details:', error);
             });
@@ -223,8 +224,6 @@ const WorkoutSession = () => {
     }
 
     useEffect(() => {
-        console.log('carouselApi updated', carouselApi);
-        console.log('sessionDetails updated', sessionDetails);
         if (!carouselApi || !sessionDetails) return; // Ensure API and data are loaded
     
         // Logic to determine the slide index to navigate to
@@ -235,6 +234,21 @@ const WorkoutSession = () => {
             }, 20); // Introduce a 100ms delay
         }
     }, [carouselApi, sessionDetails]); // Depend on carouselApi and session details
+
+    const endSession = async () => {
+        try {
+            const response = await apiClient.post(`/end-session/${sessionId}/`);
+            if (response.data.status === 'success') {
+                console.log('Session ended successfully');
+                goBack();
+                // Additional logic to handle UI updates or redirections
+            } else {
+                console.error('Failed to end session:', response.data.message);
+            }
+        } catch (error) {
+            console.error('Error ending the session:', error.response.data);
+        }
+    };
 
     return (
         <div className={`w-full ${backgroundColorClass} md:border md:rounded-lg md:p-4`}>
@@ -307,7 +321,7 @@ const WorkoutSession = () => {
                                         <Card className='h-[600px] w-full border-none md:border'>
                                             <CardContent className="flex flex-col h-full items-center justify-center p-6 gap-2">
                                                     <h1 className='text-xl font-semibold'>Workout Finished!</h1>
-                                                    <Button onClick={goBack}>End Workout</Button>
+                                                    <Button onClick={endSession}>End Workout</Button>
 
                                             </CardContent>
                                         </Card>
