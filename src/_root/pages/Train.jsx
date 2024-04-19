@@ -99,33 +99,11 @@ import { PacmanLoader } from 'react-spinners';
 
   
   
-const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWorkoutSessions}) => {
+const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWorkoutSessions, sessionDetails, isActiveSession, fetchSessionDetails, loadingSessionDetails}) => {
     let { user } = useContext(AuthContext);
     const { theme } = useTheme();
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
     const navigate = useNavigate();
-
-    //fetch active session
-    const [isActiveSession, setIsActiveSession] = useState(false);
-    const [activeSessionDetails, setActiveSessionDetails] = useState({});
-
-    useEffect(() => {
-    apiClient.get('/check_active_session/')
-        .then(response => {
-            if (response.data.active) {
-                setIsActiveSession(true);
-                setActiveSessionDetails(response.data);
-            } else {
-                setIsActiveSession(false);
-            }
-            console.log(response.data); // Optional: Log the data for debugging
-        })
-        .catch(error => {
-            console.error('Error fetching active session:', error);
-            setIsActiveSession(false); // Ensure state is consistent on error
-        });
-    }, []);
-    
 
     //ai workout
     const [prompt, setPrompt] = useState('');
@@ -485,24 +463,26 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
 
     const startWorkoutSession = () => {
         const payload = {
-            workout_id: currentWorkout.id, 
+            workout_id: currentWorkout.id,
         };
-
+    
         apiClient.post('/start_workout_session/', payload)
             .then(response => {
                 console.log(response.data);
-                navigate(`/workoutSession/${response.data.session_id}`);
+                fetchSessionDetails().then(() => {
+                    navigate(`/workoutSession/${response.data.session_id}`);
+                });
             })
             .catch(error => {
                 console.error('Error starting workout session:', error);
             });
-    }
+    };
 
     const resumeSession = () => {
         // Navigate to the session details page using the session ID from activeSessionDetails
-        if (activeSessionDetails && activeSessionDetails.id) {
+        if (sessionDetails && sessionDetails.id) {
             
-            navigate(`/workoutSession/${activeSessionDetails.id}`);
+            navigate(`/workoutSession/${sessionDetails.id}`);
         }
     };
     const handleProgramClick = (programId) => {
@@ -1179,9 +1159,9 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
                                     )
                                 )} */}
                         </div>
-                        {activeProgram && (
+                        {activeProgram && !loadingSessionDetails && (
                             <div className='flex justify-center gap-4 items-center mb-6'>
-                                {isActiveSession ? (
+                                {sessionDetails && isActiveSession ? (
                                     <Button
                                         variant='secondary'
                                         size='lg'

@@ -51,9 +51,10 @@ import { ToastAction } from "@/components/ui/toast"
 import { useToast } from "@/components/ui/use-toast"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useLocation } from 'react-router-dom';
+import { useRef } from 'react';
   
 
-const WorkoutSession = () => {
+const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}) => {
 
     const { toast } = useToast()
 
@@ -66,9 +67,6 @@ const WorkoutSession = () => {
 
     const { theme } = useTheme();
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
-
-    const { sessionId } = useParams();
-    const [sessionDetails, setSessionDetails] = useState(null);
     const [selectedSets, setSelectedSets] = useState({});
     const [carouselApi, setCarouselApi] = useState(null);
 
@@ -134,29 +132,6 @@ const WorkoutSession = () => {
         return null; // In case the set isn't found
     };
 
-    
-
-    useEffect(() => {
-        // Fetch the workout session details by sessionId
-        apiClient.get(`/workoutSession/${sessionId}/`)
-            .then(response => {
-                setSessionDetails(response.data);
-            const initialSelectedSets = {};
-            response.data.exercise_logs.forEach(log => {
-                const nonLoggedSet = log.sets.find(set => set.weight_used === null || set.weight_used === 0);
-                if (nonLoggedSet) {
-                    initialSelectedSets[log.id] = nonLoggedSet;
-                } else {
-                    initialSelectedSets[log.id] = log.sets[0]; // Assuming we select the first set if all are logged
-                }
-            });
-            setSelectedSets(initialSelectedSets);
-        })
-            .catch(error => {
-                console.error('Error fetching workout session details:', error);
-            });
-    }, [sessionId]);
-
     const navigate = useNavigate();
 
     function goBack() {
@@ -178,8 +153,8 @@ const WorkoutSession = () => {
 
         apiClient.patch(`/exercise_set_update/${id}/`, { reps, weight_used })
             .then(response => {
+                fetchSessionDetails();
                 console.log(response.data)
-
                 const currentLog = sessionDetails.exercise_logs.find(log => log.id === exerciseId);
                 const currentIndex = currentLog.sets.findIndex(set => set.id === id);
                 const nextUnloggedSet = currentLog.sets.slice(currentIndex + 1).find(set => set.weight_used === null || set.weight_used === 0);
@@ -212,6 +187,26 @@ const WorkoutSession = () => {
             });
     }
 
+    const initialSetupDoneRef = useRef(false);
+
+    useEffect(() => {
+        if (sessionDetails && sessionDetails.exercise_logs && !initialSetupDoneRef.current) {
+            const initialSelectedSets = {};
+            sessionDetails.exercise_logs.forEach(log => {
+                const nonLoggedSet = log.sets.find(set => set.weight_used === null || set.weight_used === 0);
+                if (nonLoggedSet) {
+                    initialSelectedSets[log.id] = nonLoggedSet;
+                } else {
+                    initialSelectedSets[log.id] = log.sets[0]; // Assuming we select the first set if all are logged
+                }
+            });
+            setSelectedSets(initialSelectedSets);
+            initialSetupDoneRef.current = true; // Mark that initial setup has been done
+        }
+    }, [sessionDetails]);
+
+    const hasScrolledRef = useRef(false);
+
     function determineTargetIndex(logs) {
         let lastLoggedIndex = -1;
         for (let i = 0; i < logs.length; i++) {
@@ -224,22 +219,24 @@ const WorkoutSession = () => {
     }
 
     useEffect(() => {
-        if (!carouselApi || !sessionDetails) return; // Ensure API and data are loaded
-    
+        if (!carouselApi || !sessionDetails || hasScrolledRef.current) return; // Check if already scrolled
+        
         // Logic to determine the slide index to navigate to
         const targetIndex = determineTargetIndex(sessionDetails.exercise_logs);
         if (targetIndex !== -1) {
             setTimeout(() => {
                 carouselApi.scrollTo(targetIndex);
-            }, 20); // Introduce a 100ms delay
+                hasScrolledRef.current = true; // Mark as scrolled
+            }, 100); // Adjusted to 100ms as per your comment
         }
-    }, [carouselApi, sessionDetails]); // Depend on carouselApi and session details
+    }, [carouselApi, sessionDetails]);
 
     const endSession = async () => {
         try {
-            const response = await apiClient.post(`/end-session/${sessionId}/`);
+            const response = await apiClient.post(`/end-session/${sessionDetails.id}/`);
             if (response.data.status === 'success') {
                 console.log('Session ended successfully');
+                fetchSessionDetails();
                 goBack();
                 // Additional logic to handle UI updates or redirections
             } else {

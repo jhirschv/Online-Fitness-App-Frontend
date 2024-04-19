@@ -28,6 +28,7 @@ import apiClient from './services/apiClient';
 
 function App() {
   useDisableZoom();
+  const [loadingSessionDetails, setLoadingSessionDetails] = useState(true);
 
   //fetch active program and workouts
   const [activeProgram, setActiveProgram] = useState(null)
@@ -37,7 +38,6 @@ function App() {
       .then(response => {
           setActiveProgram(response.data);
           setWorkouts(response.data.phases[0].workouts)
-          console.log(response.data.phases[0].workouts)
       })
       .catch(error => {
           console.error('Error fetching data:', error);
@@ -59,26 +59,32 @@ function App() {
       onDataReceive(childData);
     };
 
-  //fetch active session
-  const [isActiveSession, setIsActiveSession] = useState(false);
-  const [activeSessionDetails, setActiveSessionDetails] = useState({});
-
-  useEffect(() => {
-    apiClient.get('/check_active_session/')
-        .then(response => {
-            if (response.data.active) {
-                setIsActiveSession(true);
-                setActiveSessionDetails(response.data);
-            } else {
-                setIsActiveSession(false);
-            }
-            console.log(response.data); // Optional: Log the data for debugging
-        })
-        .catch(error => {
-            console.error('Error fetching active session:', error);
-            setIsActiveSession(false); // Ensure state is consistent on error
-        });
-  }, []);
+    const [isActiveSession, setIsActiveSession] = useState(false);
+    const [sessionDetails, setSessionDetails] = useState();
+  
+    const fetchSessionDetails = async () => {
+      setLoadingSessionDetails(true);
+      try {
+          const response = await apiClient.get('/check_active_session/');
+          if (response.data.active) {
+              setIsActiveSession(true);
+              setSessionDetails(response.data);
+          } else {
+              setIsActiveSession(false);
+              setSessionDetails({}); // Clear session details as session is inactive
+          }
+      } catch (error) {
+          console.error('Error fetching active session:', error);
+          setIsActiveSession(false);
+          setSessionDetails({}); // Clear session details on error
+      } finally {
+        setLoadingSessionDetails(false);  // End loading
+      }
+  };
+  
+    useEffect(() => {
+      fetchSessionDetails();
+    }, []);
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
@@ -98,10 +104,15 @@ function App() {
               workouts={workouts}
               setWorkouts={setWorkouts}
               userWorkoutSessions={userWorkoutSessions}
-              activeSessionDetails={activeSessionDetails}
+              sessionDetails={sessionDetails}
               isActiveSession={isActiveSession}
+              fetchSessionDetails={fetchSessionDetails}
+              loadingSessionDetails={loadingSessionDetails}
               />} />
-              <Route path="/workoutSession/:sessionId" element={<WorkoutSession/>} />
+              <Route path="/workoutSession/:sessionId" element={<WorkoutSession
+              sessionDetails={sessionDetails}
+              setSessionDetails={setSessionDetails}
+              fetchSessionDetails={fetchSessionDetails}/>} />
               <Route path="/Progress" element={<Progress userWorkoutSessions={userWorkoutSessions}/>} />
               <Route path="/chat" element={<Chat />} >
                 <Route path=":userId1/:userId2" element={<ChatSession />} />
