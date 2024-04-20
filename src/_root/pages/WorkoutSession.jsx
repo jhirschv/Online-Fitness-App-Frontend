@@ -312,17 +312,17 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                             <div className='flex items-center m-2 py-2'>
                                                                 <p>{set.set_number}</p>
                                                                 <Label htmlFor="reps" className='mr-2'>. Reps</Label>
-                                                                <Input value={set.reps !== 0 ? set.reps : ''} onChange={(e) => handleRepsChange(exercise.id, set.id, e.target.value)} 
-                                                                placeholder={String(exercise.workout_exercise.reps)} id='reps' className='w-12 mr-2 text-center'></Input>
+                                                                <Input type={"number"} value={set.reps !== 0 ? set.reps : ''} onChange={(e) => handleRepsChange(exercise.id, set.id, e.target.value)} 
+                                                                placeholder={String(exercise.workout_exercise.reps)} id='reps' className='w-12 mr-2 text-center font-semibold text-lg'></Input>
 
                                                                 <Label htmlFor="weight" className='mr-2'>Weight</Label>
-                                                                <Input id='weight' className='w-12 mr-1'
+                                                                <Input type={"number"} id='weight' className='w-12 mr-1 font-semibold text-lg'
                                                                 value={set.weight_used || ''} // Handle potential null or undefined values
                                                                 onChange={(e) => handleWeightChange(exercise.id, set.id, e.target.value)}></Input>
                                                                 <p>lbs</p>
 
-                                                                <Button variant='outline' className='hidden md:block mx-2'>Add Note</Button>
-                                                                <Button variant='outline' className='hidden md:block'>Add Video</Button>
+                                                                
+                                                                <Button variant='outline' className='ml-auto'>Add Video</Button>
                                                             </div>
                                                         <Separator/>
                                                     </div>  
@@ -342,6 +342,7 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                             </div>
                                                         </DrawerContent>
                                                     </Drawer>
+                                                    <Button variant='outline' size='lg' className='hidden md:block mx-2'>Add Note</Button>
                                                     <Button onClick={() => updateExerciseSet(exercise.id)} size='lg'>Log Set</Button>
                                                 </div>
                                             </div>
