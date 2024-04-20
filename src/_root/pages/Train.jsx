@@ -703,7 +703,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
                                                 </Reorder.Group>
                                                 <AlertDialog>
                                                     <AlertDialogTrigger className='w-full flex items-center' asChild>
-                                                        <div className='w-full py-4 px-4 text-primary font-semibold underline-offset-4 hover:underline text-x'><FontAwesomeIcon className='mr-2' icon={faPlus}/>Add Workout</div>
+                                                        <div className='w-full py-4 px-4 text-lg text-primary font-semibold underline-offset-4 hover:underline text-x'><FontAwesomeIcon className='mr-2' icon={faPlus}/>Add Workout</div>
                                                     </AlertDialogTrigger>
                                                     <AlertDialogContent>
                                                         <Tabs defaultValue="create">
@@ -785,9 +785,37 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
                                                     </div>
                                                 <ScrollArea className='flex flex-col gap-2 max-h-[600px] md:max-h-[400px] overflow-y-auto pb-24 md:pb-0 md:pr-2'>
                                                 {clickedWorkoutExercises && clickedWorkoutExercises.map((workout_exercise, index) => (
-                                                        <div key={workout_exercise.id} className='py-6 my-2 px-4 w-full flex  border rounded-xs relative'>
+                                                        <div key={workout_exercise.id} className='py-6 my-2 pl-4 pr-10 w-full flex justify-between items-center border rounded-xs relative h-20 overflow-hidden'>
                                                             <div className='w-1/2 font-semibold'>{index + 1}. {workout_exercise.exercise.name}</div>
-                                                            <div className='ml-4'>{workout_exercise.sets} x {workout_exercise.reps}</div>
+                                                            <div className='font-semibold'>{workout_exercise.sets} x {workout_exercise.reps}</div>
+                                                            {workout_exercise.exercise.video ? (
+                                                                <div className='h-14 w-14'>
+                                                                    <AlertDialog>
+                                                                        <AlertDialogTrigger>
+                                                                            <img
+                                                                                src={`https://img.youtube.com/vi/${workout_exercise.exercise.video}/maxresdefault.jpg`}
+                                                                                alt="Video Thumbnail"
+                                                                                className="object-cover rounded-full cursor-pointer w-14 h-14"
+                                                                            />
+                                                                        </AlertDialogTrigger>
+                                                                        <AlertDialogContent className='gap-0'>
+                                                                            <div className="aspect-w-16 aspect-h-9 w-full h-72">
+                                                                                <iframe
+                                                                                    className="w-full h-full"
+                                                                                    src={`https://www.youtube.com/embed/${workout_exercise.exercise.video}`}
+                                                                                    title="YouTube video player"
+                                                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                                                    allowFullScreen>
+                                                                                </iframe>
+                                                                            </div>
+                                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                        </AlertDialogContent>
+                                                                        </AlertDialog>
+                                                                    </div>
+                                                                ) : (
+                                                                    <div className='h-12 w-12'></div>
+                                                                )
+                                                            }
                                                             <Drawer>
                                                                 <DrawerTrigger className='absolute top-1 right-3'><FontAwesomeIcon icon={faEllipsis} /></DrawerTrigger>
                                                                 <DrawerContent className='h-1/2'>
