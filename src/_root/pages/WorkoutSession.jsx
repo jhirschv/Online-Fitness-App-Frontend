@@ -11,6 +11,17 @@ import {
     PopoverTrigger,
   } from "@/components/ui/popover"
 import {
+AlertDialog,
+AlertDialogAction,
+AlertDialogCancel,
+AlertDialogContent,
+AlertDialogDescription,
+AlertDialogFooter,
+AlertDialogHeader,
+AlertDialogTitle,
+AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import {
     Table,
     TableBody,
     TableCaption,
@@ -266,6 +277,34 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                 <div className='flex items-center pb-4'>
                                                     <h1 className='font-semibold text-xl'>{index + 1}. {exercise.workout_exercise.exercise.name}</h1>
                                                     <Button variant='outline' className='ml-2'>History</Button>
+                                                    {exercise.workout_exercise.exercise.video ? (
+                                                                <div className='ml-auto mr-4 h-14 w-14'>
+                                                                    <AlertDialog>
+                                                                        <AlertDialogTrigger>
+                                                                            <img
+                                                                                src={`https://img.youtube.com/vi/${exercise.workout_exercise.exercise.video}/maxresdefault.jpg`}
+                                                                                alt="Video Thumbnail"
+                                                                                className="object-cover rounded-full cursor-pointer w-14 h-14"
+                                                                            />
+                                                                        </AlertDialogTrigger>
+                                                                        <AlertDialogContent className='gap-0'>
+                                                                            <div className="aspect-w-16 aspect-h-9 w-full h-72">
+                                                                                <iframe
+                                                                                    className="w-full h-full"
+                                                                                    src={`https://www.youtube.com/embed/${exercise.workout_exercise.exercise.video}`}
+                                                                                    title="YouTube video player"
+                                                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                                                    allowFullScreen>
+                                                                                </iframe>
+                                                                            </div>
+                                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                        </AlertDialogContent>
+                                                                        </AlertDialog>
+                                                                    </div>
+                                                                ) : (
+                                                                    <div className='h-12 w-12'></div>
+                                                                )
+                                                            }
                                                 </div>
                                                 {exercise.sets.map((set) => (
                                                     <div key={set.id} onClick={() => selectSet(exercise.id, set.id)} className={`${selectedSets[exercise.id]?.id === set.id ? "bg-muted" : "bg-background"}`}>

@@ -695,7 +695,8 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
                                                     </div>
                                                 <Reorder.Group axis="y" onReorder={setWorkouts} values={workouts} className="w-full">
                                                 {workouts && workouts.map((workout, index) => (
-                                                    <ReorderItem isDragging={isDragging} setIsDragging={setIsDragging} onPointerDown={() => toggleWatchDrag(false)} onPointerUp={() => toggleWatchDrag(true)}
+                                                    <ReorderItem isDragging={isDragging} setIsDragging={setIsDragging} onPointerDown={() => toggleWatchDrag(false)} 
+                                                    onPointerUp={() => toggleWatchDrag(true)}
                                                     onPointerCancel={() => toggleWatchDrag(true)} handleWorkoutClick={handleWorkoutClick} 
                                                     clickedWorkout={clickedWorkout} deleteWorkout={deleteWorkout}  
                                                     index={index} key={workout.id} workout={workout} />
