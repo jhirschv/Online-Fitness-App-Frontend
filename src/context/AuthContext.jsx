@@ -42,23 +42,27 @@ export const AuthProvider = ({ children }) => {
   };
 
   const updateToken = async () => {
-    const response = await apiClient.post('api/token/refresh/', {
-      refresh: authTokens?.refresh
-    });
-
-    const data = response.data;
-    if (response.status === 200) {
-      setAuthTokens(data);
-      setUser(jwtDecode(data.access));
-      localStorage.setItem('authTokens', JSON.stringify(data));
-    } else {
-      logoutUser();
+    try {
+      const response = await apiClient.post('api/token/refresh/', {
+        refresh: authTokens.refresh,
+      });
+    
+      if (response.status === 200) {
+        const data = response.data;
+        localStorage.setItem('authTokens', JSON.stringify(data));
+        setAuthTokens(data);
+        setUser(jwtDecode(data.access));
+      } else {
+        logoutUser();
+      }
+    } catch (error) {
+      logoutUser(); // Logs out the user on any error, enhancing security
+    } finally {
+      if (loading) {
+        setLoading(false); // Always ensure the loading state is managed correctly
+      }
     }
-
-    if (loading) {
-      setLoading(false);
-    }
-  };
+  }
 
   let contextData = {
     user,

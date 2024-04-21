@@ -320,8 +320,6 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                                 value={set.weight_used || ''} // Handle potential null or undefined values
                                                                 onChange={(e) => handleWeightChange(exercise.id, set.id, e.target.value)}></Input>
                                                                 <p>lbs</p>
-
-                                                                
                                                                 <Button variant='outline' className='ml-auto'>Add Video</Button>
                                                             </div>
                                                         <Separator/>
@@ -342,7 +340,7 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                             </div>
                                                         </DrawerContent>
                                                     </Drawer>
-                                                    <Button variant='outline' size='lg' className='hidden md:block mx-2'>Add Note</Button>
+                                                    <Button variant='outline' size='lg' className=' px-4 mx-2'>Add Note</Button>
                                                     <Button onClick={() => updateExerciseSet(exercise.id)} size='lg'>Log Set</Button>
                                                 </div>
                                             </div>
