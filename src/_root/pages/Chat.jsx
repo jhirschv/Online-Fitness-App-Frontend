@@ -47,12 +47,16 @@ import { faComments } from "@fortawesome/free-regular-svg-icons";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { useOutlet } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 const Chat = () => {
+  const location = useLocation();
   const { theme } = useTheme();
   const backgroundColorClass = theme === "dark" ? "bg-popover" : "bg-secondary";
   const [users, setUsers] = useState([])
   let { user } = useContext(AuthContext)
+
+  const isChatSession = /\/chat\/\d+\/\d+/.test(location.pathname);
 
   const ConditionalOutlet = () => {
     const outlet = useOutlet(); // This checks if there's an outlet to render
@@ -92,7 +96,7 @@ const Chat = () => {
       className={`w-full ${backgroundColorClass} md:border rounded-lg md:p-4`}
     >
       <Card className="border-0 md:border h-full w-full flex overflow-hidden rounded-none md:rounded-lg">
-        <Card className="hidden border-none md:block flex-none w-1/3 rounded-none">
+        <Card className={`border-none flex-none rounded-none ${isChatSession ? 'hidden md:block w-1/3' : 'w-full md:w-1/3'}`}>
           <div className="flex justify-between items-center p-6">
             <h1 className="text-2xl font-semibold">Chats</h1>
             <FontAwesomeIcon size="lg" icon={faPenToSquare} />
@@ -118,7 +122,7 @@ const Chat = () => {
             <Separator />
           </div>
         </Card>
-        <Card className="flex flex-col flex-grow rounded-none border-l border-r-0 border-y-0">
+        <Card className={`flex-col flex-grow rounded-none border-l border-r-0 border-y-0 ${!isChatSession ? 'hidden md:flex' : ''}`}>
           <ConditionalOutlet />
         </Card>
       </Card>
