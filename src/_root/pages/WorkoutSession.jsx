@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect} from 'react';
 import apiClient from '../../services/apiClient';
 import { useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
@@ -54,7 +54,7 @@ import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClock} from '@fortawesome/free-regular-svg-icons';
-import { faAngleLeft, faEllipsis} from '@fortawesome/free-solid-svg-icons';
+import { faAngleLeft, faEllipsis, faPhotoFilm} from '@fortawesome/free-solid-svg-icons';
 import { useTheme } from '@/components/theme-provider';
 
 import { Toaster } from "@/components/ui/toaster"
@@ -258,6 +258,65 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
         }
     };
 
+    const [uploading, setUploading] = useState({});
+    const fileInputRefs = useRef({});
+
+    useEffect(() => {
+        // Initialize refs dynamically based on the session details
+        if (sessionDetails) {
+            sessionDetails.exercise_logs.forEach(exercise => {
+                exercise.sets.forEach(set => {
+                    fileInputRefs.current[set.id] = React.createRef();
+                });
+            });
+        }
+    }, [sessionDetails]);
+
+    const handleFileSelectAndUpload = async (event, setId) => {
+        const file = event.target.files[0];
+        if (!file) return;
+    
+        const formData = new FormData();
+        formData.append('video', file);
+    
+        // Set only the relevant setId to true
+        setUploading(prev => ({ ...prev, [setId]: true }));
+        
+        try {
+            const response = await apiClient.patch(`/upload_video/${setId}/`, formData);
+            
+            // Set only the relevant setId to false after response
+            setUploading(prev => ({ ...prev, [setId]: false }));
+            
+            if (response.data.status === 'success') {
+                console.log('Video uploaded successfully');
+            } else {
+                console.error('Upload failed:', response.data.message);
+            }
+        } catch (error) {
+            setUploading(prev => ({ ...prev, [setId]: false }));
+            if (error.response) {
+                console.error('Error uploading video:', error.response.data);
+            } else {
+                console.error('Error uploading video:', error.message);
+            }
+        }
+    };
+
+    function transformVideoURL(originalURL) {
+        const backendBaseURL = 'http://127.0.0.1:8000'; // URL where Django serves media files
+        
+        // Check if the original URL is already a full URL or just a relative path
+        if (originalURL.startsWith('http')) {
+            return originalURL; // It's a full URL, no transformation needed
+        } else {
+            // It's a relative path, prepend the backend base URL
+            const newURL = backendBaseURL + originalURL;
+            console.log("Transformed URL:", newURL);
+            return newURL;
+        }
+    }
+
     return (
         <div className={`w-full ${backgroundColorClass} md:border md:rounded-lg md:p-4`}>
             <Toaster />
@@ -320,7 +379,61 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                                 value={set.weight_used || ''} // Handle potential null or undefined values
                                                                 onChange={(e) => handleWeightChange(exercise.id, set.id, e.target.value)}></Input>
                                                                 <p>lbs</p>
-                                                                <Button variant='outline' className='ml-auto'>Add Video</Button>
+                                                                {set.video ? (
+                                                                <AlertDialog>
+                                                                <AlertDialogTrigger as="div" className="cursor-pointer ml-auto mr-5">
+                                                                    <video
+                                                                        style={{
+                                                                            width: '56px',  // equivalent to w-14 in TailwindCSS
+                                                                            height: '56px', // equivalent to h-14 in TailwindCSS
+                                                                            borderRadius: '25%', // makes the video rounded like rounded-full
+                                                                            objectFit: 'cover', // covers the video area, similar to object-cover for images
+                                                                            pointerEvents: 'none' // ensures video cannot be interacted with directly
+                                                                        }}
+                                                                        src={transformVideoURL(set.video)}
+                                                                        loop
+                                                                        muted
+                                                                        playsInline
+                                                                        preload="metadata"
+                                                                        onError={(e) => {
+                                                                            console.error('Video trigger error:', e);
+                                                                        }}
+                                                                    >
+                                                                        <source src={transformVideoURL(set.video)} type="video/mp4" />
+                                                                        Your browser does not support the video tag.
+                                                                    </video>
+                                                                </AlertDialogTrigger>
+                                                                <AlertDialogContent>
+                                                                    <div className="aspect-w-16 aspect-h-9 w-full h-72">
+                                                                    <video controls autoPlay className="w-full h-full" src={transformVideoURL(set.video)}  onError={(e) => {
+                                                                        console.error('Video error:', e);
+                                                                        console.error('Error occurred with video source:', e.target.src);
+                                                                    }}>
+                                                                        Your browser does not support the video tag.
+                                                                    </video>
+                                                                    </div>
+                                                                    <AlertDialogCancel as="button">Close</AlertDialogCancel>
+                                                                </AlertDialogContent>
+                                                                </AlertDialog>
+                                                            ) : (
+                                                                <>
+                                                                <input
+                                                                    type="file"
+                                                                    style={{ display: 'none' }}
+                                                                    ref={fileInputRefs.current[set.id]}
+                                                                    onChange={(e) => handleFileSelectAndUpload(e, set.id)}
+                                                                    accept="video/*"
+                                                                />
+                                                                <Button
+                                                                    variant='outline'
+                                                                    className='ml-auto'
+                                                                    onClick={() => fileInputRefs.current[set.id].current.click()}
+                                                                    disabled={uploading[set.id]}
+                                                                >
+                                                                    {uploading[set.id] ? 'Uploading...' : 'Add Video'}
+                                                                </Button>
+                                                                </>
+                                                            )}
                                                             </div>
                                                         <Separator/>
                                                     </div>  
