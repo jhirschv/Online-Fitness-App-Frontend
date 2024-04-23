@@ -122,7 +122,7 @@ const Chat = () => {
             <Separator />
           </div>
         </Card>
-        <Card className={`flex-col flex-grow rounded-none border-l border-r-0 border-y-0 ${!isChatSession ? 'hidden md:flex' : ''}`}>
+        <Card className={`flex-col flex-grow rounded-none border-l border-r-0 border-y-0 ${!isChatSession ? 'hidden md:flex' : 'flex'}`}>
           <ConditionalOutlet />
         </Card>
       </Card>

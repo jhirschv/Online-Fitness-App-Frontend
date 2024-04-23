@@ -97,19 +97,19 @@ const ChatSession = () => {
             </div>
         </div>
         </CardHeader>
-        <CardContent className="flex flex-col flex-grow overflow-y-auto">
-        <div className="space-y-4 flex flex-col justify-end h-full">
+        <CardContent className="w-full flex flex-col flex-grow overflow-y-auto">
+        <div className="w-full space-y-4 flex flex-col justify-end h-full">
             {messages.map((message, index) => (
             <div
                 key={index}
                 className={cn(
-                "flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm",
+                "flex w-max max-w-xs flex-col gap-2 rounded-lg px-3 py-2 text-sm break-all whitespace-pre-wrap",
                 message.sender === user.user_id
                     ? "ml-auto bg-primary text-primary-foreground"
                     : "bg-muted"
                 )}
             >
-                {message.content}
+                <p>{message.content}</p>
             </div>
             ))}
         </div>
