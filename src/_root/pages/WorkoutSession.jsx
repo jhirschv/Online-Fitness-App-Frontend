@@ -377,10 +377,10 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                 <CarouselItem className='w-full' key={exercise.id}   >
                                     <div>
                                     <Card className='h-full w-full border-none md:border' >
-                                        <CardContent className="flex p-3 md:p-6 ">
+                                        <CardContent className="flex p-0 md:p-6 ">
                                             <div className='flex flex-col w-full'>
                                                 <div className='flex items-center pb-4'>
-                                                    <h1 className='font-semibold text-xl'>{index + 1}. {exercise.workout_exercise.exercise.name}</h1>
+                                                    <h1 className='pl-2 md:pl-0 font-semibold text-xl'>{index + 1}. {exercise.workout_exercise.exercise.name}</h1>
                                                     <Sheet>
                                                         <SheetTrigger asChild>
                                                             <Button variant='outline' className='ml-2'>History</Button>
@@ -439,7 +439,7 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                                 value={set.weight_used || ''} // Handle potential null or undefined values
                                                                 onChange={(e) => handleWeightChange(exercise.id, set.id, e.target.value)}></Input>
                                                                 <p>lbs</p>
-                                                                <FontAwesomeIcon className={`ml-4 ${set.is_logged ? 'text-green-500' : 'text-muted-foreground'}`} size='xl' icon={faCircleCheck} />
+                                                                <FontAwesomeIcon className={`ml-2 md:ml-4 ${set.is_logged ? 'text-green-500' : 'text-muted-foreground'}`} size='xl' icon={faCircleCheck} />
                                                                 {set.video ? (
                                                                 <AlertDialog>
                                                                 <AlertDialogTrigger as="div" className="cursor-pointer ml-auto mr-4">
@@ -489,6 +489,7 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                                     accept="video/*"
                                                                 />
                                                                 <Button
+                                                                    size='sm'
                                                                     variant='outline'
                                                                     className='ml-auto mr-2'
                                                                     onClick={() => fileInputRefs.current[set.id].current.click()}
