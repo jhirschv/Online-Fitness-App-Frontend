@@ -428,14 +428,14 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                 {exercise.sets.map((set) => (
                                                     <div key={set.id} onClick={() => selectSet(exercise.id, set.id)} className={`h-20 flex flex-col justify-between ${selectedSets[exercise.id]?.id === set.id ? "bg-muted" : "bg-background"}`}>
                                                         <Separator/>
-                                                            <div className='ml-2 flex items-center'>
+                                                            <div className='ml-4 flex items-center'>
                                                                 <p>{set.set_number}</p>
-                                                                <Label htmlFor="reps" className='mr-2'>. Reps</Label>
+                                                                
                                                                 <Input value={set.reps !== 0 ? set.reps : ''} onChange={(e) => handleRepsChange(exercise.id, set.id, e.target.value)} 
-                                                                placeholder={String(exercise.workout_exercise.reps)} id='reps' className='w-12 mr-2 text-center font-semibold text-lg'></Input>
+                                                                placeholder={String(exercise.workout_exercise.reps)} id='reps' className='w-12 ml-4 mr-1 text-center font-semibold text-lg'></Input>
+                                                                <Label htmlFor="reps" className='mr-2'>Reps</Label>
 
-                                                                <Label htmlFor="weight" className='mr-2'>Weight</Label>
-                                                                <Input id='weight' className='w-12 mr-1 font-semibold text-lg'
+                                                                <Input id='weight' className='w-12 ml-4 mr-1 font-semibold text-lg'
                                                                 value={set.weight_used || ''} // Handle potential null or undefined values
                                                                 onChange={(e) => handleWeightChange(exercise.id, set.id, e.target.value)}></Input>
                                                                 <p>lbs</p>
