@@ -22,6 +22,14 @@ AlertDialogTitle,
 AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+  } from "@/components/ui/sheet"
+import {
     Table,
     TableBody,
     TableCaption,
@@ -53,7 +61,7 @@ import {
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faClock} from '@fortawesome/free-regular-svg-icons';
+import { faClock, faTrashCan, faCircleCheck} from '@fortawesome/free-regular-svg-icons';
 import { faAngleLeft, faEllipsis, faPhotoFilm} from '@fortawesome/free-solid-svg-icons';
 import { useTheme } from '@/components/theme-provider';
 
@@ -161,8 +169,13 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
 
         const { id, reps, weight_used } = updatedSet;
 
+        const payload = {
+            reps,
+            weight_used,
+            is_logged: true  // Set this field to true when updating
+        };
 
-        apiClient.patch(`/exercise_set_update/${id}/`, { reps, weight_used })
+        apiClient.patch(`/exercise_set_update/${id}/`, payload)
             .then(response => {
                 fetchSessionDetails();
                 console.log(response.data)
@@ -262,15 +275,28 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
     const fileInputRefs = useRef({});
 
     useEffect(() => {
-        // Initialize refs dynamically based on the session details
         if (sessionDetails) {
-            sessionDetails.exercise_logs.forEach(exercise => {
-                exercise.sets.forEach(set => {
-                    fileInputRefs.current[set.id] = React.createRef();
-                });
+          sessionDetails.exercise_logs.forEach(exercise => {
+            exercise.sets.forEach(set => {
+              if (!fileInputRefs.current[set.id]) {
+                fileInputRefs.current[set.id] = React.createRef();
+              }
             });
+          });
         }
-    }, [sessionDetails]);
+      }, [sessionDetails]);
+
+      useEffect(() => {
+        // Iterate over all keys in the uploading state to check the refs
+        Object.keys(uploading).forEach(setId => {
+            // Log the current state of the ref to ensure it's not null and is ready
+            if (fileInputRefs.current[setId] && fileInputRefs.current[setId].current) {
+                console.log(`Ref for set ID ${setId} is ready.`);
+            } else {
+                console.log(`Ref for set ID ${setId} is not ready or does not exist.`);
+            }
+        });
+    }, [uploading]);
 
     const handleFileSelectAndUpload = async (event, setId) => {
         const file = event.target.files[0];
@@ -290,6 +316,7 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
             
             if (response.data.status === 'success') {
                 console.log('Video uploaded successfully');
+                fetchSessionDetails();
             } else {
                 console.error('Upload failed:', response.data.message);
             }
@@ -312,10 +339,29 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
         } else {
             // It's a relative path, prepend the backend base URL
             const newURL = backendBaseURL + originalURL;
-            console.log("Transformed URL:", newURL);
             return newURL;
         }
     }
+
+    const handleDeleteVideo = async (setId) => {
+        setUploading(prev => ({ ...prev, [setId]: true }));  // Optionally show loading state
+    
+        try {
+            const response = await apiClient.delete(`/delete_video/${setId}/`);
+            setUploading(prev => ({ ...prev, [setId]: false }));
+    
+            if (response.status === 204) {
+                console.log('Video deleted successfully');
+                fetchSessionDetails();
+                // Optional: Update state or perform further actions after delete
+            } else {
+                console.error('Delete failed:', response.statusText);
+            }
+        } catch (error) {
+            setUploading(prev => ({ ...prev, [setId]: false }));
+            console.error('Error deleting video:', error);
+        }
+    };
 
     return (
         <div className={`w-full ${backgroundColorClass} md:border md:rounded-lg md:p-4`}>
@@ -335,7 +381,20 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                             <div className='flex flex-col w-full'>
                                                 <div className='flex items-center pb-4'>
                                                     <h1 className='font-semibold text-xl'>{index + 1}. {exercise.workout_exercise.exercise.name}</h1>
-                                                    <Button variant='outline' className='ml-2'>History</Button>
+                                                    <Sheet>
+                                                        <SheetTrigger asChild>
+                                                            <Button variant='outline' className='ml-2'>History</Button>
+                                                        </SheetTrigger>
+                                                        <SheetContent>
+                                                            <SheetHeader>
+                                                            <SheetTitle>Are you absolutely sure?</SheetTitle>
+                                                            <SheetDescription>
+                                                                This action cannot be undone. This will permanently delete your account
+                                                                and remove your data from our servers.
+                                                            </SheetDescription>
+                                                            </SheetHeader>
+                                                        </SheetContent>
+                                                        </Sheet>
                                                     {exercise.workout_exercise.exercise.video ? (
                                                                 <div className='ml-auto mr-4 h-14 w-14'>
                                                                     <AlertDialog>
@@ -365,10 +424,11 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                                 )
                                                             }
                                                 </div>
+                                                <Separator/>
                                                 {exercise.sets.map((set) => (
-                                                    <div key={set.id} onClick={() => selectSet(exercise.id, set.id)} className={`${selectedSets[exercise.id]?.id === set.id ? "bg-muted" : "bg-background"}`}>
+                                                    <div key={set.id} onClick={() => selectSet(exercise.id, set.id)} className={`h-20 flex flex-col justify-between ${selectedSets[exercise.id]?.id === set.id ? "bg-muted" : "bg-background"}`}>
                                                         <Separator/>
-                                                            <div className='flex items-center m-2 py-2'>
+                                                            <div className='ml-2 flex items-center'>
                                                                 <p>{set.set_number}</p>
                                                                 <Label htmlFor="reps" className='mr-2'>. Reps</Label>
                                                                 <Input value={set.reps !== 0 ? set.reps : ''} onChange={(e) => handleRepsChange(exercise.id, set.id, e.target.value)} 
@@ -379,9 +439,10 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                                 value={set.weight_used || ''} // Handle potential null or undefined values
                                                                 onChange={(e) => handleWeightChange(exercise.id, set.id, e.target.value)}></Input>
                                                                 <p>lbs</p>
+                                                                <FontAwesomeIcon className={`ml-4 ${set.is_logged ? 'text-green-500' : 'text-muted-foreground'}`} size='xl' icon={faCircleCheck} />
                                                                 {set.video ? (
                                                                 <AlertDialog>
-                                                                <AlertDialogTrigger as="div" className="cursor-pointer ml-auto mr-5">
+                                                                <AlertDialogTrigger as="div" className="cursor-pointer ml-auto mr-4">
                                                                     <video
                                                                         style={{
                                                                             width: '56px',  // equivalent to w-14 in TailwindCSS
@@ -403,8 +464,8 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                                         Your browser does not support the video tag.
                                                                     </video>
                                                                 </AlertDialogTrigger>
-                                                                <AlertDialogContent>
-                                                                    <div className="aspect-w-16 aspect-h-9 w-full h-72">
+                                                                <AlertDialogContent >
+                                                                    <div className="aspect-w-16 aspect-h-9 w-full h-72 relative">
                                                                     <video controls autoPlay className="w-full h-full" src={transformVideoURL(set.video)}  onError={(e) => {
                                                                         console.error('Video error:', e);
                                                                         console.error('Error occurred with video source:', e.target.src);
@@ -413,6 +474,9 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                                     </video>
                                                                     </div>
                                                                     <AlertDialogCancel as="button">Close</AlertDialogCancel>
+                                                                    <div className='absolute top-2 right-8' onClick={() => handleDeleteVideo(set.id)}>
+                                                                        <FontAwesomeIcon size='lg' icon={faTrashCan} />
+                                                                    </div>
                                                                 </AlertDialogContent>
                                                                 </AlertDialog>
                                                             ) : (
@@ -426,7 +490,7 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                                 />
                                                                 <Button
                                                                     variant='outline'
-                                                                    className='ml-auto'
+                                                                    className='ml-auto mr-2'
                                                                     onClick={() => fileInputRefs.current[set.id].current.click()}
                                                                     disabled={uploading[set.id]}
                                                                 >
@@ -438,6 +502,7 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                         <Separator/>
                                                     </div>  
                                                 ))}
+                                                <Separator/>
                                                 
                                                 
                                                 <div className='flex gap-1 items-center pt-4' > 
