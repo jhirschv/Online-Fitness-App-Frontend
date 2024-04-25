@@ -57,7 +57,8 @@ import {
     DrawerTitle,
     DrawerTrigger,
   } from "@/components/ui/drawer"
-  
+import { Textarea } from "@/components/ui/textarea"
+
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -357,10 +358,9 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
             const response = await apiClient.delete(`/delete_video/${setId}/`);
             setUploading(prev => ({ ...prev, [setId]: false }));
     
-            if (response.status === 204) {
+            if (response.status === 200) {
                 console.log('Video deleted successfully');
-                fetchSessionDetails();
-                // Optional: Update state or perform further actions after delete
+                fetchSessionDetails();                // Optional: Update state or perform further actions after delete
             } else {
                 console.error('Delete failed:', response.statusText);
             }
@@ -389,6 +389,94 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
         }
     };
 
+    const [originalNotes, setOriginalNotes] = useState({});
+    const [currentNotes, setCurrentNotes] = useState({});
+    const [editModes, setEditModes] = useState({});
+
+    // Initialize original and current notes
+    useEffect(() => {
+        if (!sessionDetails || !sessionDetails.exercise_logs) {
+            // Possibly set some default state or return to avoid proceeding
+            console.log('Session details are not loaded yet.');
+            return;
+        }
+    
+        const initialNotes = {};
+        sessionDetails.exercise_logs.forEach(exercise => {
+            initialNotes[exercise.id] = exercise.note || '';
+        });
+        setOriginalNotes(initialNotes);
+        setCurrentNotes(initialNotes);
+        initializeEditModes(initialNotes);
+    }, [sessionDetails]);
+
+    const initializeEditModes = (notes) => {
+        const editModes = {};
+        Object.keys(notes).forEach(key => {
+            editModes[key] = false;  // Start with all notes not in edit mode
+        });
+        setEditModes(editModes);
+    };
+
+    const handleNoteChange = (exerciseId, newNote) => {
+        setCurrentNotes(prevNotes => ({
+            ...prevNotes,
+            [exerciseId]: newNote
+        }));
+    };
+
+    const saveNote = async (exerciseLogId, note) => {
+        try {
+            const response = await apiClient.patch(`/exercise_log_update/${exerciseLogId}/`, {
+                note: note
+            });
+            if (response.status === 200) {
+                console.log('Note updated successfully');
+                fetchSessionDetails()
+                toast({
+                    title: "Note saved",
+                    description: "The exercise log has been successfully updated."
+                });
+                // Optionally, refresh data or handle UI response
+            } else {
+                console.error('Failed to update note:', response.data.message);
+                toast({
+                    title: "Note Update Failed",
+                    description: "The note has not been logged.",
+                    variant: "destructive"
+                });
+            }
+        } catch (error) {
+            console.error('Error updating the note:', error.response ? error.response.data : error);
+            toast({
+                title: "Note Update Failed",
+                description: "The note has not been logged.",
+                variant: "destructive"
+            });
+            // Optionally, handle error in the UI
+        }
+    };
+
+    const cancelEdit = (exerciseId) => {
+        // Revert to original notes
+        setCurrentNotes(prev => ({
+            ...prev,
+            [exerciseId]: originalNotes[exerciseId]
+        }));
+        // Explicitly set edit mode to false for this exercise
+        setEditModes(prevModes => ({
+            ...prevModes,
+            [exerciseId]: false
+        }));
+    };
+
+    const toggleEditMode = (exerciseId) => {
+        setEditModes(prevModes => ({
+            ...prevModes,
+            [exerciseId]: !prevModes[exerciseId]
+        }));
+    };
+
     return (
         <div className={`w-full ${backgroundColorClass} md:border md:rounded-lg md:p-4`}>
             <Toaster />
@@ -403,7 +491,7 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                 <CarouselItem className='w-full' key={exercise.id}   >
                                     <div>
                                     <Card className='h-full w-full border-none md:border' >
-                                        <CardContent className="flex p-0 md:p-6">
+                                        <CardContent className="flex p-0 md:pt-6 md:px-6 md:pb-0">
                                             <div className='flex flex-col w-full'>
                                                 <div className='flex items-center pb-4'>
                                                     <h1 className='pl-2 md:pl-0 font-semibold text-xl'>{index + 1}. {exercise.workout_exercise.exercise.name}</h1>
@@ -458,12 +546,12 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                                 )
                                                             }
                                                 </div>
-                                                <Separator/>
+                                                <ScrollArea className='h-[550px] md:h-[440px] md:pr-2 border-none'>
                                                 {exercise.sets.map((set) => (
                                                     <div key={set.id} onClick={() => selectSet(exercise.id, set.id)} className={`h-20 flex flex-col justify-between ${selectedSets[exercise.id]?.id === set.id ? "bg-muted" : "bg-background"}`}>
                                                         <Separator/>
                                                             <div className='ml-4 flex items-center'>
-                                                                <p>{set.set_number}</p>
+                                                                <p className='w-4'>{set.set_number}</p>
                                                                 
                                                                 <Input 
                                                                     value={set.reps !== null ? set.reps : ''}
@@ -474,7 +562,7 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                                 />
                                                                 <Label htmlFor="reps" className='mr-2'>Reps</Label>
 
-                                                                <Input id='weight' className='w-16 ml-4 mr-1 font-semibold text-lg'
+                                                                <Input id='weight' className='w-16 ml-4 mr-2 font-semibold text-lg'
                                                                 value={set.weight_used || ''} // Handle potential null or undefined values
                                                                 onChange={(e) => handleWeightChange(exercise.id, set.id, e.target.value)}></Input>
                                                                 <p>lbs</p>
@@ -542,6 +630,7 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                         <Separator/>
                                                     </div>  
                                                 ))}
+                                                </ScrollArea>
                                                 <Separator/>
                                                 
                                                 
@@ -558,7 +647,37 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                             </div>
                                                         </DrawerContent>
                                                     </Drawer>
-                                                    <Button variant='outline' size='lg' className=' px-4 mx-2'>Add Note</Button>
+
+                                                    <AlertDialog>
+                                                        <AlertDialogTrigger asChild>
+                                                            <Button variant='outline' size='lg' className='px-4 mx-2'>
+                                                                {currentNotes[exercise.id] ? <p>View Note</p> : <p>Add Note</p>}
+                                                            </Button>
+                                                        </AlertDialogTrigger>
+                                                        <AlertDialogContent>
+                                                            <AlertDialogHeader>
+                                                                <AlertDialogTitle>Note</AlertDialogTitle>
+                                                            </AlertDialogHeader>
+                                                            <Textarea 
+                                                                className="resize-none h-28 text-md"
+                                                                value={currentNotes[exercise.id] || ''}  // Use currentNotes here
+                                                                onChange={(e) => handleNoteChange(exercise.id, e.target.value)}
+                                                                disabled={!editModes[exercise.id]}
+                                                            />
+                                                            <AlertDialogFooter>
+                                                                <AlertDialogCancel onClick={() => cancelEdit(exercise.id)}>Cancel</AlertDialogCancel>
+                                                                {editModes[exercise.id] ? (
+                                                                    <AlertDialogAction onClick={() => saveNote(exercise.id, currentNotes[exercise.id])}>
+                                                                        Save Changes
+                                                                    </AlertDialogAction>
+                                                                ) : (
+                                                                    <Button variant="outline" onClick={() => toggleEditMode(exercise.id)}>
+                                                                        Edit
+                                                                    </Button>
+                                                                )}
+                                                            </AlertDialogFooter>
+                                                        </AlertDialogContent>
+                                                    </AlertDialog>
                                                     <Button onClick={() => updateExerciseSet(exercise.id)} size='lg'>Log Set</Button>
                                                 </div>
                                             </div>
