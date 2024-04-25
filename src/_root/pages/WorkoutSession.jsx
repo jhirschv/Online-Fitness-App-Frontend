@@ -75,6 +75,8 @@ import { useRef } from 'react';
 
 const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}) => {
 
+    console.log(sessionDetails)
+
     const { toast } = useToast()
 
     const currentDate = new Date().toLocaleDateString('en-US', {
@@ -82,7 +84,7 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
         month: 'long', // "March"
         day: 'numeric', // "1"
       });
-
+      
 
     const { theme } = useTheme();
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
@@ -99,6 +101,7 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
     };
 
     const handleRepsChange = (exerciseLogId, setId, newReps) => {
+        const repValue = newReps === '' ? null : parseInt(newReps, 10);
         const updatedSessionDetails = {
             ...sessionDetails,
             exercise_logs: sessionDetails.exercise_logs.map(log => {
@@ -107,7 +110,7 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                         ...log,
                         sets: log.sets.map(set => {
                             if (set.id === setId) {
-                                return { ...set, reps: newReps };
+                                return { ...set, reps: repValue };
                             }
                             return set;
                         })
@@ -160,21 +163,25 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
     const updateExerciseSet = (exerciseId) => {
         const selectedSet = selectedSets[exerciseId];
         if (!selectedSet) return;
-
+    
         const updatedSet = findUpdatedSet(selectedSet.id);
         if (!updatedSet) {
             console.error('Set not found');
             return;
         }
-
-        const { id, reps, weight_used } = updatedSet;
-
+    
+        // Get the default reps from the exercise in case reps are null
+        const defaultReps = sessionDetails.exercise_logs.find(log => log.id === exerciseId)?.workout_exercise.reps;
+    
+        const { id, weight_used } = updatedSet;
+        const repsToUse = updatedSet.reps !== null ? updatedSet.reps : defaultReps;
+    
         const payload = {
-            reps,
+            reps: repsToUse,
             weight_used,
-            is_logged: true  // Set this field to true when updating
+            is_logged: true
         };
-
+    
         apiClient.patch(`/exercise_set_update/${id}/`, payload)
             .then(response => {
                 fetchSessionDetails();
@@ -183,26 +190,26 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                 const currentIndex = currentLog.sets.findIndex(set => set.id === id);
                 const nextUnloggedSet = currentLog.sets.slice(currentIndex + 1).find(set => set.weight_used === null || set.weight_used === 0);
                 const allSetsLogged = currentLog.sets.every(set => set.weight_used !== null && set.weight_used !== 0);
-
+    
                 if (allSetsLogged) {
                     const currentLogIndex = sessionDetails.exercise_logs.findIndex(log => log.id === exerciseId);
                     if (currentLogIndex !== -1 && currentLogIndex + 1 < sessionDetails.exercise_logs.length) {
-                        carouselApi.scrollTo(currentLogIndex + 1); // Scroll to next log
+                        carouselApi.scrollTo(currentLogIndex + 1);
                     }
                 }
-
+    
                 setSelectedSets(prev => ({
                     ...prev,
                     [exerciseId]: nextUnloggedSet || currentLog.sets.find(set => set.weight_used === null || set.weight_used === 0) || null
                 }));
-
+    
                 toast({
                     title: "Set Updated",
                     description: "The exercise set has been successfully logged."
                 });
             })
             .catch(error => {
-                console.error('Error fetching workout session details:', error);
+                console.error('Error updating exercise set:', error);
                 toast({
                     title: "Set Update Failed",
                     description: "The exercise set has not been logged.",
@@ -363,6 +370,25 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
         }
     };
 
+    const [exerciseHistories, setExerciseHistories] = useState({}); // Stores history by exercise ID
+
+    useEffect(()=>{
+        console.log('Exercise Histories:', exerciseHistories);
+    }, [exerciseHistories])
+
+    const fetchExerciseHistory = async (exerciseId) => {
+        try {
+            const response = await apiClient.get(`/exercise-sets/history/${exerciseId}/`);
+            if (response.status === 200) {
+                setExerciseHistories(prev => ({ ...prev, [exerciseId]: response.data }));
+            } else {
+                console.error('Failed to fetch history:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error fetching exercise set history:', error.response ? error.response.data : 'No response');
+        }
+    };
+
     return (
         <div className={`w-full ${backgroundColorClass} md:border md:rounded-lg md:p-4`}>
             <Toaster />
@@ -377,22 +403,30 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                 <CarouselItem className='w-full' key={exercise.id}   >
                                     <div>
                                     <Card className='h-full w-full border-none md:border' >
-                                        <CardContent className="flex p-0 md:p-6 ">
+                                        <CardContent className="flex p-0 md:p-6">
                                             <div className='flex flex-col w-full'>
                                                 <div className='flex items-center pb-4'>
                                                     <h1 className='pl-2 md:pl-0 font-semibold text-xl'>{index + 1}. {exercise.workout_exercise.exercise.name}</h1>
                                                     <Sheet>
                                                         <SheetTrigger asChild>
-                                                            <Button variant='outline' className='ml-2'>History</Button>
+                                                            <Button variant='outline' className='ml-2' onClick={() => fetchExerciseHistory(exercise.workout_exercise.exercise.id)}>History</Button>
                                                         </SheetTrigger>
                                                         <SheetContent>
                                                             <SheetHeader>
-                                                            <SheetTitle>Are you absolutely sure?</SheetTitle>
-                                                            <SheetDescription>
-                                                                This action cannot be undone. This will permanently delete your account
-                                                                and remove your data from our servers.
-                                                            </SheetDescription>
+                                                            <SheetTitle className='flex justify-between mt-2'>
+                                                                <p>{exercise.workout_exercise.exercise.name} History</p>
+                                                                <p className='text-sm text-muted-foreground mr-4'>Most Recent</p>
+                                                            </SheetTitle>
                                                             </SheetHeader>
+                                                            <ScrollArea className="min-h-[200px] h-[94%] min-w-[200px] w-full rounded-md border px-4 my-4">
+                                                                {exerciseHistories[exercise.workout_exercise.exercise.id]
+                                                                ?.slice()  // Creates a shallow copy of the array
+                                                                .reverse()?.map(set => (
+                                                                    <div className='h-12 flex items-center border-b' key={set.id}>
+                                                                        <p className=''>{set.reps} x {set.weight_used ? `${set.weight_used} lbs` : 'No weight logged'}</p>
+                                                                    </div>
+                                                                ))}
+                                                            </ScrollArea>
                                                         </SheetContent>
                                                         </Sheet>
                                                     {exercise.workout_exercise.exercise.video ? (
@@ -431,11 +465,16 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                             <div className='ml-4 flex items-center'>
                                                                 <p>{set.set_number}</p>
                                                                 
-                                                                <Input value={set.reps !== 0 ? set.reps : ''} onChange={(e) => handleRepsChange(exercise.id, set.id, e.target.value)} 
-                                                                placeholder={String(exercise.workout_exercise.reps)} id='reps' className='w-12 ml-4 mr-1 text-center font-semibold text-lg'></Input>
+                                                                <Input 
+                                                                    value={set.reps !== null ? set.reps : ''}
+                                                                    onChange={(e) => handleRepsChange(exercise.id, set.id, e.target.value)} 
+                                                                    placeholder={String(exercise.workout_exercise.reps)}
+                                                                    id="reps"
+                                                                    className="w-12 ml-4 mr-1 text-center font-semibold text-lg"
+                                                                />
                                                                 <Label htmlFor="reps" className='mr-2'>Reps</Label>
 
-                                                                <Input id='weight' className='w-12 ml-4 mr-1 font-semibold text-lg'
+                                                                <Input id='weight' className='w-16 ml-4 mr-1 font-semibold text-lg'
                                                                 value={set.weight_used || ''} // Handle potential null or undefined values
                                                                 onChange={(e) => handleWeightChange(exercise.id, set.id, e.target.value)}></Input>
                                                                 <p>lbs</p>
