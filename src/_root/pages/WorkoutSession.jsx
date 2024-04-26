@@ -358,7 +358,7 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
             const response = await apiClient.delete(`/delete_video/${setId}/`);
             setUploading(prev => ({ ...prev, [setId]: false }));
     
-            if (response.status === 200) {
+            if (response.status === 204) {
                 console.log('Video deleted successfully');
                 fetchSessionDetails();                // Optional: Update state or perform further actions after delete
             } else {
