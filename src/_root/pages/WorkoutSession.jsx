@@ -3,7 +3,23 @@ import apiClient from '../../services/apiClient';
 import { useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+  } from "@/components/ui/card"
+import {
+Select,
+SelectContent,
+SelectItem,
+SelectTrigger,
+SelectGroup,
+SelectLabel,
+SelectValue,
+} from "@/components/ui/select"
 import { Separator } from '@/components/ui/separator';
 import {
     Popover,
@@ -58,12 +74,14 @@ import {
     DrawerTrigger,
   } from "@/components/ui/drawer"
 import { Textarea } from "@/components/ui/textarea"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Search } from "lucide-react"
 
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClock, faTrashCan, faCircleCheck} from '@fortawesome/free-regular-svg-icons';
-import { faAngleLeft, faEllipsis, faPhotoFilm, faPlus} from '@fortawesome/free-solid-svg-icons';
+import { faAngleLeft, faEllipsis, faPhotoFilm, faPlus, faXmark} from '@fortawesome/free-solid-svg-icons';
 import { useTheme } from '@/components/theme-provider';
 
 import { Toaster } from "@/components/ui/toaster"
@@ -269,7 +287,7 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
             if (response.data.status === 'success') {
                 console.log('Session ended successfully');
                 fetchSessionDetails();
-                goBack();
+                navigate('/');
                 // Additional logic to handle UI updates or redirections
             } else {
                 console.error('Failed to end session:', response.data.message);
@@ -753,10 +771,9 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                 <CarouselItem className='basis-full h-full'>
                                     <div className="p-1">
                                         <Card className='h-[600px] w-full border-none md:border'>
-                                            <CardContent className="flex flex-col h-full items-center justify-center p-6 gap-2">
-                                                    <h1 className='text-xl font-semibold'>Workout Finished!</h1>
-                                                    <Button onClick={endSession}>End Workout</Button>
-
+                                            <CardContent className="flex flex-col h-full items-center justify-center p-6 gap-4">
+                                                    <h1 className='text-2xl font-semibold'>Workout Finished!</h1>
+                                                    <Button size='lg' className='text-lg' onClick={endSession}>End Workout</Button>
                                             </CardContent>
                                         </Card>
                                     </div>

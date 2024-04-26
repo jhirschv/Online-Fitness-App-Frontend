@@ -235,6 +235,8 @@ const CarouselTabs = ({ sessionDetails }) => {
       };
   }, [api]);
 
+  
+
   return (
     <Tabs value={selectedIndex} onValueChange={setValue => selectSlide(Number(setValue))}>
         <TabsList className='px-3 rounded-xs w-full flex bg-background gap-1'>

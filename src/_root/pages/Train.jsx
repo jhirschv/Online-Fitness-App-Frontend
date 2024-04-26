@@ -104,7 +104,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
     const { theme } = useTheme();
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
     const navigate = useNavigate();
-
+    
     //ai workout
     const [prompt, setPrompt] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -631,7 +631,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
 
     return (
         <div className={`${backgroundColorClass} overflow-hidden w-full md:p-4 md:border md:rounded-lg`}>
-            {isLoading && (
+                        {isLoading && (
                 <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-25 z-10 rounded-lg">
                 <PacmanLoader color="hsla(257, 70%, 40%, 1)" size={40} />
                 </div>
@@ -907,7 +907,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
                                                         <div className='py-4 px-4 text-lg text-primary font-semibold underline-offset-4 hover:underline'><FontAwesomeIcon className='mr-2' icon={faPlus}/>
                                                         Add Exercise</div>
                                                         </DrawerTrigger>
-                                                        <DrawerContent className='h-4/5'>
+                                                        <DrawerContent className='h-5/6'>
                                                                 <div className='flex flex-col'>
                                                                     <Card className='border-none m-0'>
                                                                         <CardHeader className='pt-4 pb-0 px-4 '>
@@ -1022,7 +1022,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
                                                             <DrawerFooter>
                                                                 
                                                             <DrawerClose asChild>
-                                                                <Button className='text-lg' variant="outline">Cancel</Button>
+                                                                <Button className='text-lg' variant="secondary">Cancel</Button>
                                                             </DrawerClose>
                                                             </DrawerFooter>
                                                         </DrawerContent>
