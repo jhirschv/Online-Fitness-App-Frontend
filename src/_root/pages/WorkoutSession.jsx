@@ -63,7 +63,7 @@ import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClock, faTrashCan, faCircleCheck} from '@fortawesome/free-regular-svg-icons';
-import { faAngleLeft, faEllipsis, faPhotoFilm} from '@fortawesome/free-solid-svg-icons';
+import { faAngleLeft, faEllipsis, faPhotoFilm, faPlus} from '@fortawesome/free-solid-svg-icons';
 import { useTheme } from '@/components/theme-provider';
 
 import { Toaster } from "@/components/ui/toaster"
@@ -477,6 +477,34 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
         }));
     };
 
+    const handleAddExerciseSet = async (logId, reps) => {
+        try {
+            const response = await apiClient.post(`/exercise-logs/${logId}/exercise-sets/`);
+            console.log('Exercise set created:', response.data);
+            fetchSessionDetails();
+            // Optionally update your state here to reflect the new exercise set
+        } catch (error) {
+            console.error('Error creating exercise set:', error);
+            alert(error.response.data.error); 
+        }
+    };
+
+    const handleDeleteLastSet = async (logId) => {
+        try {
+            const response = await apiClient.delete(`/exercise-logs/${logId}/delete-last-set/`);
+            console.log(response.data);
+            fetchSessionDetails();
+            // Optionally update your state here to remove the deleted set from the UI
+        } catch (error) {
+            console.error('Error deleting last set:', error.response.data);
+            toast({
+                title: "Deletion Failed",
+                description: "Cannot delete the set. The number of sets does not exceed the workout plan.",
+                variant: "destructive"
+            });
+        }
+    };
+
     return (
         <div className={`w-full ${backgroundColorClass} md:border md:rounded-lg md:p-4`}>
             <Toaster />
@@ -630,6 +658,40 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                         <Separator/>
                                                     </div>  
                                                 ))}
+                                                <div className={`h-20 flex flex-col justify-between`}>
+                                                        <Separator/>
+                                                            <div className='ml-4 flex items-center'>
+                                                                <FontAwesomeIcon onClick={() => handleAddExerciseSet(exercise.id, exercise.workout_exercise.reps)} size='lg' className='text-muted-foreground' icon={faPlus} />
+                                                                <Input 
+                                                                disabled
+                                                                    placeholder={String(exercise.workout_exercise.reps)}
+                                                                    id="reps"
+                                                                    className="w-12 ml-4 mr-1 text-center font-semibold text-lg"
+                                                                />
+                                                                <Label htmlFor="reps" className='mr-2 text-muted-foreground'>Reps</Label>
+
+                                                                <Input disabled id='weight' className='w-16 ml-4 mr-2 font-semibold text-lg'></Input>
+                                                                <p className='text-muted-foreground'>lbs</p>
+                                                                <AlertDialog>
+                                                                <AlertDialogTrigger className='ml-auto mr-4' asChild>
+                                                                    <Button variant='secondary' className='text-md'>Delete</Button>
+                                                                    </AlertDialogTrigger>
+                                                                <AlertDialogContent>
+                                                                    <AlertDialogHeader>
+                                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                                    <AlertDialogDescription>
+                                                                        This action cannot be undone. This will permanently delete your last set.
+                                                                    </AlertDialogDescription>
+                                                                    </AlertDialogHeader>
+                                                                    <AlertDialogFooter>
+                                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                    <AlertDialogAction onClick={() => handleDeleteLastSet(exercise.id)} className='bg-destructive text-destructive-foreground hover:bg-destructive/90'>Delete</AlertDialogAction>
+                                                                    </AlertDialogFooter>
+                                                                </AlertDialogContent>
+                                                                </AlertDialog>
+                                                            </div>
+                                                        <Separator/>
+                                                    </div>
                                                 </ScrollArea>
                                                 <Separator/>
                                                 
