@@ -714,20 +714,7 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                 <Separator/>
                                                 
                                                 
-                                                <div className='flex gap-1 items-center pt-4' > 
-                                                    <Drawer>
-                                                        <DrawerTrigger asChild><Button size='lg' variant='outline'><FontAwesomeIcon size='lg' icon={faClock} /></Button></DrawerTrigger>
-                                                        <DrawerContent>
-                                                            <div className="h-[300px] flex flex-col">
-                                                            <DrawerFooter>
-                                                            <DrawerClose className='mb-4 self-bottom'> 
-                                                                <Button variant="outline">Cancel</Button>
-                                                            </DrawerClose>
-                                                            </DrawerFooter>
-                                                            </div>
-                                                        </DrawerContent>
-                                                    </Drawer>
-
+                                                <div className='flex gap-1 items-center pt-4 ml-4' > 
                                                     <AlertDialog>
                                                         <AlertDialogTrigger asChild>
                                                             <Button variant='outline' size='lg' className='px-4 mx-2'>

@@ -330,6 +330,24 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
 
     
     //create and delete workout
+
+    const handleReorder = (newWorkouts) => {
+        setWorkouts(newWorkouts);
+        const workoutsData = newWorkouts.map((workout, index) => ({
+            id: workout.id,
+            order: index
+        }));
+    
+        apiClient.post('/update_workout_order/', workoutsData)
+        .then(response => {
+            console.log('Order update success:', response);
+            fetchSessionDetails();
+        })
+        .catch(error => {
+            console.error('Order update error:', error);
+        });
+    };
+
     const [workoutName, setWorkoutName] = useState('')
     function createWorkout() {
         const workoutData = {
@@ -437,28 +455,29 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
     }
 
     function updateActiveProgram(selectedProgram) {
-            const payload = {
-                program_id: selectedProgram, 
-            };
-
-            apiClient.post('/set_active_program/', payload)
-            .then(response => {
-                return apiClient.get('/get_active_program/'); 
-            })
-            .then(response => {
-                console.log(response.data)
-                setActiveProgram(response.data);
-                setWorkouts(response.data.phases[0].workouts)
-                return apiClient.get('/current_workout/');
-            })
-            .then(response => {
-                setCurrentWorkout(response.data);
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-                setCurrentWorkout(null)
+        const payload = {
+            program_id: selectedProgram,
+        };
+    
+        apiClient.post('/set_active_program/', payload)
+        .then(response => {
+            // Successfully set the active program, now fetch it
+            return apiClient.get('/get_active_program/');
+        })
+        .then(response => {
+            console.log(response.data);
+            setActiveProgram(response.data);
+    
+            // Check if there are workouts to set, if not skip setting workouts
+            if (response.data.phases && response.data.phases.length > 0 && response.data.phases[0].workouts && response.data.phases[0].workouts.length > 0) {
+                setWorkouts(response.data.phases[0].workouts);
+            } else {
+                setWorkouts([]); // Ensure workouts state is cleared or set to an empty array
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
         });
-        
     }
 
     const startWorkoutSession = () => {
@@ -488,7 +507,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
     const handleProgramClick = (programId) => {
         setSelectedProgram(programId)
     }
-    const updateWorkoutProgress = async (selectedWorkout) => {
+    /* const updateWorkoutProgress = async (selectedWorkout) => {
         try {
             const response = await apiClient.post('/update_workout_progress/', {
                 phase_id: selectedWorkout.phaseId,
@@ -505,12 +524,12 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
             console.error('Failed to update workout progress:', error);
             // Handle error appropriately
         }
-    }
+    } */
     function handleSelectedWorkout(data) {
         setSelectedWorkout(data)
         console.log(data)
     }
-    const fetchCurrentWorkout = () => {
+    /* const fetchCurrentWorkout = () => {
         apiClient.get('/current_workout/') // Make sure the endpoint matches your Django URL configuration
         .then(response => {
             setCurrentWorkout(response.data);
@@ -522,7 +541,8 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
     }
     useEffect(() => {
         fetchCurrentWorkout();
-    }, [activeProgram]);
+    }, [activeProgram]); */
+
     const handleSheetOpenChange = (open) => {
         setIsSheetOpen(open);
 
@@ -531,6 +551,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
             setSelectedWorkout(null);
         }
     }
+
     //program stuff
 
     const renderWorkoutDetails = (workout) => {
@@ -693,15 +714,28 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
                                                         <h1 className='mr-2 p-1 text-xl self-start font-semibold'>{activeProgram.name}</h1>
                                                         <p className='text-sm text-muted-foreground'>{activeProgram?.phases?.[0]?.workouts?.length ?? 0} workouts</p>
                                                     </div>
-                                                <Reorder.Group axis="y" onReorder={setWorkouts} values={workouts} className="w-full">
-                                                {workouts && workouts.map((workout, index) => (
-                                                    <ReorderItem isDragging={isDragging} setIsDragging={setIsDragging} onPointerDown={() => toggleWatchDrag(false)} 
-                                                    onPointerUp={() => toggleWatchDrag(true)}
-                                                    onPointerCancel={() => toggleWatchDrag(true)} handleWorkoutClick={handleWorkoutClick} 
-                                                    clickedWorkout={clickedWorkout} deleteWorkout={deleteWorkout}  
-                                                    index={index} key={workout.id} workout={workout} />
-                                                ))}
-                                                </Reorder.Group>
+                                                    <Reorder.Group
+                                                        axis="y"
+                                                        onReorder={handleReorder}
+                                                        values={workouts}
+                                                        className="w-full"
+                                                    >
+                                                        {workouts && workouts.map((workout, index) => (
+                                                            <ReorderItem
+                                                                isDragging={isDragging}
+                                                                setIsDragging={setIsDragging}
+                                                                onPointerDown={() => toggleWatchDrag(false)}
+                                                                onPointerUp={() => toggleWatchDrag(true)}
+                                                                onPointerCancel={() => toggleWatchDrag(true)}
+                                                                handleWorkoutClick={handleWorkoutClick}
+                                                                clickedWorkout={clickedWorkout}
+                                                                deleteWorkout={deleteWorkout}
+                                                                index={index}
+                                                                key={workout.id}
+                                                                workout={workout}
+                                                            />
+                                                        ))}
+                                                    </Reorder.Group>
                                                 <AlertDialog>
                                                     <AlertDialogTrigger className='w-full flex items-center' asChild>
                                                         <div className='w-full py-4 px-4 text-lg text-primary font-semibold underline-offset-4 hover:underline text-x'><FontAwesomeIcon className='mr-2' icon={faPlus}/>Add Workout</div>
