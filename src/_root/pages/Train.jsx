@@ -482,7 +482,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
 
     const startWorkoutSession = () => {
         const payload = {
-            workout_id: currentWorkout.id,
+            workout_id: clickedWorkout.id,
         };
     
         apiClient.post('/start_workout_session/', payload)
