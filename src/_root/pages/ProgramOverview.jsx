@@ -189,18 +189,18 @@ const ProgramOverview = () => {
     }
 
 
-    useEffect(() => {
+    /* useEffect(() => {
     apiClient.get(`/user_programs/${programId}/`)
         .then(response => {
             setProgram(response.data)
             if (response.data.phases && response.data.phases.length > 0) {
                 // Set the phase state to the first item in the phases array
-                setPhase(response.data.phases[0]);
+                
             }
             })
         
         .catch(error => console.error('Error:', error));
-    }, [programId]);
+    }, [programId]); */
 
     const navigate = useNavigate();
 

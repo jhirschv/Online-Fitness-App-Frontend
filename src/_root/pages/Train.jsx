@@ -117,7 +117,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
     const createAiWorkout = () => {
         const workoutData = {
             prompt: prompt,
-            phase: activeProgram.phases[0].id // Assuming you have access to `activeProgram` here
+            program_id: activeProgram.id // Assuming you have access to `activeProgram` here
         };
         setIsLoading(true)
         apiClient.post(`/api/openai/`, workoutData)
@@ -150,7 +150,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
         apiClient.get('/get_active_program/') // Make sure the endpoint matches your Django URL configuration
         .then(response => {
             setActiveProgram(response.data);
-            setWorkouts(response.data.phases[0].workouts)
+            setWorkouts(response.data.workouts)
         })
         .catch(error => {
             console.error('Error fetching data:', error);
@@ -167,7 +167,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
         }) 
     }, [])
 
-    useEffect(() => {
+    /* useEffect(() => {
         if (activeProgram) { // Check if activeProgram is not null
             const fetchData = async () => {
                 try {
@@ -180,7 +180,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
             };
             fetchData();
         }
-    }, [activeProgram]); 
+    }, [activeProgram]);  */
     
     useEffect(() => {
         apiClient.get('/user_programs/') // Make sure the endpoint matches your Django URL configuration
@@ -368,7 +368,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
     const [workoutName, setWorkoutName] = useState('')
     function createWorkout() {
         const workoutData = {
-            phase: activeProgram.phases[0].id,
+            program: activeProgram.id,
             name: workoutName,
             workout_exercises: []
         };
@@ -387,14 +387,18 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
 
     function deleteWorkout(workoutId) {
         apiClient.delete(`/workouts/${workoutId}/`)
-        .then(() => {
+        .then(response => {
+            // Update state to filter out the deleted workout
             setWorkouts(currentWorkouts => currentWorkouts.filter(workout => workout.id !== workoutId));
-            console.log(response)
+            // Log the response from the server
+            console.log(response);
         })
         .catch(error => {
-            console.error('Error deleting the phase:', error);
+            // It might be useful to change this log to reflect the correct operation:
+            console.error('Error deleting the workout:', error);
         });
-        }
+    }
+
     const handleWorkoutNameChange = (event) => {
             setWorkoutName(event.target.value)
         }
@@ -450,7 +454,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
         apiClient.post('create-and-activate/', programData)
         .then(response => {
             setActiveProgram(response.data)
-            setWorkouts(response.data.phases[0].workouts)
+            setWorkouts(response.data.workouts)
         })
         .catch(error => {
             console.error('Error fetching data:', error);
@@ -486,8 +490,8 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
             setActiveProgram(response.data);
     
             // Check if there are workouts to set, if not skip setting workouts
-            if (response.data.phases && response.data.phases.length > 0 && response.data.phases[0].workouts && response.data.phases[0].workouts.length > 0) {
-                setWorkouts(response.data.phases[0].workouts);
+            if (response.data && response.data.workouts) {
+                setWorkouts(response.data.workouts);
             } else {
                 setWorkouts([]); // Ensure workouts state is cleared or set to an empty array
             }
@@ -746,7 +750,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
                                                 <CardContent className="p-0 items-center justify-center flex flex-col gap-2">
                                                     <div className='flex gap-10 self-start items-center'>
                                                         <h1 className='mr-2 p-1 text-xl self-start font-semibold'>{activeProgram.name}</h1>
-                                                        <p className='text-sm text-muted-foreground'>{activeProgram?.phases?.[0]?.workouts?.length ?? 0} workouts</p>
+                                                        <p className='text-sm text-muted-foreground'>{activeProgram?.workouts?.length ?? 0} workouts</p>
                                                     </div>
                                                     <Reorder.Group
                                                         axis="y"

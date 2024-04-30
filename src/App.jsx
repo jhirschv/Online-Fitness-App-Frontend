@@ -36,11 +36,9 @@ function App() {
   useEffect(() => {
       apiClient.get('/get_active_program/') // Make sure the endpoint matches your Django URL configuration
       .then(response => {
-          setActiveProgram(response.data);
-          if (response.data.phases && response.data.phases.length > 0) {
-            const sortedWorkouts = response.data.phases[0].workouts.sort((a, b) => a.order - b.order);
-            setWorkouts(sortedWorkouts);
-        }
+          setActiveProgram(response.data); 
+          const sortedWorkouts = response.data.workouts.sort((a, b) => a.order - b.order);
+          setWorkouts(sortedWorkouts);
       })
       .catch(error => {
           console.error('Error fetching data:', error);
