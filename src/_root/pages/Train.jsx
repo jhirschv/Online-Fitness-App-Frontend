@@ -93,6 +93,7 @@ import {
   import { Search } from "lucide-react"
   import { Reorder, useDragControls } from 'framer-motion';
   import { ReorderItem } from "@/components/ReorderItem";
+  import { ReorderExercise } from "@/components/ReorderExercise";
   import { useContext } from 'react'
 import AuthContext from '@/context/AuthContext';
 import { PacmanLoader } from 'react-spinners';
@@ -345,6 +346,22 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
         })
         .catch(error => {
             console.error('Order update error:', error);
+        });
+    };
+
+    const handleExerciseReorder = (newExercises) => {
+        setClickedWorkoutExercises(newExercises);
+        const exerciseOrderData = newExercises.map((exercise, index) => ({
+            id: exercise.id,
+            order: index
+        }));
+    
+        apiClient.post('/update_exercise_order/', exerciseOrderData)
+        .then(response => {
+            console.log('Exercise order update success:', response);
+        })
+        .catch(error => {
+            console.error('Exercise order update error:', error);
         });
     };
 
@@ -819,7 +836,29 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
                                                         <p className='text-sm text-muted-foreground'>{clickedWorkout && clickedWorkout.workout_exercises ? clickedWorkout.workout_exercises.length : 0} exercises</p>
                                                     </div>
                                                 <ScrollArea className='flex flex-col gap-2 max-h-[600px] md:max-h-[400px] overflow-y-auto pb-24 md:pb-0 md:pr-2'>
-                                                {clickedWorkoutExercises && clickedWorkoutExercises.map((workout_exercise, index) => (
+                                                <Reorder.Group
+                                                        axis="y"
+                                                        onReorder={handleExerciseReorder}
+                                                        values={clickedWorkoutExercises}
+                                                        className="w-full"
+                                                    >
+                                                        {clickedWorkoutExercises && clickedWorkoutExercises.map((workout_exercise, index) => (
+                                                            <ReorderExercise
+                                                                isDragging={isDragging}
+                                                                setIsDragging={setIsDragging}
+                                                                onPointerDown={() => toggleWatchDrag(false)}
+                                                                onPointerUp={() => toggleWatchDrag(true)}
+                                                                onPointerCancel={() => toggleWatchDrag(true)}
+                                                                index={index}
+                                                                key={workout_exercise.id}
+                                                                workout_exercise={workout_exercise}
+                                                                deleteWorkoutExercise={deleteWorkoutExercise}
+                                                                updateWorkout={updateWorkout}
+                                                            />
+                                                        ))}
+                                                </Reorder.Group>
+                                                
+                                                {/* {clickedWorkoutExercises && clickedWorkoutExercises.map((workout_exercise, index) => (
                                                         <div key={workout_exercise.id} className='py-6 my-2 pl-4 pr-10 w-full flex justify-between items-center border rounded-xs relative h-20 overflow-hidden'>
                                                             <div className='w-1/2 font-semibold'>{index + 1}. {workout_exercise.exercise.name}</div>
                                                             <div className='font-semibold'>{workout_exercise.sets} x {workout_exercise.reps}</div>
@@ -934,7 +973,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
                                                                 </DrawerContent>
                                                             </Drawer>
                                                         </div>
-                                                    ))}
+                                                    ))} */}
                                                      
                                                     <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
                                                         <DrawerTrigger className='w-full flex items-center'>
