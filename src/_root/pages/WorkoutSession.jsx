@@ -545,7 +545,7 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                         <SheetTrigger asChild>
                                                             <Button variant='outline' className='ml-2' onClick={() => fetchExerciseHistory(exercise.workout_exercise.exercise.id)}>History</Button>
                                                         </SheetTrigger>
-                                                        <SheetContent>
+                                                        <SheetContent className="md:w-[400px] w-[100%]">
                                                             <SheetHeader>
                                                             <SheetTitle className='flex justify-between mt-2'>
                                                                 <p>{exercise.workout_exercise.exercise.name} History</p>

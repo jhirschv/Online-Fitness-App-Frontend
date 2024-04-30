@@ -690,19 +690,36 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
                                             <SheetTrigger asChild>
                                                 <Button variant="outline">All Programs</Button>
                                             </SheetTrigger>
-                                            <SheetContent>
-                                                <SheetHeader>
-                                                <SheetTitle>Select Program</SheetTitle>
+                                            <SheetContent className="md:w-[400px] w-[100%]">
+                                                <SheetHeader className='text-left pl-4 flex flex-row justify-between items-center mt-4'>
+                                                    <SheetTitle className='text-2xl' >All Programs</SheetTitle>
+                                                    <AlertDialog>
+                                                        <AlertDialogTrigger asChild>
+                                                            <Button variant='outline' className='flex items-center gap-1'><FontAwesomeIcon icon={faPlus} /><p className='mb-1'>New Program</p></Button>
+                                                        </AlertDialogTrigger>
+                                                        <AlertDialogContent>
+                                                            <AlertDialogHeader>
+                                                            <AlertDialogTitle>Create Program</AlertDialogTitle>
+                                                            </AlertDialogHeader>
+                                                            <Label htmlFor="programName">Name</Label><Input onChange={handleNameInputChange} value={programName} autoComplete="off" id="programName" />
+                                                            <AlertDialogFooter>
+                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                            <AlertDialogAction onClick={createAndActivateProgram}>Create</AlertDialogAction>
+                                                            </AlertDialogFooter>
+                                                        </AlertDialogContent>
+                                                    </AlertDialog>  
                                                 </SheetHeader>
+                                                <div className='flex flex-col gap-2 mt-2'>
                                                 {userPrograms.map((program) => (
                                                 <div
                                                     key={program.id}
-                                                    className={`p-4 rounded ${selectedProgram === program.id ? 'bg-secondary' : 'bg-background'}`}
+                                                    className={`p-4 py-6 rounded border ${selectedProgram === program.id ? 'bg-secondary' : 'bg-background'}`}
                                                     onClick={() => handleProgramClick(program.id)}
                                                 >
                                                     <h1>{program.name}</h1>
                                                 </div>
                                                 ))}
+                                                </div>
                                                 <SheetFooter className='mt-4'>
                                                 <SheetClose asChild>
                                                     <Button type="submit" onClick={() => updateActiveProgram(selectedProgram)}>Save changes</Button>

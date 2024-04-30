@@ -96,11 +96,11 @@ function App() {
           <Route element={<RootLayout />}>
             <Route element={<PrivateRoute />}>
               <Route path="account" element={<Account />} />  
-              <Route path="edit/:phaseId/:workoutId" element={<Edit />} />  
+              {/* <Route path="edit/:phaseId/:workoutId" element={<Edit />} />  
               <Route path='workout/:workoutId' element={<Workout />} />
               <Route path='programs' element={<Programs />} />       
               <Route path="workouts" element={<Workouts />} />       
-              <Route path="/program_overview/:programId" element={<ProgramOverview />} />
+              <Route path="/program_overview/:programId" element={<ProgramOverview />} /> */}
               <Route index element={<Train 
               activeProgram={activeProgram}
               setActiveProgram={setActiveProgram}
