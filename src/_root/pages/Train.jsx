@@ -97,6 +97,9 @@ import {
   import { useContext } from 'react'
 import AuthContext from '@/context/AuthContext';
 import { PacmanLoader } from 'react-spinners';
+import { Toaster } from "@/components/ui/toaster"
+import { ToastAction } from "@/components/ui/toast"
+import { useToast } from "@/components/ui/use-toast"
 
   
   
@@ -105,6 +108,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
     const { theme } = useTheme();
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
     const navigate = useNavigate();
+    const { toast } = useToast()
     
     //ai workout
     const [prompt, setPrompt] = useState('');
@@ -153,6 +157,8 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
             setWorkouts(response.data.workouts)
         })
         .catch(error => {
+            setActiveProgram();
+            setWorkouts([])
             console.error('Error fetching data:', error);
         });
     }
@@ -181,15 +187,19 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
             fetchData();
         }
     }, [activeProgram]);  */
+
+    function fetchUserPrograms() {
+        apiClient.get('/user_programs/')
+            .then(response => {
+                setUserPrograms(response.data);
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+            });
+    }
     
     useEffect(() => {
-        apiClient.get('/user_programs/') // Make sure the endpoint matches your Django URL configuration
-        .then(response => {
-            setUserPrograms(response.data);
-        })
-        .catch(error => {
-            console.error('Error fetching data:', error);
-        });
+        fetchUserPrograms();  // Call the function on component mount
     }, []);
 
     //create, delete, update workout_exercises
@@ -447,19 +457,58 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
     const [selectedWorkout, setSelectedWorkout] = useState(null);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
 
+    const resetForm = () => {
+        setProgramName('');
+        };
+
     function createAndActivateProgram() {
         const programData = {
             name: programName
         };
         apiClient.post('create-and-activate/', programData)
         .then(response => {
-            setActiveProgram(response.data)
-            setWorkouts(response.data.workouts)
+            console.log("Response received:", response.data);  // Ensure this log is showing expected data
+            if (response.data && response.data.program) {  // Adjust this according to the actual data structure
+                setActiveProgram(response.data.program);
+                setWorkouts(response.data.program.workouts || []);
+                setClickedWorkout(null);
+                setClickedWorkoutExercises([])
+            }
+            fetchUserPrograms();
+            setSelectedProgram()
+            toast({
+                title: "Program Created!",
+                description: "The program has been successfully created."
+            });
+            resetForm();
         })
         .catch(error => {
             console.error('Error fetching data:', error);
+            toast({
+                title: "Program Creation Failed",
+                description: "The program could not be created. Please try again.",
+                variant: "destructive"
+            });
         });
     }
+
+    function deleteProgram(programId) {
+        apiClient.delete(`/programs/${programId}/`)
+        .then(response => {
+            console.log(response)
+            fetchUserPrograms();
+            getActiveProgram();
+            setSelectedProgram()
+            toast({
+                title: "Program Deleted.",
+                description: "The program has been successfully deleted."
+            });
+        }) // Use the DELETE method to request program deletion
+        .catch(error => {
+            console.error('Error deleting the program:', error);
+        });
+    }
+
     const handleNameInputChange = (event) => {
         setProgramName(event.target.value)
     }
@@ -487,17 +536,28 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
         })
         .then(response => {
             console.log(response.data);
+            setSelectedProgram()
             setActiveProgram(response.data);
-    
             // Check if there are workouts to set, if not skip setting workouts
             if (response.data && response.data.workouts) {
                 setWorkouts(response.data.workouts);
             } else {
                 setWorkouts([]); // Ensure workouts state is cleared or set to an empty array
             }
+            setClickedWorkout(null);
+            setClickedWorkoutExercises([])
+            toast({
+                title: "Program Actived.",
+                description: "The program has been successfully deleted."
+            });
         })
         .catch(error => {
             console.error('Error fetching data:', error);
+            toast({
+                title: "Error activating program",
+                description: "The program could not be activated. Please try again.",
+                variant: "destructive"
+            });
         });
     }
 
@@ -678,6 +738,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
                 <PacmanLoader color="hsla(257, 70%, 40%, 1)" size={40} />
                 </div>
             )}
+            <Toaster />
             <Card className='relative border-0 md:border h-full w-full flex flex-col rounded-none md:rounded-lg overflow-y-auto'>
                 <div className='flex h-full w-full'>
 
@@ -708,7 +769,9 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
                                                             <Label htmlFor="programName">Name</Label><Input onChange={handleNameInputChange} value={programName} autoComplete="off" id="programName" />
                                                             <AlertDialogFooter>
                                                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                            <AlertDialogAction onClick={createAndActivateProgram}>Create</AlertDialogAction>
+                                                            <SheetClose asChild>
+                                                                <AlertDialogAction onClick={createAndActivateProgram}>Create</AlertDialogAction>
+                                                            </SheetClose>
                                                             </AlertDialogFooter>
                                                         </AlertDialogContent>
                                                     </AlertDialog>  
@@ -717,16 +780,24 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
                                                 {userPrograms.map((program) => (
                                                 <div
                                                     key={program.id}
-                                                    className={`p-4 py-6 rounded border ${selectedProgram === program.id ? 'bg-secondary' : 'bg-background'}`}
+                                                    className={`p-4 py-6 relative rounded border ${selectedProgram === program.id ? 'bg-secondary' : 'bg-background'}`}
                                                     onClick={() => handleProgramClick(program.id)}
                                                 >
                                                     <h1>{program.name}</h1>
+                                                    <div className='hidden md:block absolute bottom-6 right-2' onClick={(event) => event.stopPropagation()}>
+                                                        <Popover>
+                                                            <PopoverTrigger className='p-4'><FontAwesomeIcon size='lg' icon={faEllipsis} /></PopoverTrigger>
+                                                            <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md' >
+                                                                <Button onClick={() => deleteProgram(program.id)} className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>Delete Program</Button>
+                                                            </PopoverContent>
+                                                        </Popover>
+                                                    </div> 
                                                 </div>
                                                 ))}
                                                 </div>
                                                 <SheetFooter className='mt-4'>
                                                 <SheetClose asChild>
-                                                    <Button type="submit" onClick={() => updateActiveProgram(selectedProgram)}>Save changes</Button>
+                                                    <Button type="submit" onClick={() => updateActiveProgram(selectedProgram)}>Set Active</Button>
                                                 </SheetClose>
                                                 </SheetFooter>
                                             </SheetContent>
@@ -1167,7 +1238,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
                                 <div className='w-full flex flex-col gap-2 mt-[35%] md:mt-[25%] items-center text-muted-foreground text-lg'>
                                     <h1>Nothing to see here!</h1>
                                     <h1>{date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h1>
-                                    <div className='flex items-center gap-2 mt-4'>
+                                    <div className='flex items-center gap-4 mt-4'>
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild><Button className='rounded-xs' >Create Program</Button></AlertDialogTrigger>
                                             <AlertDialogContent>
@@ -1180,50 +1251,74 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
                                                 <AlertDialogAction onClick={createAndActivateProgram}>Create</AlertDialogAction>
                                                 </AlertDialogFooter>
                                             </AlertDialogContent>
-                                        </AlertDialog>  
-                                        <p className='text-sm'>or</p>
-                                        <AlertDialog>
-                                            <AlertDialogTrigger asChild><Button className='rounded-xs text-primary-foreground border-2' variant='outline' >Create workout</Button></AlertDialogTrigger>
-                                            <AlertDialogContent>
-                                                <AlertDialogHeader>
-                                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                                <AlertDialogDescription>
-                                                    This action cannot be undone. This will permanently delete your account
-                                                    and remove your data from our servers.
-                                                </AlertDialogDescription>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                <AlertDialogAction>Continue</AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>                                             
+                                        </AlertDialog> 
+                                        <p className='text-foreground text-sm'>or</p> 
+                                        <Sheet>
+                                            <SheetTrigger asChild>
+                                                <Button variant="secondary" className='text-foreground rounded-xs'>All Programs</Button>
+                                            </SheetTrigger>
+                                            <SheetContent className="md:w-[400px] w-[100%]">
+                                                <SheetHeader className='text-left pl-4 flex flex-row justify-between items-center mt-4'>
+                                                    <SheetTitle className='text-2xl' >All Programs</SheetTitle>
+                                                    <AlertDialog>
+                                                        <AlertDialogTrigger asChild>
+                                                            <Button variant='outline' className='flex items-center gap-1'><FontAwesomeIcon icon={faPlus} /><p className='mb-1'>New Program</p></Button>
+                                                        </AlertDialogTrigger>
+                                                        <AlertDialogContent>
+                                                            <AlertDialogHeader>
+                                                            <AlertDialogTitle>Create Program</AlertDialogTitle>
+                                                            </AlertDialogHeader>
+                                                            <Label htmlFor="programName">Name</Label><Input onChange={handleNameInputChange} value={programName} autoComplete="off" id="programName" />
+                                                            <AlertDialogFooter>
+                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                            <SheetClose asChild>
+                                                                <AlertDialogAction onClick={createAndActivateProgram}>Create</AlertDialogAction>
+                                                            </SheetClose>
+                                                            </AlertDialogFooter>
+                                                        </AlertDialogContent>
+                                                    </AlertDialog>  
+                                                </SheetHeader>
+                                                <div className='flex flex-col gap-2 mt-2'>
+                                                {userPrograms.map((program) => (
+                                                <div
+                                                    key={program.id}
+                                                    className={`p-4 py-6 relative rounded border ${selectedProgram === program.id ? 'bg-secondary' : 'bg-background'}`}
+                                                    onClick={() => handleProgramClick(program.id)}
+                                                >
+                                                    <h1>{program.name}</h1>
+                                                    <div className='hidden md:block absolute bottom-6 right-2' onClick={(event) => event.stopPropagation()}>
+                                                        <Popover>
+                                                            <PopoverTrigger className='p-4'><FontAwesomeIcon size='lg' icon={faEllipsis} /></PopoverTrigger>
+                                                            <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md' >
+                                                                <Button onClick={() => deleteProgram(program.id)} className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>Delete Program</Button>
+                                                            </PopoverContent>
+                                                        </Popover>
+                                                    </div> 
+                                                </div>
+                                                ))}
+                                                </div>
+                                                <SheetFooter className='mt-4'>
+                                                <SheetClose asChild>
+                                                    <Button type="submit" onClick={() => updateActiveProgram(selectedProgram)}>Set Active</Button>
+                                                </SheetClose>
+                                                </SheetFooter>
+                                            </SheetContent>
+                                        </Sheet>
                                     </div>
-                                    <Separator className='my-2'/>
-                                    <Sheet>
-                                        <SheetTrigger asChild>
-                                            <Button className='rounded-xs' variant='secondary'>All Programs</Button>
-                                        </SheetTrigger>
-                                        <SheetContent>
-                                            <SheetHeader>
-                                            <SheetTitle>Select Program</SheetTitle>
-                                            </SheetHeader>
-                                            {userPrograms.map((program) => (
-                                            <div
-                                                key={program.id}
-                                                className={`p-4 rounded ${selectedProgram === program.id ? 'bg-secondary' : 'bg-background'}`}
-                                                onClick={() => handleProgramClick(program.id)}
-                                            >
-                                                <h1>{program.name}</h1>
-                                            </div>
-                                            ))}
-                                            <SheetFooter className='mt-4'>
-                                            <SheetClose asChild>
-                                                <Button type="submit" onClick={() => updateActiveProgram(selectedProgram)}>Set Active</Button>
-                                            </SheetClose>
-                                            </SheetFooter>
-                                        </SheetContent>
-                                    </Sheet>
+                                    <Separator />
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild><Button className='rounded-xs bg-foreground hover:bg-foreground' ><FontAwesomeIcon icon={faWandMagicSparkles} /><p className='ml-1'>AI Program</p></Button></AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                            <AlertDialogTitle>Try Our AI Program Creator!</AlertDialogTitle>
+                                            </AlertDialogHeader>
+                                            <Label htmlFor="programName">Name</Label><Input onChange={handleNameInputChange} value={programName} autoComplete="off" id="programName" />
+                                            <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction onClick={createAndActivateProgram}>Create</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
                                 </div>
                             )
                             }

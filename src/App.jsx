@@ -44,7 +44,18 @@ function App() {
           console.error('Error fetching data:', error);
       });
   }, []);
-  
+
+  const getActiveProgram = () => {
+    apiClient.get('/get_active_program/') // Make sure the endpoint matches your Django URL configuration
+      .then(response => {
+          setActiveProgram(response.data); 
+          const sortedWorkouts = response.data.workouts.sort((a, b) => a.order - b.order);
+          setWorkouts(sortedWorkouts);
+      })
+      .catch(error => {
+          console.error('Error fetching data:', error);
+      });
+  }  
   //fetch user workout sessions
   const [userWorkoutSessions, setUserWorkoutSessions] = useState([])
   useEffect(() => {
