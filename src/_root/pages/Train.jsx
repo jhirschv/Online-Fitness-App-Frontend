@@ -96,7 +96,7 @@ import {
   import { ReorderExercise } from "@/components/ReorderExercise";
   import { useContext } from 'react'
 import AuthContext from '@/context/AuthContext';
-import { PacmanLoader } from 'react-spinners';
+import { ScaleLoader } from 'react-spinners';
 import { Toaster } from "@/components/ui/toaster"
 import { ToastAction } from "@/components/ui/toast"
 import { useToast } from "@/components/ui/use-toast"
@@ -112,11 +112,16 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
     
     //ai workout
     const [prompt, setPrompt] = useState('');
+    const [programPrompt, setProgramPrompt] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
     const handlePromptChange = (e) => {
         setPrompt(e.target.value);
       };
+    const handleProgramPromptChange = (e) => {
+    setProgramPrompt(e.target.value);
+    };
+
 
     const createAiWorkout = () => {
         const workoutData = {
@@ -135,9 +140,22 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
         setIsLoading(false); // Stop loading on completion
       });
     }
-    //ai workout
 
-
+    const createAiProgram = () => {
+        const workoutData = {
+            prompt: programPrompt,
+        };
+        setIsLoading(true)
+        apiClient.post(`/api/openaiprogram/`, workoutData)
+            .then(response => {
+                console.log(response)
+                getActiveProgram()
+                })
+            .catch(error => console.error('Error:', error))
+            .finally(() => {
+        setIsLoading(false);
+      });
+    }
 
     const [phasesDetails, setPhasesDetails] = useState([]);
     const [dayData, setDayData] = useState({});
@@ -331,6 +349,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
             carouselApi.scrollTo(1); 
           }
     };
+
     useEffect(() => {
         if (!clickedWorkout && workouts && workouts.length > 0) {
             setClickedWorkout(workouts[0]);
@@ -734,8 +753,9 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
     return (
         <div className={`${backgroundColorClass} overflow-hidden w-full md:p-4 md:border md:rounded-lg`}>
                         {isLoading && (
-                <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-25 z-10 rounded-lg">
-                <PacmanLoader color="hsla(257, 70%, 40%, 1)" size={40} />
+                <div className="absolute inset-0 flex flex-col justify-center items-center z-10 rounded-lg">
+                    <ScaleLoader color="#2563eb" size={40} />
+                    <h1 className='text-muted-foreground mt-2'>AI programs may take up to 2 minutes to create</h1>
                 </div>
             )}
             <Toaster />
@@ -784,7 +804,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
                                                     onClick={() => handleProgramClick(program.id)}
                                                 >
                                                     <h1>{program.name}</h1>
-                                                    <div className='hidden md:block absolute bottom-6 right-2' onClick={(event) => event.stopPropagation()}>
+                                                    <div className='absolute bottom-6 right-2' onClick={(event) => event.stopPropagation()}>
                                                         <Popover>
                                                             <PopoverTrigger className='p-4'><FontAwesomeIcon size='lg' icon={faEllipsis} /></PopoverTrigger>
                                                             <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md' >
@@ -1235,7 +1255,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
                                     </Tabs> */}
                                 </div>
                             ) : (
-                                <div className='w-full flex flex-col gap-2 mt-[35%] md:mt-[25%] items-center text-muted-foreground text-lg'>
+                                <div className='w-full flex flex-col gap-2 mt-[35%] md:mt-[25%] items-center text-muted-foreground font-semibold text-xl'>
                                     <h1>Nothing to see here!</h1>
                                     <h1>{date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h1>
                                     <div className='flex items-center gap-4 mt-4'>
@@ -1286,7 +1306,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
                                                     onClick={() => handleProgramClick(program.id)}
                                                 >
                                                     <h1>{program.name}</h1>
-                                                    <div className='hidden md:block absolute bottom-6 right-2' onClick={(event) => event.stopPropagation()}>
+                                                    <div className='absolute bottom-6 right-2' onClick={(event) => event.stopPropagation()}>
                                                         <Popover>
                                                             <PopoverTrigger className='p-4'><FontAwesomeIcon size='lg' icon={faEllipsis} /></PopoverTrigger>
                                                             <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md' >
@@ -1311,11 +1331,12 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
                                         <AlertDialogContent>
                                             <AlertDialogHeader>
                                             <AlertDialogTitle>Try Our AI Program Creator!</AlertDialogTitle>
+                                            <AlertDialogDescription>Describe your workout and we'll do the rest</AlertDialogDescription>
                                             </AlertDialogHeader>
-                                            <Label htmlFor="programName">Name</Label><Input onChange={handleNameInputChange} value={programName} autoComplete="off" id="programName" />
+                                            <Label htmlFor="programName">Descripton</Label><Textarea value={programPrompt} onChange={handleProgramPromptChange} autoComplete="off" id="programName" />
                                             <AlertDialogFooter>
                                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                            <AlertDialogAction onClick={createAndActivateProgram}>Create</AlertDialogAction>
+                                            <AlertDialogAction onClick={createAiProgram}>Create</AlertDialogAction>
                                             </AlertDialogFooter>
                                         </AlertDialogContent>
                                     </AlertDialog>
