@@ -35,14 +35,29 @@ import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useContext } from 'react';
 import AuthContext from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import apiClient from '../../services/apiClient'; 
 
 
 const Account = () => {
     const { setTheme } = useTheme()
     const { theme } = useTheme();
     let { user, logoutUser } = useContext(AuthContext)
-    
+    const navigate = useNavigate()
 
+    const handleDeleteAccount = async () => {
+        try {
+            const response = await apiClient.delete('/delete-account/');  // Adjust URL as needed
+            if (response.status === 204) {  // 204 No Content, standard response for successful DELETE request
+                alert("Account successfully deleted.");
+                navigate('/login');  // Redirect to login page
+            }
+        } catch (error) {
+            console.error("Failed to delete account:", error);
+            alert("There was a problem deleting your account.");
+        }
+    }
+    
     // Determine the background color class based on the theme
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
 
@@ -118,7 +133,7 @@ const Account = () => {
                                             </AlertDialogHeader>
                                             <AlertDialogFooter>
                                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                            <AlertDialogAction>Continue</AlertDialogAction>
+                                            <Button variant='destructive' onClick={handleDeleteAccount}>Delete</Button>
                                             </AlertDialogFooter>
                                         </AlertDialogContent>
                                     </AlertDialog>
