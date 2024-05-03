@@ -14,6 +14,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
+import { Link } from 'react-router-dom';
 
 export function SigninForm() {
 
@@ -40,6 +41,11 @@ export function SigninForm() {
               <Button type="submit">Sign in</Button>
             </div>
           </form>
+          <div className="text-center mt-4">
+            <p>
+              Don't have an account? <Link to="/signup" className="text-blue-500 hover:text-blue-600">Sign up</Link>
+            </p>
+          </div>
         </CardContent>
       </Card>
       </div>

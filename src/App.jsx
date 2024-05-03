@@ -9,6 +9,7 @@ import Chat from './_root/pages/Chat';
 import Account from './_root/pages/Account';
 import Workouts from './_root/pages/WorkoutList';
 import SigninForm from './_auth/SigninForm';
+import SignupForm from './_auth/SignupForm';
 import ExerciseLibrary from './_root/removedPages/ExerciseLibrary';
 import RootLayout from './_root/RootLayout'
 import { Routes, Route } from 'react-router-dom';
@@ -132,6 +133,7 @@ function App() {
             </Route>
           </Route>
           <Route path="/login" element={<SigninForm />} />
+          <Route path="/signup" element={<SignupForm />} />
         </Routes>
       </AuthProvider>
     </ThemeProvider>
