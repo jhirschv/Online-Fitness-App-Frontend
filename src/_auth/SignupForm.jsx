@@ -24,18 +24,21 @@ export function SignupForm() {
     } else {
       switch (name) {
         case 'email':
+          // Validate email using a regex that checks for a general valid email pattern
           if (!/\S+@\S+\.\S+/.test(value)) {
             errorMsg = 'Email is invalid';
           }
           break;
         case 'username':
-          if (value.length < 4 || value.length > 20) {
-            errorMsg = 'Username must be 4-20 characters long';
+          // Username must be between 4-20 characters and can only contain alphanumeric characters and underscores
+          if (!/^[a-zA-Z0-9_]{4,20}$/.test(value)) {
+            errorMsg = 'Username must be 4-20 characters long and can only contain alphanumeric characters and underscores';
           }
           break;
         case 'password':
-          if (value.length < 8 || value.length > 20) {
-            errorMsg = 'Password must be 8-20 characters long';
+          // Password must be between 8-20 characters and can contain alphanumeric and special characters
+          if (!/^[a-zA-Z0-9!@#$%^&*()_+=\[\]{};:'"\\|,.<>\/?~-]{8,20}$/.test(value)) {
+            errorMsg = 'Password must be 8-20 characters long and can contain alphanumeric and special characters';
           }
           break;
         default:
@@ -43,7 +46,7 @@ export function SignupForm() {
       }
     }
     return errorMsg;
-  };
+};
 
   const handleUsernameChange = (event) => {
     setUsername(event.target.value);
