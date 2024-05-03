@@ -15,6 +15,35 @@ export function SignupForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const [errors, setErrors] = useState({});
+  
+  const validateField = (name, value) => {
+    let errorMsg = null;
+    if (!value) {
+      errorMsg = `${name.charAt(0).toUpperCase() + name.slice(1)} is required`;
+    } else {
+      switch (name) {
+        case 'email':
+          if (!/\S+@\S+\.\S+/.test(value)) {
+            errorMsg = 'Email is invalid';
+          }
+          break;
+        case 'username':
+          if (value.length < 4 || value.length > 20) {
+            errorMsg = 'Username must be 4-20 characters long';
+          }
+          break;
+        case 'password':
+          if (value.length < 8 || value.length > 20) {
+            errorMsg = 'Password must be 8-20 characters long';
+          }
+          break;
+        default:
+          break;
+      }
+    }
+    return errorMsg;
+  };
 
   const handleUsernameChange = (event) => {
     setUsername(event.target.value);
@@ -29,38 +58,66 @@ export function SignupForm() {
   };
 
   const handleSubmit = async (event) => {
-    event.preventDefault();  // Prevent the form from submitting naturally
+    event.preventDefault();
+    const newErrors = {};
+
+    // Validate all fields on submit
+    ['username', 'email', 'password'].forEach(field => {
+        const value = field === 'username' ? username : field === 'email' ? email : password;
+        const error = validateField(field, value);
+        if (error) {
+            newErrors[field] = error;
+        }
+    });
+
+    // Check for any validation errors
+    if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
+        return; // Stop the function if there are errors
+    }
+
+    // If validation passes, try to register the user
     try {
-        const response = await apiClient.post('api/register/', {
-            username: username,
-            email: email,
-            password: password
+        const registrationResponse = await apiClient.post('api/register/', {
+            username,
+            email,
+            password
         });
 
-        try {
-            const response = await apiClient.post('api/token/', {
-              username: username,
-              password: password
-            });
-      
-            const data = response.data;
-            if (data) {
-              localStorage.setItem('authTokens', JSON.stringify(data));
-              setAuthTokens(data);
-              setUser(jwtDecode(data.access));
-              navigate('/');
-            } else {
-              alert('Something went wrong!');
+        // If registration is successful, log in the user
+        if (registrationResponse.data) {
+            try {
+                const tokenResponse = await apiClient.post('api/token/', {
+                    username,
+                    password
+                });
+        
+                const data = tokenResponse.data;
+                if (data) {
+                    localStorage.setItem('authTokens', JSON.stringify(data));
+                    setAuthTokens(data);
+                    setUser(jwtDecode(data.access));
+                    navigate('/');
+                } else {
+                    console.error('Authentication failed after registration');
+                    alert('Unable to log in automatically, please try to log in manually.');
+                }
+            } catch (error) {
+                console.error('Login failed:', error.response ? error.response.data : error);
+                alert('Login failed!');
             }
-          } catch (error) {
-            alert('Login failed!');
-          }
+        } else {
+            console.error('Registration failed with no data return');
+            alert('Registration failed!');
+        }
     } catch (error) {
         console.error('Signup failed:', error);
         // Optionally handle errors, e.g., displaying a message to the user
         if (error.response) {
             // Handle specific error response from backend if needed
             console.error('Registration Error:', error.response.data);
+            // Populate the errors state with backend validation messages if any
+            setErrors(error.response.data.errors);
         }
     }
 };
@@ -74,20 +131,24 @@ export function SignupForm() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
-            <div className="grid w-full items-center gap-4">
-                <div className="flex flex-col space-y-1.5">
+            <div className="grid w-full gap-4">
+              <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="email">Email</Label>
-                <Input type="email" id="email" name="email" value={email} onChange={handleEmailChange} placeholder="Enter your email"/>
+                <Input id="email" name="email" value={email} onChange={handleEmailChange} className={errors.email ? 'border-red-500' : ''} placeholder="Enter your email"/>
+                {errors.email && <div className="text-sm text-red-500">{errors.email}</div>}
               </div>
               <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="username">Username</Label>
-                <Input type="text" id="username" name="username" value={username} onChange={handleUsernameChange} placeholder="Enter username"/>
+                <Input type="text" id="username" name="username" value={username} onChange={handleUsernameChange} className={errors.username ? 'border-red-500' : ''} placeholder="Enter username"/>
+                {errors.username && <div className="text-sm text-red-500">{errors.username}</div>}
               </div>
               <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="password">Password</Label>
-                <Input type="password" id="password" name="password" value={password} onChange={handlePasswordChange} placeholder="Enter password"/>
+                <Input type="password" id="password" name="password" value={password} onChange={handlePasswordChange} className={errors.password ? 'border-red-500' : ''} placeholder="Enter password"/>
+                {errors.password && <div className="text-sm text-red-500">{errors.password}</div>}
               </div>
               <Button type="submit">Sign up</Button>
+              {errors.form && <div className="text-sm text-red-500 text-center">{errors.form}</div>}
               <div className="text-center mt-4">
                 <p>
                   Have an account? <Link to="/login" className="text-blue-500 hover:text-blue-600">Log in</Link>
