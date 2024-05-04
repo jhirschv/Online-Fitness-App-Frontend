@@ -589,7 +589,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
             .then(response => {
                 console.log(response.data);
                 fetchSessionDetails().then(() => {
-                    navigate(`/workoutSession/${response.data.session_id}`);
+                    navigate('/workoutSession');
                 });
             })
             .catch(error => {
@@ -601,7 +601,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
         // Navigate to the session details page using the session ID from activeSessionDetails
         if (sessionDetails && sessionDetails.id) {
             
-            navigate(`/workoutSession/${sessionDetails.id}`);
+            navigate('/workoutSession');
         }
     };
     const handleProgramClick = (programId) => {

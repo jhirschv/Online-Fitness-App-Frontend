@@ -122,7 +122,7 @@ function App() {
               fetchSessionDetails={fetchSessionDetails}
               loadingSessionDetails={loadingSessionDetails}
               />} />
-              <Route path="/workoutSession/:sessionId" element={<WorkoutSession
+              <Route path="/workoutSession" element={<WorkoutSession
               sessionDetails={sessionDetails}
               setSessionDetails={setSessionDetails}
               fetchSessionDetails={fetchSessionDetails}/>} />
