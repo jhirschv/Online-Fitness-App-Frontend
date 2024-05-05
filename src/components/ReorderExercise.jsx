@@ -40,7 +40,7 @@ SelectTrigger,
 SelectValue,
 } from "@/components/ui/select"
 
-export const ReorderExercise = ({ isDragging, setIsDragging, onPointerDown, onPointerUp, onPointerCancel, workout_exercise, index, deleteWorkoutExercise, updateWorkout}) => {
+export const ReorderExercise = ({ handleEditSetsChange, handleEditRepsChange, isDragging, setIsDragging, onPointerDown, onPointerUp, onPointerCancel, workout_exercise, index, deleteWorkoutExercise, updateWorkout}) => {
   const dragControls = useDragControls();
   const onDragStart = (event) => {
     event.stopPropagation();

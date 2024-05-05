@@ -185,10 +185,14 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
 
     //fetch exercises
     const [exercises, setExercises] = useState([]);
+    const [userExercises, setUserExercises] = useState([]);
     useEffect(() => {
         apiClient.get('exercises/').then((res) => {
             setExercises(res.data)
-        }) 
+        })
+        apiClient.get('user_exercises/').then((res) => {
+            setUserExercises(res.data);
+        });
     }, [])
 
     /* useEffect(() => {
@@ -292,7 +296,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
                 video,
             })),
             name: clickedWorkout.name,
-            phase: 1
+            program: activeProgram.id
         }
         apiClient.put(`/workouts/${clickedWorkout.id}/`, workoutData) 
         .then(response => {
@@ -302,7 +306,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
         .catch(error => {
             console.error('Failed to update workout:', error);
         });
-    } 
+    }
     const handleEditSetsChange = (exerciseId, newSets) => {
         const updatedExercises = clickedWorkoutExercises.map(exerciseDetail => {
           if (exerciseDetail.exercise.id === exerciseId) {
@@ -966,6 +970,8 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
                                                                 workout_exercise={workout_exercise}
                                                                 deleteWorkoutExercise={deleteWorkoutExercise}
                                                                 updateWorkout={updateWorkout}
+                                                                handleEditSetsChange={handleEditSetsChange}
+                                                                handleEditRepsChange={handleEditRepsChange}
                                                             />
                                                         ))}
                                                 </Reorder.Group>
@@ -1102,7 +1108,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
                                                                         </CardHeader>
                                                                         <CardContent className='px-4 py-4 flex flex-col items-end'>
                                                                             <div className='flex items-center gap-1'>
-                                                                                <Input placeholder="Add Exercise" onChange={(event) => setNewExercise(event.target.value)} value={newExercise}/>
+                                                                                <Input placeholder="Add or Create Exercise" onChange={(event) => setNewExercise(event.target.value)} value={newExercise}/>
                                                                                 <Select value={newExerciseSets} onValueChange={(newValue) => setNewExerciseSets(newValue)}>
                                                                                     <SelectTrigger className="w-[80px] md:w-[80px] focus:ring-0 focus:ring-offset-0">
                                                                                         <SelectValue placeholder='sets' />
@@ -1197,7 +1203,14 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
                                                                         <TabsContent className='m-0' value="yourExercises">
                                                                             <ScrollArea className="h-96 w-full rounded-md border-none bg-background">
                                                                                     <div className="p-4">
-                                                                                        
+                                                                                    {userExercises.map((userExercise)=> {
+                                                                                    return (
+                                                                                        <div onClick={() => clickToAddExercise(userExercise.name)} key={userExercise.name}>
+                                                                                            <div className="p-2 text-sm">{userExercise.name}</div>
+                                                                                            <Separator className="my-2" />
+                                                                                        </div>
+                                                                                    )
+                                                                                })}
                                                                                     </div>
                                                                                 </ScrollArea>
                                                                         </TabsContent>
