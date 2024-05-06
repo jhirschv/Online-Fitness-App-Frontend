@@ -186,6 +186,21 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
     //fetch exercises
     const [exercises, setExercises] = useState([]);
     const [userExercises, setUserExercises] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const filteredExercises = exercises.filter((exercise) => {
+        return exercise.name.toLowerCase().includes(searchTerm.toLowerCase());
+    });
+
+    // Filter user exercises based on search term
+    const filteredUserExercises = userExercises.filter((userExercise) => {
+        return userExercise.name.toLowerCase().includes(searchTerm.toLowerCase());
+    });
+
+    const handleSearchChange = (event) => {
+        setSearchTerm(event.target.value);
+    };
+
     useEffect(() => {
         apiClient.get('exercises/').then((res) => {
             setExercises(res.data)
@@ -1177,40 +1192,36 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
                                                                     <Tabs  defaultValue='exerciseDatabase'>
                                                                         <div className='flex justify-center items-center w-full pb-2'>
                                                                         <TabsList className="mx-2 grid w-full grid-cols-2 gap-1 rounded-xs bg-muted">
-                                                                            <TabsTrigger className='rounded-xs' value="exerciseDatabase">Frequently Used</TabsTrigger>
-                                                                            <TabsTrigger className='rounded-xs' value="yourExercises">Exercise Database</TabsTrigger>
+                                                                            <TabsTrigger className='rounded-xs' value="exerciseDatabase">Exercise Database</TabsTrigger>
+                                                                            <TabsTrigger className='rounded-xs' value="yourExercises">Your Exercises</TabsTrigger>
                                                                         </TabsList>
                                                                         </div>
                                                                         <Card className='border-none'>
                                                                         <div className="relative py-2 w-full flex justify-center items-center">
                                                                             <Search className="absolute left-4 top-5 h-4 w-4 text-muted-foreground" />
-                                                                            <Input placeholder="Search" className="pl-8 w-full mx-2" />
+                                                                            <Input placeholder="Search" className="pl-8 w-full mx-2" onChange={handleSearchChange} />
                                                                         </div>
                                                                         <TabsContent className='m-0' value="exerciseDatabase">
                                                                             <ScrollArea className="h-96 w-full rounded-md border-none bg-background">
                                                                                 <div className="p-4">
-                                                                                {exercises.map((exercise)=> {
-                                                                                    return (
-                                                                                        <div onClick={() => clickToAddExercise(exercise.name)} key={exercise.name}>
-                                                                                            <div className="p-2 text-sm">{exercise.name}</div>
-                                                                                            <Separator className="my-2" />
-                                                                                        </div>
-                                                                                    )
-                                                                                })}
+                                                                                {filteredExercises.map((exercise) => (
+                                                                                    <div onClick={() => clickToAddExercise(exercise.name)} key={exercise.name}>
+                                                                                        <div className="p-2 text-sm">{exercise.name}</div>
+                                                                                        <Separator className="my-2" />
+                                                                                    </div>
+                                                                                ))}
                                                                                 </div>
                                                                             </ScrollArea>
                                                                         </TabsContent>
                                                                         <TabsContent className='m-0' value="yourExercises">
                                                                             <ScrollArea className="h-96 w-full rounded-md border-none bg-background">
                                                                                     <div className="p-4">
-                                                                                    {userExercises.map((userExercise)=> {
-                                                                                    return (
+                                                                                    {filteredUserExercises.map((userExercise) => (
                                                                                         <div onClick={() => clickToAddExercise(userExercise.name)} key={userExercise.name}>
                                                                                             <div className="p-2 text-sm">{userExercise.name}</div>
                                                                                             <Separator className="my-2" />
                                                                                         </div>
-                                                                                    )
-                                                                                })}
+                                                                                    ))}
                                                                                     </div>
                                                                                 </ScrollArea>
                                                                         </TabsContent>
