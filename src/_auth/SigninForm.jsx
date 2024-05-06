@@ -36,7 +36,7 @@ export function SigninForm() {
               </div>
               <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="framework">Password</Label>
-                <Input type="password" name="password" placeholder="enter password"/>
+                <Input type="password" name="password" placeholder="Enter password"/>
               </div>
               <Button type="submit">Sign in</Button>
             </div>

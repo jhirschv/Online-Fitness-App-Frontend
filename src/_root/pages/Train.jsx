@@ -1340,7 +1340,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
                                     </div>
                                     <Separator />
                                     <AlertDialog>
-                                        <AlertDialogTrigger asChild><Button className='rounded-xs bg-foreground hover:bg-foreground' ><FontAwesomeIcon icon={faWandMagicSparkles} /><p className='ml-1'>AI Program</p></Button></AlertDialogTrigger>
+                                        <AlertDialogTrigger asChild><Button className='rounded-xs bg-foreground hover:bg-foreground text-background' ><FontAwesomeIcon icon={faWandMagicSparkles} /><p className='ml-1'>AI Program</p></Button></AlertDialogTrigger>
                                         <AlertDialogContent>
                                             <AlertDialogHeader>
                                             <AlertDialogTitle>Try Our AI Program Creator!</AlertDialogTitle>
