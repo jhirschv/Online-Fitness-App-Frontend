@@ -18,6 +18,7 @@ import AuthContext from '../../context/AuthContext';
 import { Check, Plus, Send } from "lucide-react";
 import { useLocation } from 'react-router-dom';
 import apiClient from '../../services/apiClient';
+import { useOutletContext } from "react-router-dom";
 
 const ChatSession = () => {
   const [input, setInput] = React.useState("");
@@ -25,6 +26,7 @@ const ChatSession = () => {
   const [messages, setMessages] = useState([]);
   const [webSocket, setWebSocket] = useState(null);
   let { user } = useContext(AuthContext)
+  const fetchUserChatSessions = useOutletContext();
 
   const location = useLocation();
   const recipientId = location.state?.recipient;
@@ -42,7 +44,6 @@ const ChatSession = () => {
   }, [recipientId]);
 
   useEffect(() => {
-    if (recipientId) {
       apiClient.get(`/chat/${recipientId}/`)
           .then(response => {
               setMessages(response.data)
@@ -52,8 +53,7 @@ const ChatSession = () => {
             console.error('Error:', error)
             setMessages([])
           });
-    }
-  }, [recipientId]);
+  }, []);
   
 
   useEffect(() => {
