@@ -132,14 +132,38 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
         apiClient.post(`/api/openai/`, workoutData)
             .then(response => {
                 getActiveProgram()
+                fetchRemainingAIWorkouts()
+                setPrompt('')
                 console.log(response)
                 })
-            
-            .catch(error => console.error('Error:', error))
+            .catch(error => {
+                console.error('Error:', error)
+                toast({
+                    title: "Workout Creation Failed",
+                    description: error.response.data.error,
+                    variant: "destructive"
+                });
+            })
             .finally(() => {
         setIsLoading(false); // Stop loading on completion
       });
     }
+
+    function fetchRemainingAIWorkouts() {
+        apiClient.get('/ai_workout_limit/')
+            .then(response => {
+                setRemainingAIWorkouts(response.data.remaining);
+            })
+            .catch(error => {
+                console.error('Error fetching AI workout limit:', error);
+            });
+    }
+
+    const [remainingAIWorkouts, setRemainingAIWorkouts] = useState();
+
+    useEffect(() => {
+        fetchRemainingAIWorkouts();  // Call the function on component mount
+    }, []);
 
     const createAiProgram = () => {
         const workoutData = {
@@ -150,8 +174,27 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
             .then(response => {
                 console.log(response)
                 getActiveProgram()
-                })
-            .catch(error => console.error('Error:', error))
+                fetchUserPrograms()
+                setProgramPrompt('')
+            })
+            .catch(error => {
+                console.error('Error:', error)
+                if (error.response && error.response.data && error.response.data.error) {
+                    // If the error response contains a specific error message, display it
+                    toast({
+                        title: "Program Creation Failed",
+                        description: error.response.data.error,
+                        variant: "destructive"
+                    });
+                } else {
+                    // If the error is not specific, display a generic error message
+                    toast({
+                        title: "Program Creation Failed",
+                        description: "The program could not be created. Please try again.",
+                        variant: "destructive"
+                    });
+                }
+            })
             .finally(() => {
         setIsLoading(false);
       });
@@ -232,8 +275,17 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
             })
             .catch(error => {
                 console.error('Error fetching data:', error);
-            });
+        });
+        apiClient.get('/ai_program_limit/')  // Endpoint to check the AI program limit
+        .then(response => {
+            setRemainingAIPrograms(response.data.remaining);  // Assuming the state for this is set up
+        })
+        .catch(error => {
+            console.error('Error fetching AI program limit:', error);
+        });
     }
+
+    const [remainingAIPrograms, setRemainingAIPrograms] = useState();
     
     useEffect(() => {
         fetchUserPrograms();  // Call the function on component mount
@@ -945,6 +997,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
                                                                     </SelectContent>
                                                                 </Select>
                                                             </div> */}
+                                                            <p className='text-sm text-muted-foreground py-2'>You have {remainingAIWorkouts} AI workouts left this week.</p>
                                                             <Label htmlFor="prompt">Workout Description</Label><Textarea value={prompt} onChange={handlePromptChange} className='mb-2' placeholder="Describe your workout here." id='prompt' />
                                                             <AlertDialogFooter>
                                                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
@@ -1355,7 +1408,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
                                         <AlertDialogContent>
                                             <AlertDialogHeader>
                                             <AlertDialogTitle>Try Our AI Program Creator!</AlertDialogTitle>
-                                            <AlertDialogDescription>Describe your workout and we'll do the rest</AlertDialogDescription>
+                                            <AlertDialogDescription>You have {remainingAIPrograms} AI programs left this week.</AlertDialogDescription>
                                             </AlertDialogHeader>
                                             <Label htmlFor="programName">Descripton</Label><Textarea value={programPrompt} onChange={handleProgramPromptChange} autoComplete="off" id="programName" />
                                             <AlertDialogFooter>

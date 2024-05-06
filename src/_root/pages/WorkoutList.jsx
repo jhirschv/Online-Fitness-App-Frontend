@@ -116,6 +116,7 @@ const Workouts = () => {
                             <AlertDialogContent>
                                 <AlertDialogHeader>
                                 <AlertDialogTitle>Create AI Workout</AlertDialogTitle>
+                                <AlertDialogDescription>You have {remainingAIWorkouts} AI workouts left this week.</AlertDialogDescription>
                                 <Label htmlFor="prompt">Workout Description</Label><Textarea value={prompt} onChange={handlePromptChange} placeholder="Describe your workout here." id='prompt' />
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>

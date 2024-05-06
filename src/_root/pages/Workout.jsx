@@ -75,6 +75,7 @@ const Create = () => {
             
             .catch(error => console.error('Error:', error));
     }, [workoutId])
+    
     const fetchWorkoutExercises = () => {
         apiClient.get(`/workouts/${workoutId}/`)
             .then(response => {
