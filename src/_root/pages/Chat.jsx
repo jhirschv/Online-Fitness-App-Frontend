@@ -42,7 +42,7 @@ import {
 } from "@/components/ui/command";
 import { useEffect, useState } from 'react'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPenToSquare, faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
+import { faPenToSquare, faArrowUpRightFromSquare, faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 import { faComments } from "@fortawesome/free-regular-svg-icons";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
@@ -62,25 +62,6 @@ const Chat = () => {
   const backgroundColorClass = theme === "dark" ? "bg-popover" : "bg-secondary";
   const [users, setUsers] = useState([])
   let { user } = useContext(AuthContext)
-
-
-  const isChatSession = /\/chat\/\d+\/\d+/.test(location.pathname);
-
-  const ConditionalOutlet = () => {
-    const outlet = useOutlet(); // This checks if there's an outlet to render
-    return outlet ? (
-      <Outlet /> 
-    ) : (
-      <>
-        <CardHeader className="flex items-center justify-center w-full h-full">
-          <FontAwesomeIcon className="fa-5x" icon={faComments} />
-          <h1 className="text-xl font-semibold">Your Messages</h1>
-          <p className="text-sm text-muted-foreground">Send messages to a friend</p>
-          <Button size="sm">Send Message</Button>
-        </CardHeader>
-      </>
-    );
-  };
 
   useEffect(() => {
     apiClient.get(`/users/`)
@@ -178,13 +159,56 @@ const chatContainerRef = useRef(null);
     scrollToBottom();
   }, [messages]);
 
+  const handleBackClick = () => {
+    setSelectedChat(null);
+    setMessages([]);
+  }
 
+  function truncateString(str, num) {
+    if (str.length <= num) {
+      return str;
+    }
+    return str.slice(0, num) + '...';
+  }
+
+  function compactTimeFormat(timeString) {
+    const parts = timeString.split(/\s+/);
+    console.log(parts)
+
+    // Handle potential parsing issues
+    if (parts.length !== 2) return timeString;
+
+    const number = parseInt(parts[0], 10);
+    const unit = parts[1];
+
+    if (isNaN(number)) return timeString; // Return original if parsing fails
+
+    switch (unit) {
+        case 'minutes':
+        case 'minute':
+            return number + 'm';
+        case 'hours':
+        case 'hour':
+            return number + 'h';
+        case 'days':
+        case 'day':
+            return number + 'd';
+        case 'weeks':
+        case 'week':
+            return number + 'w';
+        case 'years':
+        case 'year':
+            return number + 'y';
+        default:
+            return timeString; // Return the original string if unit is unrecognized
+    }
+}
 
   return (
-    <div className={`w-full ${backgroundColorClass} md:border rounded-lg md:p-4`}>
+    <div className={`w-full ${backgroundColorClass} md:border rounded-lg lg:p-4`}>
       <Card className="border-0 md:border h-full w-full flex overflow-hidden rounded-none md:rounded-lg">
-        <Card className={`border-none flex-none rounded-none ${isChatSession ? 'hidden md:block w-1/3' : 'w-full md:w-1/3'}`}>
-          <div className="flex justify-between items-center p-6">
+        <Card className={`border-none flex-none rounded-none ${selectedChat ? 'hidden lg:block md:w-1/3' : 'w-full lg:w-1/3'}`}>
+          <div className="flex justify-between items-center p-6 pb-2">
             <h1 className="text-2xl font-semibold">Chats</h1>
             <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
               <PopoverTrigger><FontAwesomeIcon size="lg" icon={faPenToSquare} /></PopoverTrigger>
@@ -218,7 +242,11 @@ const chatContainerRef = useRef(null);
               </PopoverContent>
             </Popover>
           </div>
-          <div className="h-full p-6">
+          <div className="h-full p-6 pt-0">
+          <div className="relative py-2 w-full flex justify-center items-center">
+              <Search className="absolute left-4 top-5 h-4 w-4 text-muted-foreground" />
+              <Input placeholder="Search Chats" className="pl-8 w-full" onChange={e => setSearchTerm(e.target.value)}/>
+          </div>
           {chatSessions.map((session) => {
             // Find the other participant
             const otherParticipant = session.participants.find(participant => participant.id !== user.user_id);
@@ -226,32 +254,37 @@ const chatContainerRef = useRef(null);
             if (!otherParticipant) return null; // Skip rendering if no other participant
 
             return (
-              <div key={session.id} onClick={() => handleUserClick(otherParticipant)}>
-                <Separator />
-                <div className="w-full flex items-center gap-4 p-3">
-                  <Avatar>
+                <div className="w-full flex items-center gap-4 p-3 hover:bg-muted transition duration-150 ease-in-out rounded-md" key={session.id} onClick={() => handleUserClick(otherParticipant)}>
+                  <Avatar className='h-14 w-14'>
                     <AvatarImage src={otherParticipant.avatar_url || "https://github.com/shadcn.png"} />
                     <AvatarFallback>CN</AvatarFallback>
                   </Avatar>
-                  <div className="h-full flex flex-col justify-center">
+                  <div className="h-full flex flex-col justify-center w-full">
                     <h1 className="font-semibold">{otherParticipant.username}</h1>
+                    {session.last_message && (
+                    <div className="text-sm text-muted-foreground w-full flex justify-between items-center">
+                      <div className="flex-1 overflow-hidden">
+                          <div className="overflow-hidden text-ellipsis whitespace-nowrap">{truncateString(session.last_message.message, 24)}</div>
+                      </div>
+                      <div className="text-xs flex-shrink-0">{compactTimeFormat(session.last_message.timestamp)}</div>
+                    </div>
+                    )}
                   </div>
                 </div>
-              </div>
             );
           })}
-            <Separator />
           </div>
         </Card>
-        <Card className={`flex-col flex-grow rounded-none border-l border-r-0 border-y-0 flex`}> 
+        <Card className={`flex-col flex-grow rounded-none border-l border-r-0 border-y-0 flex ${!selectedChat ? 'hidden sm:flex' : ''}`}> 
         {selectedChat ? 
           (
           <>
             <CardHeader className="flex flex-row justify-between items-center">
                 <div className="flex items-center space-x-4">
+                    <FontAwesomeIcon onClick={handleBackClick} className='text-primary' size='xl' icon={faChevronLeft} />
                     <Avatar>
-                    <AvatarImage src="/avatars/01.png" alt="Image" />
-                    <AvatarFallback>NA</AvatarFallback>
+                      <AvatarImage src="https://github.com/shadcn.png" />
+                      <AvatarFallback>CN</AvatarFallback>
                     </Avatar>
                     <div>
                     <p className="text-sm font-medium leading-none">{selectedChat.username}</p>
