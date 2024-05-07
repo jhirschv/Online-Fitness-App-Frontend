@@ -42,7 +42,7 @@ import {
 } from "@/components/ui/command";
 import { useEffect, useState } from 'react'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPenToSquare, faArrowUpRightFromSquare, faChevronLeft } from "@fortawesome/free-solid-svg-icons";
+import { faPenToSquare, faArrowUpRightFromSquare, faChevronLeft, faEllipsis } from "@fortawesome/free-solid-svg-icons";
 import { faComments } from "@fortawesome/free-regular-svg-icons";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
@@ -55,6 +55,18 @@ import {
 } from "@/components/ui/popover"
 import { Search } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 const Chat = () => {
   const location = useLocation();
@@ -79,6 +91,7 @@ const Chat = () => {
     setSelectedChat(otherUser);
     setIsPopoverOpen(false)
     setSearchTerm('')
+    setSessionSearchTerm('')
     apiClient.get(`/chat/${otherUser.id}/`)
         .then(response => {
             setMessages(response.data);
@@ -102,6 +115,12 @@ const Chat = () => {
     ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
         setMessages((prevMessages) => [...prevMessages, data.message]);
+        console.log(data.message)
+        const sessionToUpdate = findMatchingSessionId(chatSessions, user.user_id, selectedChat.id);
+
+        if (sessionToUpdate) {
+            updateLastMessageInChatSessions(data.message, sessionToUpdate.id);
+        }
     };
     ws.onclose = () => console.log("WebSocket connection closed.");
 
@@ -130,6 +149,10 @@ const Chat = () => {
     fetchUserChatSessions();
 }, []);
 
+useEffect(() => {
+  console.log(chatSessions)
+}, [chatSessions]);
+
 const [messages, setMessages] = useState([]);
 const [input, setInput] = React.useState("");
 const inputLength = input.trim().length;
@@ -143,6 +166,26 @@ const sendMessage = () => {
     webSocket.send(JSON.stringify(messageObject)); 
     setInput(''); 
   }
+};
+
+const findMatchingSessionId = (sessions, currentUserId, otherUserId) => {
+  return sessions.find(session => 
+      session.participants.some(participant => participant.id === currentUserId) &&
+      session.participants.some(participant => participant.id === otherUserId)
+  );
+};
+
+const updateLastMessageInChatSessions = (message, sessionId) => {
+  setChatSessions(prevSessions => prevSessions.map(session => {
+      if (session.id === sessionId) {
+          const formattedMessage = {
+              message: (message.sender === user.user_id ? "You: " : "") + message.content,
+              timestamp: "Just now"  // This will need to be updated based on actual time logic
+          };
+          return {...session, last_message: formattedMessage};
+      }
+      return session;
+  }));
 };
 
 const [isPopoverOpen, setIsPopoverOpen] = useState(false);
@@ -172,8 +215,12 @@ const chatContainerRef = useRef(null);
   }
 
   function compactTimeFormat(timeString) {
+    // Handle the "Just now" case directly
+    if (timeString === "Just now") {
+        return timeString;
+    }
+
     const parts = timeString.split(/\s+/);
-    console.log(parts)
 
     // Handle potential parsing issues
     if (parts.length !== 2) return timeString;
@@ -181,7 +228,13 @@ const chatContainerRef = useRef(null);
     const number = parseInt(parts[0], 10);
     const unit = parts[1];
 
-    if (isNaN(number)) return timeString; // Return original if parsing fails
+    // Return original if parsing fails
+    if (isNaN(number)) return timeString;
+
+    // Handling the case for zero minutes specifically
+    if (number === 0 && (unit === 'minutes' || unit === 'minute')) {
+        return "1m";  // Assuming any duration less than a minute should display as "1m"
+    }
 
     switch (unit) {
         case 'minutes':
@@ -204,6 +257,26 @@ const chatContainerRef = useRef(null);
     }
 }
 
+function deleteChatSession(chatSessionId) {
+  apiClient.delete(`/chat_sessions/${chatSessionId}/`)
+      .then(response => {
+          console.log("Chat session deleted successfully.");
+          fetchUserChatSessions();
+          // Optionally refresh the list of chat sessions or update UI accordingly
+      })
+      .catch(error => {
+          console.error("Failed to delete chat session:", error.response ? error.response.data : "No response");
+      });
+}
+const [sessionSearchTerm, setSessionSearchTerm] = useState("");
+
+const filteredSessions = chatSessions.filter(session => {
+  const otherParticipant = session.participants.find(participant => participant.id !== user.user_id);
+  return otherParticipant ? otherParticipant.username.toLowerCase().includes(sessionSearchTerm.toLowerCase()) : false;
+});
+
+
+  
   return (
     <div className={`w-full ${backgroundColorClass} md:border rounded-lg lg:p-4`}>
       <Card className="border-0 md:border h-full w-full flex overflow-hidden rounded-none md:rounded-lg">
@@ -217,7 +290,7 @@ const chatContainerRef = useRef(null);
                     <Search className="absolute left-4 top-5 h-4 w-4 text-muted-foreground" />
                     <Input placeholder="Search Users" className="pl-8 w-full mx-2" onChange={e => setSearchTerm(e.target.value)}/>
                 </div>
-                <ScrollArea className='h-[300px]'>
+                <div className="overflow-y-scroll max-h-[250px] scrollbar-custom">
                 {searchTerm && (
                         <div className="pr-2">
                             {users.filter(user => user.username && user.username.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -238,23 +311,47 @@ const chatContainerRef = useRef(null);
                             }
                         </div>
                     )}
-                  </ScrollArea>
+                  </div>
               </PopoverContent>
             </Popover>
           </div>
           <div className="h-full p-6 pt-0">
           <div className="relative py-2 w-full flex justify-center items-center">
               <Search className="absolute left-4 top-5 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search Chats" className="pl-8 w-full" onChange={e => setSearchTerm(e.target.value)}/>
+              <Input placeholder="Search Chats" className="pl-8 w-full" value={sessionSearchTerm}
+              onChange={e => setSessionSearchTerm(e.target.value)}/>
           </div>
-          {chatSessions.map((session) => {
+          {filteredSessions.map((session) => {
             // Find the other participant
             const otherParticipant = session.participants.find(participant => participant.id !== user.user_id);
 
             if (!otherParticipant) return null; // Skip rendering if no other participant
 
             return (
-                <div className="w-full flex items-center gap-4 p-3 hover:bg-muted transition duration-150 ease-in-out rounded-md" key={session.id} onClick={() => handleUserClick(otherParticipant)}>
+                <div className="relative w-full flex items-center gap-4 p-3 py-2 hover:bg-muted transition duration-150 ease-in-out rounded-md" key={session.id} onClick={() => handleUserClick(otherParticipant)}>
+                  <Popover >
+                      <PopoverTrigger onClick={(event) => event.stopPropagation()} className='p-1 absolute top-1 right-2'><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
+                      <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md'>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                        <Button onClick={(event) => {event.stopPropagation()}} className='px-4 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>
+                        Delete Chat</Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone. This will permanently delete your converation for both users.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <Button variant='destructive' onClick={() => deleteChatSession(session.id)}>Delete</Button>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                      </PopoverContent>
+                  </Popover>
                   <Avatar className='h-14 w-14'>
                     <AvatarImage src={otherParticipant.avatar_url || "https://github.com/shadcn.png"} />
                     <AvatarFallback>CN</AvatarFallback>
@@ -315,14 +412,13 @@ const chatContainerRef = useRef(null);
               <div
                   className="flex w-full items-center space-x-2"
               >
-                  <Input
+                  <Textarea
                   id="message"
                   placeholder="Type your message..."
-                  className="flex-1"
+                  className="flex-1 h-10 resize-none"
                   autoComplete="off"
                   value={input}
-                  onChange={(event) => setInput(event.target.value)}
-                  />
+                  onChange={(event) => setInput(event.target.value)} />
                   <Button onClick={sendMessage} size="icon" disabled={inputLength === 0}>
                   <Send className="h-4 w-4" />
                   <span className="sr-only">Send</span>
