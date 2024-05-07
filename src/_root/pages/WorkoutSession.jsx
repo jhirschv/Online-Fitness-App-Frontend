@@ -552,7 +552,7 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                                 <p className='text-sm text-muted-foreground mr-4'>Most Recent</p>
                                                             </SheetTitle>
                                                             </SheetHeader>
-                                                            <ScrollArea className="min-h-[200px] h-[94%] min-w-[200px] w-full rounded-md border px-4 my-4">
+                                                            <ScrollArea className="min-h-[200px] h-[94%] min-w-[200px] w-full rounded-md border  my-4">
                                                                 {exerciseHistories[exercise.workout_exercise.exercise.id]
                                                                 ?.slice()  // Creates a shallow copy of the array
                                                                 .reverse()?.map(set => (

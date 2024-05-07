@@ -1,5 +1,5 @@
 import React from "react";
-import { useContext } from 'react';
+import { useContext, useRef } from 'react';
 import AuthContext from '../../context/AuthContext';
 import { useTheme } from "@/components/theme-provider";
 import apiClient from '../../services/apiClient';
@@ -42,7 +42,7 @@ import {
 } from "@/components/ui/command";
 import { useEffect, useState } from 'react'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
+import { faPenToSquare, faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { faComments } from "@fortawesome/free-regular-svg-icons";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
@@ -166,10 +166,22 @@ const sendMessage = () => {
 
 const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
+const chatContainerRef = useRef(null);
+
+  const scrollToBottom = () => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+
+
   return (
-    <div
-      className={`w-full ${backgroundColorClass} md:border rounded-lg md:p-4`}
-    >
+    <div className={`w-full ${backgroundColorClass} md:border rounded-lg md:p-4`}>
       <Card className="border-0 md:border h-full w-full flex overflow-hidden rounded-none md:rounded-lg">
         <Card className={`border-none flex-none rounded-none ${isChatSession ? 'hidden md:block w-1/3' : 'w-full md:w-1/3'}`}>
           <div className="flex justify-between items-center p-6">
@@ -183,7 +195,7 @@ const [isPopoverOpen, setIsPopoverOpen] = useState(false);
                 </div>
                 <ScrollArea className='h-[300px]'>
                 {searchTerm && (
-                        <div className="user-list">
+                        <div className="pr-2">
                             {users.filter(user => user.username && user.username.toLowerCase().includes(searchTerm.toLowerCase()))
                                 .map(filteredUser => (
                                   <div key={filteredUser.id} onClick={() => handleUserClick(filteredUser)}>
@@ -235,7 +247,7 @@ const [isPopoverOpen, setIsPopoverOpen] = useState(false);
         {selectedChat ? 
           (
           <>
-            <CardHeader className="flex flex-row items-center">
+            <CardHeader className="flex flex-row justify-between items-center">
                 <div className="flex items-center space-x-4">
                     <Avatar>
                     <AvatarImage src="/avatars/01.png" alt="Image" />
@@ -245,14 +257,17 @@ const [isPopoverOpen, setIsPopoverOpen] = useState(false);
                     <p className="text-sm font-medium leading-none">{selectedChat.username}</p>
                     </div>
                 </div>
+                <div >
+                  <Button className="mb-1" variant='secondary' size='sm'>Share Program</Button>
+                </div>
             </CardHeader>
-            <CardContent className="w-full flex flex-col flex-grow overflow-y-auto">
-            <div className="w-full space-y-4 flex flex-col justify-end h-full">
-                {messages?.map((message, index) => (
+            <CardContent className="w-full flex flex-col h-full overflow-y-auto overflow-x-hidden pb-1 px-0">
+                <div className="flex flex-col-reverse pb-2 px-2 h-full overflow-y-scroll px-1 scrollbar-custom" ref={chatContainerRef}>
+                {messages.slice().reverse().map((message, index) => (
                 <div
                     key={index}
                     className={cn(
-                    "flex w-max max-w-xs flex-col gap-2 rounded-lg px-3 py-2 text-sm break-all whitespace-pre-wrap",
+                    "flex w-max max-w-xs flex-col gap-2 rounded-lg px-3 py-2 mt-1 text-sm break-all whitespace-pre-wrap",
                     message.sender === user.user_id
                         ? "ml-auto bg-primary text-primary-foreground"
                         : "bg-muted"
@@ -261,9 +276,9 @@ const [isPopoverOpen, setIsPopoverOpen] = useState(false);
                     <p>{message.content}</p>
                 </div>
                 ))}
-            </div>
+                </div>
             </CardContent>
-            <CardFooter className='mt-auto'>
+            <CardFooter className='mt-auto pt-2'>
               <div
                   className="flex w-full items-center space-x-2"
               >
