@@ -42,7 +42,7 @@ import {
 } from "@/components/ui/command";
 import { useEffect, useState } from 'react'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPenToSquare, faArrowUpRightFromSquare, faChevronLeft, faEllipsis } from "@fortawesome/free-solid-svg-icons";
+import { faPenToSquare, faArrowUpRightFromSquare, faChevronLeft, faEllipsis, faDumbbell, faLock } from "@fortawesome/free-solid-svg-icons";
 import { faComments } from "@fortawesome/free-regular-svg-icons";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
@@ -385,10 +385,14 @@ const filteredSessions = chatSessions.filter(session => {
                     </Avatar>
                     <div>
                     <p className="text-sm font-medium leading-none">{selectedChat.username}</p>
+                    <div className="flex items-center gap-1">
+                      <FontAwesomeIcon className="text-xs text-muted-foreground" icon={faLock} />
+                      <p className="text-xs text-muted-foreground">end-to-end encrypted</p>
+                    </div>
                     </div>
                 </div>
                 <div >
-                  <Button className="mb-1" variant='secondary' size='sm'>Share Program</Button>
+                  <Button className="mb-1 flex items-center gap-1" variant='secondary' size='sm'><FontAwesomeIcon className="mt-1" icon={faDumbbell} />Share Program</Button>
                 </div>
             </CardHeader>
             <CardContent className="w-full flex flex-col h-full overflow-y-auto overflow-x-hidden pb-1 px-0">
@@ -434,7 +438,6 @@ const filteredSessions = chatSessions.filter(session => {
               <FontAwesomeIcon className="fa-5x" icon={faComments} />
               <h1 className="text-xl font-semibold">Your Messages</h1>
               <p className="text-sm text-muted-foreground">Send messages to a friend</p>
-              <Button size="sm">Send Message</Button>
             </CardHeader>
           </>
           )
