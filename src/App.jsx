@@ -59,7 +59,7 @@ function App() {
             })
         
         .catch(error => console.error('Error:', error));
-    }, []);
+    }, [user]);
   
     const sendDataToParent = (childData) => {
       onDataReceive(childData);
@@ -75,6 +75,7 @@ function App() {
           if (response.data.active) {
               setIsActiveSession(true);
               setSessionDetails(response.data);
+              console.log(response.data)
           } else {
               setIsActiveSession(false);
               setSessionDetails({}); // Clear session details as session is inactive
@@ -90,6 +91,7 @@ function App() {
   
     useEffect(() => {
       fetchSessionDetails();
+      console.log("fetching session details")
     }, []);
 
   return (
@@ -125,7 +127,7 @@ function App() {
               </Route>
             </Route>
           </Route>
-          <Route path="/login" element={<SigninForm />} />
+          <Route path="/login" element={<SigninForm fetchSessionDetails={fetchSessionDetails}/>} />
           <Route path="/signup" element={<SignupForm />} />
         </Routes>
     </ThemeProvider>

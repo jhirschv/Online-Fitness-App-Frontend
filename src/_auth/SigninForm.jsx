@@ -16,9 +16,15 @@ import {
 } from "@/components/ui/form"
 import { Link } from 'react-router-dom';
 
-export function SigninForm() {
+export function SigninForm({fetchSessionDetails}) {
 
   let {loginUser} = useContext(AuthContext)
+
+  const handleSubmit = async (event) => {
+    event.preventDefault(); // Prevent the default form submit action
+    await loginUser(event); // Assuming loginUser is setup to handle the event correctly
+    fetchSessionDetails(); // Call after loginUser has completed
+  };
 
   return (
     <div className="bg-deafult h-screen flex items-center justify-center gap-x-4">
@@ -28,7 +34,7 @@ export function SigninForm() {
           <CardDescription>to start your training journey</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={loginUser}>
+          <form onSubmit={handleSubmit}>
             <div className="grid w-full items-center gap-4">
               <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="name">Username</Label>
