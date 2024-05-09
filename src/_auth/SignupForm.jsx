@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import apiClient from '../services/apiClient';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
+import { generateKeyPair } from '../utils/crypto';
 
 export function SignupForm() {
   let {setUser, setAuthTokens, loginUser} = useContext(AuthContext)
@@ -16,6 +17,15 @@ export function SignupForm() {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});
+
+  const updatePublicKey = async (publicKey) => {
+    const response = await apiClient.post('update-public-key/', { public_key: publicKey });
+    if (response.data) {
+        console.log("Public key updated successfully");
+    } else {
+        console.error("Failed to update public key");
+    }
+};
   
   const validateField = (name, value) => {
     let errorMsg = null;
@@ -99,7 +109,21 @@ export function SignupForm() {
                 if (data) {
                     localStorage.setItem('authTokens', JSON.stringify(data));
                     setAuthTokens(data);
-                    setUser(jwtDecode(data.access));
+                    const user = jwtDecode(data.access);
+
+                    // Generate key pair
+                    console.log("Generating key pair");
+                    const { publicKey, privateKey } = await generateKeyPair();
+                    console.log("Key pair generated", { publicKey, privateKey });
+
+                    // Store the keys in local storage with the user's ID
+                    localStorage.setItem(`keys_${user.user_id}`, JSON.stringify({ publicKey, privateKey }));
+
+                    // Update public key on the server
+                    console.log("Updating public key on the server");
+                    await updatePublicKey(publicKey);
+
+                    setUser(user);
                     navigate('/');
                 } else {
                     console.error('Authentication failed after registration');
