@@ -23,13 +23,16 @@ import ProgramOverview from './_root/pages/ProgramOverview';
 import WorkoutSession from './_root/pages/WorkoutSession';
 import Workout from './_root/pages/Workout'
 import ChatSession from './_root/pages/ChatSession';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import apiClient from './services/apiClient';
+import AuthContext from './context/AuthContext';
 
 
 function App() {
   useDisableZoom();
+  const { user } = useContext(AuthContext);
   const [loadingSessionDetails, setLoadingSessionDetails] = useState(true);
+  const [programLoading, setProgramLoading] = useState(true)
 
   //fetch active program and workouts
   const [activeProgram, setActiveProgram] = useState(null)
@@ -38,25 +41,15 @@ function App() {
       apiClient.get('/get_active_program/') // Make sure the endpoint matches your Django URL configuration
       .then(response => {
           setActiveProgram(response.data); 
+          setProgramLoading(false)
           const sortedWorkouts = response.data.workouts.sort((a, b) => a.order - b.order);
           setWorkouts(sortedWorkouts);
       })
       .catch(error => {
           console.error('Error fetching data:', error);
       });
-  }, []);
+  }, [user]);
 
-  const getActiveProgram = () => {
-    apiClient.get('/get_active_program/') // Make sure the endpoint matches your Django URL configuration
-      .then(response => {
-          setActiveProgram(response.data); 
-          const sortedWorkouts = response.data.workouts.sort((a, b) => a.order - b.order);
-          setWorkouts(sortedWorkouts);
-      })
-      .catch(error => {
-          console.error('Error fetching data:', error);
-      });
-  }  
   //fetch user workout sessions
   const [userWorkoutSessions, setUserWorkoutSessions] = useState([])
   useEffect(() => {
@@ -101,7 +94,6 @@ function App() {
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <AuthProvider>
         <Routes>
           <Route element={<RootLayout />}>
             <Route element={<PrivateRoute />}>
@@ -121,6 +113,7 @@ function App() {
               isActiveSession={isActiveSession}
               fetchSessionDetails={fetchSessionDetails}
               loadingSessionDetails={loadingSessionDetails}
+              programLoading={programLoading}
               />} />
               <Route path="/workoutSession" element={<WorkoutSession
               sessionDetails={sessionDetails}
@@ -135,7 +128,6 @@ function App() {
           <Route path="/login" element={<SigninForm />} />
           <Route path="/signup" element={<SignupForm />} />
         </Routes>
-      </AuthProvider>
     </ThemeProvider>
   )
 }

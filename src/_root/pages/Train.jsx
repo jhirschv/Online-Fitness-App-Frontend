@@ -103,7 +103,7 @@ import { useToast } from "@/components/ui/use-toast"
 
   
   
-const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWorkoutSessions, sessionDetails, isActiveSession, fetchSessionDetails, loadingSessionDetails}) => {
+const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWorkouts, userWorkoutSessions, sessionDetails, isActiveSession, fetchSessionDetails, loadingSessionDetails}) => {
     let { user } = useContext(AuthContext);
     const { theme } = useTheme();
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
@@ -829,8 +829,14 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
                     <h1 className='text-muted-foreground mt-2'>AI programs may take up to 2 minutes to create</h1>
                 </div>
             )}
+            {programLoading && (
+                <div className="absolute inset-0 flex flex-col justify-center items-center z-10 rounded-lg">
+                    <ScaleLoader color="#2563eb" size={40} />
+                </div>
+            )}
             <Toaster />
             <Card className='relative border-0 md:border h-full w-full flex flex-col rounded-none md:rounded-lg overflow-y-auto'>
+                {!programLoading && activeProgram && (
                 <div className='flex h-full w-full'>
 
                     <div className='flex flex-col h-full basis-full w-full lg:basis-2/5 px-6  md:px-0 md:pl-6'>
@@ -1524,6 +1530,7 @@ const Train = ({activeProgram, setActiveProgram, workouts, setWorkouts, userWork
                     
                     
                 </div>
+                )} 
             </Card>
         </div>
     )
