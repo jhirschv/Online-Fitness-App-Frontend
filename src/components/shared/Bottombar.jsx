@@ -8,7 +8,7 @@ import { faDumbbell, faPersonRunning, faChartLine, faWandMagicSparkles, faCommen
 
 const Bottombar = () => {
   return (
-    <div className='fixed bottom-0 xl:hidden w-full border-t flex h-24 bg-background'>
+    <div className='fixed bottom-0 xl:hidden w-full border-t flex h-20 bg-background'>
         <ul className="flex w-full justify-evenly">
 
             <NavLink className='flex justify-center items-center ' to="/">
