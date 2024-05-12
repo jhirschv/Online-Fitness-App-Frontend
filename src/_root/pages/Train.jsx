@@ -836,7 +836,7 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
             )}
             <Toaster />
             <Card className='relative border-0 md:border h-full w-full flex flex-col rounded-none md:rounded-lg'>
-                {!programLoading && activeProgram && (
+                {!programLoading && (
                 <div className='flex h-full w-full'>
 
                     <div className='flex flex-col h-full overflow-hidden w-full lg:basis-2/5 px-6  md:px-0 md:pl-6'>

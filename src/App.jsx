@@ -47,6 +47,7 @@ function App() {
       })
       .catch(error => {
           console.error('Error fetching data:', error);
+          setProgramLoading(false);
       });
   }, [user]);
 
