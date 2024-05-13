@@ -426,12 +426,13 @@ const decryptMessage = async (encryptedMessage) => {
               </PopoverContent>
             </Popover>
           </div>
-          <div className="h-full p-6 pt-0">
+          <div className="h-full px-4 py-0">
           <div className="relative py-2 w-full flex justify-center items-center">
               <Search className="absolute left-4 top-5 h-4 w-4 text-muted-foreground" />
               <Input placeholder="Search Chats" className="pl-8 w-full" value={sessionSearchTerm}
               onChange={e => setSessionSearchTerm(e.target.value)}/>
           </div>
+          <div className="overflow-y-scroll scrollbar-custom" style={{ height: `calc(100vh - 265px)` }}>
           {filteredSessions.map((session) => {
             // Find the other participant
             const otherParticipant = session.participants.find(participant => participant.id !== user.user_id);
@@ -481,6 +482,7 @@ const decryptMessage = async (encryptedMessage) => {
                 </div>
             );
           })}
+          </div>
           </div>
         </Card>
         <Card className={`flex-col flex-grow rounded-none border-l border-r-0 border-y-0 flex ${!selectedChat ? 'hidden sm:flex' : ''}`}> 

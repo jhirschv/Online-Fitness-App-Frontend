@@ -10,9 +10,9 @@ const RootLayout = () => {
   const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
   
   return (
-    <div  className={`flex flex-col justify-between pb-24 pt-16 xl:pb-0 h-screen`}>
+    <div  className={`flex flex-col justify-between pb-20 pt-16 xl:pb-0 h-screen`}>
       <Topbar />
-      <div className="overflow-y-auto flex flex-1">
+      <div className="overflow-hidden flex flex-1">
         <Sidebar />
         <Outlet />
       </div>

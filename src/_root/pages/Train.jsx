@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../../services/apiClient';
+import useTouchScroll from '../../utils/useTouchScroll';
 import { useTheme } from '@/components/theme-provider';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -94,7 +95,7 @@ import {
   import { Reorder, useDragControls } from 'framer-motion';
   import { ReorderItem } from "@/components/ReorderItem";
   import { ReorderExercise } from "@/components/ReorderExercise";
-  import { useContext } from 'react'
+  import { useContext, useRef } from 'react'
 import AuthContext from '@/context/AuthContext';
 import { ScaleLoader } from 'react-spinners';
 import { Toaster } from "@/components/ui/toaster"
@@ -759,6 +760,9 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
         );
     };
 
+    const { touchAreaRef, handleTouchStart, handleTouchMove, handleTouchEnd } = useTouchScroll(() => isDragging);
+    const { touchAreaRef: touchAreaRef2, handleTouchStart: handleTouchStart2, handleTouchMove: handleTouchMove2, handleTouchEnd: handleTouchEnd2 } = useTouchScroll(() => isDragging);
+
     const renderWorkoutSessionDetails = (workout) => {
 
         const workoutDate = new Date(workout.date);
@@ -839,7 +843,7 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                 {!programLoading && (
                 <div className='flex h-full w-full'>
 
-                    <div className='flex flex-col h-full overflow-hidden w-full lg:basis-2/5 px-6  md:px-0 md:pl-6'>
+                    <div className='flex flex-col h-full overflow-hidden w-full lg:basis-2/5 px-4  md:px-0 md:pl-6'>
                         <div className='h-full flex flex-col pt-4'>
                             {activeProgram ? (
                                 <div className='flex flex-col h-full'>
@@ -915,12 +919,16 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                                             <div className="pt-2 h-full">
                                             <Card className='border-none rounded-none h-full'>
                                             
-                                                <CardContent className="p-0 h-full items-center flex flex-col gap-2">
+                                                <CardContent className="p-0 pb-6 h-full items-center flex flex-col gap-2">
                                                     <div className='flex gap-10 self-start items-center'>
                                                         <h1 className='mr-2 p-1 text-xl self-start font-semibold'>{activeProgram.name}</h1>
                                                         <p className='text-sm text-muted-foreground'>{activeProgram?.workouts?.length ?? 0} workouts</p>
                                                     </div>
-                                                    <div className='w-full flex-1 max-h-[64vh] overflow-y-auto scrollbar-custom'>
+                                                    <div 
+                                                    onTouchStart={handleTouchStart}
+                                                    onTouchMove={handleTouchMove}
+                                                    onTouchEnd={handleTouchEnd}
+                                                    ref={touchAreaRef} className='w-full flex-1 overflow-y-scroll scrollbar-custom' style={{ height: `calc(100vh - 150px)` }}>
                                                     <Reorder.Group
                                                         axis="y"
                                                         onReorder={handleReorder}
@@ -1028,7 +1036,11 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                                                         <h1 className='p-1 font-semibold text-xl'>{clickedWorkout && clickedWorkout.name}</h1>
                                                         <p className='text-sm text-muted-foreground'>{clickedWorkout && clickedWorkout.workout_exercises ? clickedWorkout.workout_exercises.length : 0} exercises</p>
                                                     </div>
-                                                <div className='flex flex-col gap-2 pb-4 max-h-[57vh] overflow-y-auto md:pr-2 scrollbar-custom'>
+                                                <div 
+                                                onTouchStart={handleTouchStart2}
+                                                onTouchMove={handleTouchMove2}
+                                                onTouchEnd={handleTouchEnd2}
+                                                ref={touchAreaRef2}className='flex flex-col gap-2 pb-4 overflow-y-auto md:pr-2 scrollbar-custom' style={{ height: `calc(100vh - 235px)` }}>
                                                 <Reorder.Group
                                                         axis="y"
                                                         onReorder={handleExerciseReorder}
@@ -1266,7 +1278,7 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                                                         </AlertDialogContent>
                                                     </AlertDialog>  
                                                 </SheetHeader>
-                                                <div className='flex flex-col gap-2 mt-2'>
+                                                <div className='flex flex-col gap-2 mt-2 overflow-y-auto max-h-[75vh] scrollbar-custom'>
                                                 {userPrograms.map((program) => (
                                                 <div
                                                     key={program.id}
@@ -1311,60 +1323,6 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                                 </div>
                             )
                             }
-
-
-
-
-
-
-
-                                {/* {displayCurrentWorkout && currentWorkout ? (
-                                    renderWorkoutDetails(currentWorkout)
-                                ) : (
-                                    !displayCurrentWorkout && dayData && (typeof dayData === 'object' && Object.keys(dayData).length > 0) ? (
-                                        renderWorkoutSessionDetails(dayData)
-                                    ) : (
-                                        <div className='w-full flex flex-col gap-2 mt-[35%] md:mt-[25%] items-center text-muted-foreground text-lg'>
-                                            <h1>Nothing to see here!</h1>
-                                            <h1>{date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h1>
-                                            <div className='flex items-center gap-2 mt-4'>
-                                                <AlertDialog>
-                                                    <AlertDialogTrigger asChild><Button className='rounded-xs' >Create Program</Button></AlertDialogTrigger>
-                                                    <AlertDialogContent>
-                                                        <AlertDialogHeader>
-                                                        <AlertDialogTitle>Create Program</AlertDialogTitle>
-                                                        </AlertDialogHeader>
-                                                        <Label htmlFor="programName">Name</Label><Input onChange={handleNameInputChange} value={programName} autoComplete="off" id="programName" />
-                                                        <AlertDialogFooter>
-                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                        <AlertDialogAction onClick={createAndActivateProgram}>Create</AlertDialogAction>
-                                                        </AlertDialogFooter>
-                                                    </AlertDialogContent>
-                                                </AlertDialog>  
-                                                <p className='text-sm'>or</p>
-                                                <AlertDialog>
-                                                    <AlertDialogTrigger asChild><Button className='rounded-xs text-primary-foreground border-2' variant='outline' >Create workout</Button></AlertDialogTrigger>
-                                                    <AlertDialogContent>
-                                                        <AlertDialogHeader>
-                                                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                                        <AlertDialogDescription>
-                                                            This action cannot be undone. This will permanently delete your account
-                                                            and remove your data from our servers.
-                                                        </AlertDialogDescription>
-                                                        </AlertDialogHeader>
-                                                        <AlertDialogFooter>
-                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                        <AlertDialogAction>Continue</AlertDialogAction>
-                                                        </AlertDialogFooter>
-                                                    </AlertDialogContent>
-                                                </AlertDialog>                                             
-                                            </div>
-                                            <Separator className='my-2'/>
-                                            <Button className='rounded-xs' variant='secondary'>Add From Library</Button>
-                                        </div>
-                                        
-                                    )
-                                )} */}
                         </div>
                         {activeProgram && !loadingSessionDetails && (
                             <div className='flex relative justify-center items-center xl:mb-24'>
@@ -1373,7 +1331,7 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                                         variant='secondary'
                                         size='lg'
                                         onClick={resumeSession}
-                                        className='absolute bottom-4 right-0 self-center p-4 text-lg'>
+                                        className='absolute bottom-4 right-2 self-center p-4 text-lg'>
                                         Resume Workout
                                     </Button>
                                 ) : (
@@ -1422,40 +1380,3 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
 }
 
 export default Train
-
-
-
-
-
-
-
-
-{/*  <Sheet  open={isSheetOpen} onOpenChange={handleSheetOpenChange}>
-                                <SheetTrigger asChild>
-                                    <Button variant='outline' onClick={() => setIsSheetOpen(true)} className=' hidden self-center w-1/2 md:w-2/5 p-6 text-lg'>Change Workout</Button>
-                                </SheetTrigger>
-                                <SheetContent>
-                                    <div className='w-full flex justify-center'>
-                                        <Button onClick={() => { updateWorkoutProgress(selectedWorkout); setIsSheetOpen(false); }}  disabled={!selectedWorkout} className='self-center w-1/2 p-6 text-lg'>Save</Button>
-                                    </div>
-                                    <ScrollArea className="h-full w-full">
-                                    <div>
-                                        {phasesDetails.map((phase) => (
-                                            <div key={phase.id}>
-                                            <h3 className='font-bold text-center p-2'>{phase.name}</h3>
-                                            {phase.workouts_by_week.map((week, index) => (
-                                                <div key={index}>
-                                                <h4 className='font-semibold text-center p-2'>Week {week.week}</h4>
-                                                {week.workouts.map((workout) => (
-                                                    <p  onClick={() => handleSelectedWorkout({ phaseId: phase.id, week: week.week, workoutId: workout.id, workoutName: workout.name })}
-                                                    className={`ml-4 p-4 border mr-4 ${selectedWorkout?.workoutId === workout.id && selectedWorkout?.week === week.week ? 'bg-secondary' : 'bg-background'}`} key={workout.id}>{workout.name}
-                                                    </p>
-                                                ))}
-                                                </div>
-                                            ))}
-                                            </div>
-                                        ))}
-                                        </div>
-                                    </ScrollArea>
-                                </SheetContent>
-                             </Sheet> */}

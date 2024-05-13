@@ -203,7 +203,7 @@ const Progress = ({userWorkoutSessions}) => {
 
 
     return (
-        <div className={`w-full md:border rounded-lg md:h-full ${backgroundColorClass} md:p-4 pb-24`}>
+        <div className={`w-full md:border rounded-lg overflow-y-scroll ${backgroundColorClass} md:p-4 pb-24`}>
             <Card className='border-0 md:border h-screen lg:h-full w-full md:border rounded-none md:rounded-lg flex justify-center p-4'>
             <div className="w-full h-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 <div className="col-span-2 h-48">
@@ -301,7 +301,7 @@ const Progress = ({userWorkoutSessions}) => {
                         <Drawer open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                             <DrawerContent className='h-full pt-2'>
                                 {dayData.workout ? 
-                                <div className='h-full overflow-auto px-4 pt-8 pb-4'>
+                                <div className='h-full overflow-y-scroll scrollbar-custom px-4 pt-8 pb-4'>
                                     <div className='flex items-center justify-between pr-2'>
                                     <h1 className='font-semibold text-lg'>{dayData.workout.name}</h1>
                                     <h1>{formattedDate}</h1>

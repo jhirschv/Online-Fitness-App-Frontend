@@ -524,23 +524,23 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
     };
 
     return (
-        <div className={`w-full ${backgroundColorClass} md:border md:rounded-lg md:p-4`}>
+        <div className={`w-full ${backgroundColorClass} lg:border lg:rounded-lg lg:p-4`}>
             <Toaster />
             <Card className='border-0 md:border h-full w-full rounded-none md:rounded-lg relative'>
-                <FontAwesomeIcon className='hidden md:block absolute top-6 left-6' onClick={goBack} size="xl" icon={faAngleLeft} />
+                <FontAwesomeIcon className='absolute top-1 xl:top-4 left-4 z-20' onClick={goBack} size="lg" icon={faAngleLeft} />
 
-                <div className='w-full h-full flex justify-center items-center'>
+                <div className='w-full h-full flex justify-center'>
                     
-                        <Carousel onApiChange={setCarouselApi} className="w-full md:mx-16 md:mt-6 md:max-w-md md:max-w-3xl">
-                            <CarouselContent className='w-100vw min-w-full'>
+                        <Carousel onApiChange={setCarouselApi} className="h-full flex flex-col w-full lg:mx-16 lg:mt-6 lg:max-w-md lg:max-w-2xl">
+                            <CarouselContent className='min-w-full'>
                                 {sessionDetails && sessionDetails.exercise_logs.map((exercise, index) => (
                                 <CarouselItem className='w-full' key={exercise.id}   >
                                     <div>
                                     <Card className='h-full w-full border-none md:border' >
-                                        <CardContent className="flex p-0 md:pt-6 md:px-6 md:pb-0">
-                                            <div className='flex flex-col w-full'>
+                                        <CardContent className="flex p-0 pt-4">
+                                            <div className='flex flex-col w-full' style={{ height: `calc(100vh - 170px)` }}>
                                                 <div className='flex items-center pb-4'>
-                                                    <h1 className='pl-2 md:pl-0 font-semibold text-xl'>{index + 1}. {exercise.workout_exercise.exercise.name}</h1>
+                                                    <h1 className='pl-4 font-semibold text-xl'>{index + 1}. {exercise.workout_exercise.exercise.name}</h1>
                                                     <Sheet>
                                                         <SheetTrigger asChild>
                                                             <Button variant='outline' className='ml-2' onClick={() => fetchExerciseHistory(exercise.workout_exercise.exercise.id)}>History</Button>
@@ -592,7 +592,7 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                                 )
                                                             }
                                                 </div>
-                                                <ScrollArea className='h-[550px] md:h-[440px] md:pr-2 border-none'>
+                                                <div className='scrollbar-custom overflow-y-scroll md:pr-2 border-none' style={{ height: `calc(100vh - 205px)` }}>
                                                 {exercise.sets.map((set) => (
                                                     <div key={set.id} onClick={() => selectSet(exercise.id, set.id)} className={`h-20 flex flex-col justify-between ${selectedSets[exercise.id]?.id === set.id ? "bg-muted" : "bg-background"}`}>
                                                         <Separator/>
@@ -710,11 +710,10 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                             </div>
                                                         <Separator/>
                                                     </div>
-                                                </ScrollArea>
-                                                <Separator/>
+                                                </div>
                                                 
                                                 
-                                                <div className='flex gap-1 items-center pt-4 ml-4' > 
+                                                <div className='flex gap-1 items-center pt-4 ml-4 mt-auto' > 
                                                     <AlertDialog>
                                                         <AlertDialogTrigger asChild>
                                                             <Button variant='outline' size='lg' className='px-4 mx-2'>
@@ -747,6 +746,7 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                     </AlertDialog>
                                                     <Button onClick={() => updateExerciseSet(exercise.id)} size='lg'>Log Set</Button>
                                                 </div>
+                                                <CarouselTabs sessionDetails={sessionDetails} />
                                             </div>
                                             
                                             
@@ -767,7 +767,6 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                     
                                 </CarouselItem>
                             </CarouselContent>
-                            <CarouselTabs sessionDetails={sessionDetails} />
                             <CarouselPrevious className='hidden md:flex'/>
                             <CarouselNext className='hidden md:flex'/>
                         </Carousel>   
@@ -783,8 +782,8 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                     </Popover>
                                 </div>
                             </div>
-                            <div>
-                                <Table className='h-full'>
+                            <div className='h-[67vh] overflow-y-scroll scrollbar-custom'>
+                                <Table>
                                     <TableHeader>
                                     <TableRow>
                                         <TableHead className="w-[100px] pl-0">Exercise</TableHead>
