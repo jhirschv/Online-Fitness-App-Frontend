@@ -32,12 +32,13 @@ function App() {
   useDisableZoom();
   const { user } = useContext(AuthContext);
   const [loadingSessionDetails, setLoadingSessionDetails] = useState(true);
-  const [programLoading, setProgramLoading] = useState(true)
+  const [programLoading, setProgramLoading] = useState(null)
 
   //fetch active program and workouts
   const [activeProgram, setActiveProgram] = useState(null)
   const [workouts, setWorkouts] = useState([])
   useEffect(() => {
+      setProgramLoading(true)
       apiClient.get('/get_active_program/') // Make sure the endpoint matches your Django URL configuration
       .then(response => {
           setActiveProgram(response.data); 
