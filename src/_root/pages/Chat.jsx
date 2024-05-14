@@ -42,7 +42,7 @@ import {
 } from "@/components/ui/command";
 import { useEffect, useState } from 'react'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPenToSquare, faArrowUpRightFromSquare, faChevronLeft, faEllipsis, faDumbbell, faLock } from "@fortawesome/free-solid-svg-icons";
+import { faPenToSquare, faArrowUpRightFromSquare, faChevronLeft, faEllipsis, faDumbbell, faLock, faUserPlus, faArrowUpFromBracket } from "@fortawesome/free-solid-svg-icons";
 import { faComments } from "@fortawesome/free-regular-svg-icons";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
@@ -81,6 +81,8 @@ import {
 import { Toaster } from "@/components/ui/toaster"
 import { ToastAction } from "@/components/ui/toast"
 import { useToast } from "@/components/ui/use-toast"
+
+
 
 const Chat = () => {
   const location = useLocation();
@@ -476,7 +478,55 @@ const handleShareClick = async (program) => {
   }
 };
 
+const sendTrainerRequest = async () => {
+  try {
+    const response = await apiClient.post(`/send-trainer-request/${selectedChat.id}/`);
+    alert(response.data.status);
+  } catch (error) {
+    console.error('Error sending trainer request:', error);
+    alert('Failed to send trainer request.');
+  }
+};
 
+const [receivedRequests, setReceivedRequests] = useState([]);
+
+useEffect(() => {
+  const fetchTrainerRequests = async () => {
+    try {
+      const response = await apiClient.get('/trainer-requests/');
+      setReceivedRequests(response.data.received_requests);
+      console.log(response.data.received_requests)
+    } catch (error) {
+      console.error('Error fetching trainer requests:', error);
+    }
+  };
+
+  fetchTrainerRequests();
+}, [selectedChat]);
+
+const [matchingRequest, setMatchingRequest] = useState(null);
+
+useEffect(() => {
+  if (selectedChat && selectedChat.id) {
+    const request = receivedRequests.find(request => request.from_user === selectedChat.id);
+    setMatchingRequest(request);
+  } else {
+    setMatchingRequest(null);
+  }
+}, [selectedChat, receivedRequests]);
+
+const handleRequest = async (requestId, action) => {
+  try {
+    const response = await apiClient.post(`/handle-trainer-request/${requestId}/`, { action });
+    toast({
+      title: `Request has been ${action == 'accept' ? "accepted" : "rejected"}`,
+      description: `The request has been ${action == 'accept' ? "accepted" : "rejected"}.`
+  });
+    setReceivedRequests(receivedRequests.filter(request => request.id !== requestId));
+  } catch (error) {
+    console.error(`Error handling trainer request: ${action}`, error);
+  }
+};
   return (
     <div className={`w-full ${backgroundColorClass} md:border rounded-lg lg:p-4`}>
       <Toaster />
@@ -579,7 +629,7 @@ const handleShareClick = async (program) => {
         {selectedChat ? 
           (
           <>
-            <CardHeader className="flex flex-row justify-between items-center">
+            <CardHeader className="flex flex-row justify-between items-center pb-2">
                 <div className="flex items-center space-x-4">
                     <FontAwesomeIcon onClick={handleBackClick} className='text-primary' size='xl' icon={faChevronLeft} />
                     <Avatar>
@@ -594,14 +644,37 @@ const handleShareClick = async (program) => {
                     </div>
                     </div>
                 </div>
-                <div >
+                <div className="flex items-center gap-1">
+                  <div className="h-12 w-12 hover:bg-secondary rounded-full flex items-center justify-center">
+                  <AlertDialog>
+                      <AlertDialogTrigger>
+                        <div className="h-12 w-12 lg:hover:bg-secondary rounded-full flex items-center justify-center">
+                          <FontAwesomeIcon size='lg' className="text-primary ml-1" icon={faUserPlus} />
+                        </div>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Would you like to send {selectedChat.username} a Trainer request?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            As a Trainer you will gain access to {selectedChat.username}'s workout calendar and progress charts
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={sendTrainerRequest}>Send Request</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
                   <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                     <SheetTrigger asChild>
-                      <Button className="mb-1 flex items-center gap-1" variant='secondary' size='sm'><FontAwesomeIcon className="mt-1" icon={faDumbbell} />Share Program</Button>
+                        <div className="h-12 w-12 lg:hover:bg-secondary rounded-full flex items-center justify-center">
+                          <FontAwesomeIcon onClick={() => setIsSheetOpen(true)} size='lg'className="text-primary" icon={faArrowUpFromBracket} />
+                        </div>
                     </SheetTrigger>
                     <SheetContent className="md:w-[400px] w-[100%]">
                         <SheetHeader className='text-left pl-4 flex flex-row justify-between items-center mt-4'>
-                            <SheetTitle className='text-2xl' >All Programs</SheetTitle>
+                            <SheetTitle className='text-2xl' >Share Programs</SheetTitle>
                         </SheetHeader>
                         <div className='flex flex-col gap-2 mt-2 overflow-y-auto max-h-[75vh] scrollbar-custom'>
                         {userPrograms.map((program) => (
@@ -636,7 +709,17 @@ const handleShareClick = async (program) => {
                     </SheetContent>
                   </Sheet>
                 </div>
+                
             </CardHeader>
+            {matchingRequest && (
+                  <div className="bg-background border-y-2 flex justify-between items-center p-2">
+                    <p className='text-sm font-medium'>{selectedChat.username} has sent you a trainer request.</p>
+                    <div className="flex items-center gap-1">
+                      <Button size='sm' onClick={() => handleRequest(matchingRequest.id, 'accept')}>Accept</Button>
+                      <Button size='sm' variant='outline' onClick={() => handleRequest(matchingRequest.id, 'reject')}>Reject</Button>
+                    </div>
+                  </div>
+                )}
             <CardContent className="w-full flex flex-col h-full overflow-y-auto overflow-x-hidden pb-1 px-0">
                 <div className="flex flex-col-reverse pb-2 px-2 h-full overflow-y-scroll px-1 scrollbar-custom" ref={chatContainerRef}>
                 {messages.slice().reverse().map((message, index) => (

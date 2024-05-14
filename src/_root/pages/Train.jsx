@@ -720,7 +720,9 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                 title: "Program Deleted.",
                 description: "The program has been successfully deleted."
             });
-            setActiveProgram(null)
+            if(programId === activeProgram.id){
+                setActiveProgram(null)}
+                
           } else {
             toast({
                 title: "Error deleting program",
