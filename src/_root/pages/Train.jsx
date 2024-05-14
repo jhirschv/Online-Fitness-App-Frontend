@@ -679,41 +679,11 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
     const handleProgramClick = (programId) => {
         setSelectedProgram(programId)
     }
-    /* const updateWorkoutProgress = async (selectedWorkout) => {
-        try {
-            const response = await apiClient.post('/update_workout_progress/', {
-                phase_id: selectedWorkout.phaseId,
-                week_number: selectedWorkout.week,
-                workout_id: selectedWorkout.workoutId
-            });
-    
-            // Check if the update was successful
-            if (response.status === 200) {
-                // Re-fetch the current workout to update the UI
-                fetchCurrentWorkout();
-            }
-        } catch (error) {
-            console.error('Failed to update workout progress:', error);
-            // Handle error appropriately
-        }
-    } */
+
     function handleSelectedWorkout(data) {
         setSelectedWorkout(data)
         console.log(data)
     }
-    /* const fetchCurrentWorkout = () => {
-        apiClient.get('/current_workout/') // Make sure the endpoint matches your Django URL configuration
-        .then(response => {
-            setCurrentWorkout(response.data);
-            setDisplayCurrentWorkout(true);
-        })
-        .catch(error => {
-            console.error('Error fetching data:', error);
-        });
-    }
-    useEffect(() => {
-        fetchCurrentWorkout();
-    }, [activeProgram]); */
 
     const handleSheetOpenChange = (open) => {
         setIsSheetOpen(open);
@@ -724,41 +694,48 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
         }
     }
 
-    //program stuff
+    const [sharedPrograms, setSharedPrograms] = useState([])
 
-    const renderWorkoutDetails = (workout) => {
-        return (
-            <>
-            
-                <div className='flex w-full items-center justify-between pr-2'>
-                    <h1 className='font-semibold text-lg'>{workout.name}</h1>
-                    <Popover>
-                        <PopoverTrigger><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
-                        <PopoverContent>Place content for the popover here.</PopoverContent>
-                    </Popover>
-                </div>
+    useEffect(() => {
+        const fetchParticipatingPrograms = async () => {
+          try {
+            const response = await apiClient.get('/participating/');
+            setSharedPrograms(response.data);
+            console.log(response.data)
+          } catch (error) {
+            console.log(error)
+          }
+        };
+    
+        fetchParticipatingPrograms();
+      }, []);
 
-                <Table className='h-full w-full'>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="w-[100px] pl-0">Exercise</TableHead>
-                            <TableHead>Sets x Reps</TableHead>
-                            <TableHead>Note</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {workout.workout_exercises.map((exercise) => (
-                            <TableRow key={exercise.id}>
-                                <TableCell >{exercise.exercise.name}</TableCell>
-                                <TableCell >{`${exercise.sets} x ${exercise.reps}`}</TableCell>
-                                <TableCell>{exercise.note || ''}</TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </>
-        );
-    };
+      const handleRemoveClick = async (programId) => {
+        try {
+          const response = await apiClient.delete(`/remove_participant/${programId}/`);
+          
+          if (response.status === 200) {
+            setSharedPrograms((prevPrograms) => prevPrograms.filter(program => program.id !== programId));
+            toast({
+                title: "Program Deleted.",
+                description: "The program has been successfully deleted."
+            });
+            setActiveProgram(null)
+          } else {
+            toast({
+                title: "Error deleting program",
+                description: "The program could not be deleted. Please try again.",
+                variant: "destructive"
+            });
+          }
+        } catch (error) {
+            toast({
+                title: "Error deleting program",
+                description: "The program could not be deleted. Please try again.",
+                variant: "destructive"
+            });
+        }
+      };
 
     const { touchAreaRef, handleTouchStart, handleTouchMove, handleTouchEnd } = useTouchScroll(() => isDragging);
     const { touchAreaRef: touchAreaRef2, handleTouchStart: handleTouchStart2, handleTouchMove: handleTouchMove2, handleTouchEnd: handleTouchEnd2 } = useTouchScroll(() => isDragging);
@@ -828,10 +805,14 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
     return (
         <div className={`${backgroundColorClass} overflow-hidden w-full md:p-4 md:border md:rounded-lg`}>
                         {isLoading && (
-                <div className="absolute inset-0 flex flex-col justify-center items-center z-10 rounded-lg">
-                    <ScaleLoader color="#2563eb" size={40} />
-                    <h1 className='text-muted-foreground mt-2'>AI programs may take up to 2 minutes to create</h1>
-                </div>
+                            <AlertDialog open={true}>
+                                <AlertDialogContent>
+                                    <div className="flex flex-col justify-center items-center">
+                                        <ScaleLoader color="#2563eb" size={40} />
+                                        <h1 className='text-muted-foreground mt-2'>AI programs may take up to 2 minutes to create</h1>
+                                    </div>
+                                </AlertDialogContent>
+                            </AlertDialog>
             )}
             {programLoading && (
                 <div className="absolute inset-0 flex flex-col justify-center items-center z-10 rounded-lg">
@@ -877,25 +858,57 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                                                         </AlertDialogContent>
                                                     </AlertDialog>  
                                                 </SheetHeader>
-                                                <div className='flex flex-col gap-2 mt-2 overflow-y-auto max-h-[75vh] scrollbar-custom'>
-                                                {userPrograms.map((program) => (
-                                                <div
-                                                    key={program.id}
-                                                    className={`p-4 py-6 relative rounded border ${selectedProgram === program.id ? 'bg-secondary' : 'bg-background'}`}
-                                                    onClick={() => handleProgramClick(program.id)}
-                                                >
-                                                    <h1>{program.name}</h1>
-                                                    <div className='absolute bottom-6 right-2' onClick={(event) => event.stopPropagation()}>
-                                                        <Popover>
-                                                            <PopoverTrigger className='p-4'><FontAwesomeIcon size='lg' icon={faEllipsis} /></PopoverTrigger>
-                                                            <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md' >
-                                                                <Button onClick={() => deleteProgram(program.id)} className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>Delete Program</Button>
-                                                            </PopoverContent>
-                                                        </Popover>
-                                                    </div> 
-                                                </div>
-                                                ))}
-                                                </div>
+                                                <Tabs defaultValue="Your Programs" className="w-full">
+                                                    <TabsList className='rounded-xs'>
+                                                        <TabsTrigger  className='rounded-xs' value="Your Programs">Your Programs</TabsTrigger>
+                                                        <TabsTrigger  className='rounded-xs' value="Shared">Shared</TabsTrigger>
+                                                    </TabsList>
+                                                    <TabsContent value="Your Programs">
+                                                    <div className='flex flex-col gap-2 mt-2 overflow-y-auto max-h-[75vh] scrollbar-custom'>
+                                                    {userPrograms.map((program) => (
+                                                    <div
+                                                        key={program.id}
+                                                        className={`p-4 py-6 relative rounded border ${selectedProgram === program.id ? 'bg-secondary' : 'bg-background'}`}
+                                                        onClick={() => handleProgramClick(program.id)}
+                                                    >
+                                                        <h1>{program.name}</h1>
+                                                        <div className='absolute bottom-6 right-2' onClick={(event) => event.stopPropagation()}>
+                                                            <Popover>
+                                                                <PopoverTrigger className='p-4'><FontAwesomeIcon size='lg' icon={faEllipsis} /></PopoverTrigger>
+                                                                <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md' >
+                                                                    <Button onClick={() => deleteProgram(program.id)} className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>Delete Program</Button>
+                                                                </PopoverContent>
+                                                            </Popover>
+                                                        </div> 
+                                                    </div>
+                                                    ))}
+                                                    </div>
+                                                    </TabsContent>
+                                                    <TabsContent value="Shared">
+                                                    <div className='flex flex-col gap-2 mt-2 overflow-y-auto max-h-[75vh] scrollbar-custom'>
+                                                    {sharedPrograms.map((program) => (
+                                                    <div
+                                                        key={program.id}
+                                                        className={`p-4 py-6 relative rounded border ${selectedProgram === program.id ? 'bg-secondary' : 'bg-background'}`}
+                                                        onClick={() => handleProgramClick(program.id)}
+                                                    >
+                                                        <h1>{program.name}</h1>
+                                                        <div className='absolute bottom-6 right-2' onClick={(event) => event.stopPropagation()}>
+                                                            <Popover>
+                                                                <PopoverTrigger className='p-4'><FontAwesomeIcon size='lg' icon={faEllipsis} /></PopoverTrigger>
+                                                                <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md' >
+                                                                    <Button onClick={() => handleRemoveClick(program.id)} className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>Delete Program</Button>
+                                                                </PopoverContent>
+                                                            </Popover>
+                                                        </div>
+                                                        <div className='absolute bottom-1 right-3'>
+                                                            <p className='text-sm text-muted-foreground'>{program.creator.username}</p>
+                                                        </div>
+                                                    </div>
+                                                    ))}
+                                                    </div>
+                                                    </TabsContent>
+                                                </Tabs>
                                                 <SheetFooter className='mt-4'>
                                                 <SheetClose asChild>
                                                     <Button type="submit" onClick={() => updateActiveProgram(selectedProgram)}>Set Active</Button>
@@ -921,8 +934,8 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                                             
                                                 <CardContent className="p-0 pb-6 h-full items-center flex flex-col gap-2">
                                                     <div className='flex gap-10 self-start items-center'>
-                                                        <h1 className='mr-2 p-1 text-xl self-start font-semibold'>{activeProgram.name}</h1>
-                                                        <p className='text-sm text-muted-foreground'>{activeProgram?.workouts?.length ?? 0} workouts</p>
+                                                        <h1 className='mr-2 p-1 text-lg self-start font-semibold'>{activeProgram.name}</h1>
+                                                        <p className='text-sm text-muted-foreground whitespace-nowrap'>{activeProgram?.workouts?.length ?? 0} workouts</p>
                                                     </div>
                                                     <div 
                                                     onTouchStart={handleTouchStart}
@@ -1278,25 +1291,57 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                                                         </AlertDialogContent>
                                                     </AlertDialog>  
                                                 </SheetHeader>
-                                                <div className='flex flex-col gap-2 mt-2 overflow-y-auto max-h-[75vh] scrollbar-custom'>
-                                                {userPrograms.map((program) => (
-                                                <div
-                                                    key={program.id}
-                                                    className={`p-4 py-6 relative rounded border ${selectedProgram === program.id ? 'bg-secondary' : 'bg-background'}`}
-                                                    onClick={() => handleProgramClick(program.id)}
-                                                >
-                                                    <h1>{program.name}</h1>
-                                                    <div className='absolute bottom-6 right-2' onClick={(event) => event.stopPropagation()}>
-                                                        <Popover>
-                                                            <PopoverTrigger className='p-4'><FontAwesomeIcon size='lg' icon={faEllipsis} /></PopoverTrigger>
-                                                            <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md' >
-                                                                <Button onClick={() => deleteProgram(program.id)} className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>Delete Program</Button>
-                                                            </PopoverContent>
-                                                        </Popover>
-                                                    </div> 
-                                                </div>
-                                                ))}
-                                                </div>
+                                                <Tabs defaultValue="Your Programs" className="w-full">
+                                                    <TabsList className='rounded-xs'>
+                                                        <TabsTrigger  className='rounded-xs' value="Your Programs">Your Programs</TabsTrigger>
+                                                        <TabsTrigger  className='rounded-xs' value="Shared">Shared</TabsTrigger>
+                                                    </TabsList>
+                                                    <TabsContent value="Your Programs">
+                                                    <div className='flex flex-col gap-2 mt-2 overflow-y-auto max-h-[75vh] scrollbar-custom'>
+                                                    {userPrograms.map((program) => (
+                                                    <div
+                                                        key={program.id}
+                                                        className={`p-4 py-6 relative rounded border ${selectedProgram === program.id ? 'bg-secondary' : 'bg-background'}`}
+                                                        onClick={() => handleProgramClick(program.id)}
+                                                    >
+                                                        <h1>{program.name}</h1>
+                                                        <div className='absolute bottom-6 right-2' onClick={(event) => event.stopPropagation()}>
+                                                            <Popover>
+                                                                <PopoverTrigger className='p-4'><FontAwesomeIcon size='lg' icon={faEllipsis} /></PopoverTrigger>
+                                                                <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md' >
+                                                                    <Button onClick={() => deleteProgram(program.id)} className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>Delete Program</Button>
+                                                                </PopoverContent>
+                                                            </Popover>
+                                                        </div> 
+                                                    </div>
+                                                    ))}
+                                                    </div>
+                                                    </TabsContent>
+                                                    <TabsContent value="Shared">
+                                                    <div className='flex flex-col gap-2 mt-2 overflow-y-auto max-h-[75vh] scrollbar-custom'>
+                                                    {sharedPrograms.map((program) => (
+                                                    <div
+                                                        key={program.id}
+                                                        className={`p-4 py-6 relative rounded border ${selectedProgram === program.id ? 'bg-secondary' : 'bg-background'}`}
+                                                        onClick={() => handleProgramClick(program.id)}
+                                                    >
+                                                        <h1>{program.name}</h1>
+                                                        <div className='absolute bottom-6 right-2' onClick={(event) => event.stopPropagation()}>
+                                                            <Popover>
+                                                                <PopoverTrigger className='p-4'><FontAwesomeIcon size='lg' icon={faEllipsis} /></PopoverTrigger>
+                                                                <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md' >
+                                                                    <Button onClick={() => handleRemoveClick(program.id)} className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>Delete Program</Button>
+                                                                </PopoverContent>
+                                                            </Popover>
+                                                        </div>
+                                                        <div className='absolute bottom-1 right-3'>
+                                                            <p className='text-sm text-muted-foreground'>{program.creator.username}</p>
+                                                        </div>
+                                                    </div>
+                                                    ))}
+                                                    </div>
+                                                    </TabsContent>
+                                                </Tabs>
                                                 <SheetFooter className='mt-4'>
                                                 <SheetClose asChild>
                                                     <Button type="submit" onClick={() => updateActiveProgram(selectedProgram)}>Set Active</Button>
@@ -1338,7 +1383,7 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                                     <Button
                                         size='lg'
                                         onClick={startWorkoutSession}
-                                        className='fixed bottom-28 right-8 lg:static self-center p-6 text-lg'>
+                                        className='absolute bottom-4 right-2 self-center p-4 text-lg'>
                                         Start Session!
                                     </Button>
                                 )}

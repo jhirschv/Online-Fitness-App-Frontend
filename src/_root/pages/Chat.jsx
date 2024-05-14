@@ -68,6 +68,19 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import sodium, { initCrypto } from '../../utils/crypto.js';
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+import { Toaster } from "@/components/ui/toaster"
+import { ToastAction } from "@/components/ui/toast"
+import { useToast } from "@/components/ui/use-toast"
 
 const Chat = () => {
   const location = useLocation();
@@ -75,6 +88,7 @@ const Chat = () => {
   const backgroundColorClass = theme === "dark" ? "bg-popover" : "bg-secondary";
   const [users, setUsers] = useState([])
   let { user } = useContext(AuthContext)
+  const { toast } = useToast()
 
   useEffect(() => {
     apiClient.get(`/users/`)
@@ -319,9 +333,6 @@ const sendEncryptedMessage = async () => {
     const senderPublicKey = userPublicKey;
     const recipientPublicKey = selectedChat.public_key;
 
-    console.log(senderPublicKey);
-    console.log(recipientPublicKey);
-
     // Encrypt message for the recipient
     const encryptedDataRecipient = await encryptMessage(input, recipientPublicKey);
 
@@ -388,8 +399,87 @@ const decryptMessage = async (encryptedMessage) => {
 
   return sodium.to_string(decryptedMessage);
 };
+
+const [userPrograms, setUserPrograms] = useState([]);
+const [selectedProgram, setSelectedProgram] = useState(null)
+
+function fetchUserPrograms() {
+  apiClient.get('/user_programs/')
+      .then(response => {
+          setUserPrograms(response.data);
+      })
+      .catch(error => {
+          console.error('Error fetching data:', error);
+  });
+}
+
+useEffect(() => {
+  fetchUserPrograms();  // Call the function on component mount
+}, []);
+
+const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+const sendProgramSharedMessage = async (programName) => {
+  let userPublicKey = findUserPublicKey(chatSessions, user.user_id, selectedChat.id)
+  if (userPublicKey) {
+    const senderPublicKey = userPublicKey;
+    const recipientPublicKey = selectedChat.public_key;
+
+  // Encrypt the message for the recipient
+  const message = `"${programName}" has been shared.`;
+  
+  const encryptedDataRecipient = await encryptMessage(message, recipientPublicKey);
+
+  // Encrypt message for the sender
+  const encryptedDataSender = await encryptMessage(message, senderPublicKey);
+
+  // Prepare the message object with both encrypted contents
+  const messageObject = {
+    senderId: user.user_id,
+    encrypted_message_recipient: encryptedDataRecipient.encryptedMessage,
+    encrypted_message_sender: encryptedDataSender.encryptedMessage,
+  };
+
+  // Send the message via WebSocket
+  webSocket.send(JSON.stringify(messageObject));
+  } else {
+    console.log('failed to send message')
+  }
+}
+
+const addParticipantToProgram = async (programId, userId) => {
+  try {
+    const response = await apiClient.post(`/programs/${programId}/add-participant/`, { user_id: userId });
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to add participant');
+  }
+};
+
+const handleShareClick = async (program) => {
+  try {
+    const userId = selectedChat.id;
+    await addParticipantToProgram(program.id, userId);
+    toast({
+      title: "Program Shared!",
+      description: "The program has been successfully shared."
+  });
+    sendProgramSharedMessage(program.name);
+    setIsSheetOpen(false)
+  } catch (error) {
+    console.error('Failed to add participant:', error);
+    toast({
+      title: "Program Share Failed",
+      description: "The program has not been shared. Please try again",
+      variant: "destructive"
+  });
+  }
+};
+
+
   return (
     <div className={`w-full ${backgroundColorClass} md:border rounded-lg lg:p-4`}>
+      <Toaster />
       <Card className="border-0 md:border h-full w-full flex overflow-hidden rounded-none md:rounded-lg">
         <Card className={`border-none flex-none rounded-none ${selectedChat ? 'hidden lg:block md:w-1/3' : 'w-full lg:w-1/3'}`}>
           <div className="flex justify-between items-center p-6 pb-2">
@@ -505,7 +595,46 @@ const decryptMessage = async (encryptedMessage) => {
                     </div>
                 </div>
                 <div >
-                  <Button className="mb-1 flex items-center gap-1" variant='secondary' size='sm'><FontAwesomeIcon className="mt-1" icon={faDumbbell} />Share Program</Button>
+                  <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+                    <SheetTrigger asChild>
+                      <Button className="mb-1 flex items-center gap-1" variant='secondary' size='sm'><FontAwesomeIcon className="mt-1" icon={faDumbbell} />Share Program</Button>
+                    </SheetTrigger>
+                    <SheetContent className="md:w-[400px] w-[100%]">
+                        <SheetHeader className='text-left pl-4 flex flex-row justify-between items-center mt-4'>
+                            <SheetTitle className='text-2xl' >All Programs</SheetTitle>
+                        </SheetHeader>
+                        <div className='flex flex-col gap-2 mt-2 overflow-y-auto max-h-[75vh] scrollbar-custom'>
+                        {userPrograms.map((program) => (
+                        <div
+                            key={program.id}
+                            className={`flex items-center p-4 py-3 relative rounded border`}
+                            
+                        >
+                            <h1 className='w-[90%] '>{program.name}</h1>
+                            <AlertDialog>
+                              <AlertDialogTrigger>
+                              <div className="p-3 hover:bg-secondary rounded-md" >
+                                <Send className="h-6 w-6" />
+                              </div>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Would you like to share "{program.name}"?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Programs shared will be available to participants under their shared programs section.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleShareClick(program)}>Share</AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                        </div>
+                        ))}
+                        </div>
+                    </SheetContent>
+                  </Sheet>
                 </div>
             </CardHeader>
             <CardContent className="w-full flex flex-col h-full overflow-y-auto overflow-x-hidden pb-1 px-0">
@@ -514,7 +643,7 @@ const decryptMessage = async (encryptedMessage) => {
                 <div
                     key={index}
                     className={cn(
-                    "flex w-max max-w-xs flex-col gap-2 rounded-lg px-3 py-2 mt-1 text-sm break-all whitespace-pre-wrap",
+                    "flex w-max max-w-xs flex-col gap-2 rounded-lg px-3 py-2 mt-1 text-sm break-words whitespace-pre-wrap",
                     message.sender === user.user_id
                         ? "ml-auto bg-primary text-primary-foreground"
                         : "bg-muted"
