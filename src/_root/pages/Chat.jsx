@@ -186,13 +186,37 @@ const Chat = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [chatSessions, setChatSessions] = useState([]);
 
-  const fetchUserChatSessions = () => {
-    apiClient.get('/user_chats/')
-        .then(response => {
-            setChatSessions(response.data);
-        })
-        .catch(error => console.error('Error fetching chat sessions:', error));
+  const fetchUserChatSessions = async () => {
+    try {
+      const response = await apiClient.get('/user_chats/');
+      const sessions = response.data;
+
+      // Decrypt the last messages
+      const decryptedSessions = await Promise.all(sessions.map(async (session) => {
+          const lastMessage = session.last_message;
+          let decryptedMessage = "";
+          if (lastMessage) {
+              if (lastMessage.sender === user.user_id) {
+                  decryptedMessage = await decryptMessage(lastMessage.encrypted_message_sender);
+              } else {
+                  decryptedMessage = await decryptMessage(lastMessage.encrypted_message_recipient);
+              }
+          }
+          return {
+              ...session,
+              last_message: {
+                  ...lastMessage,
+                  decrypted_message: decryptedMessage,
+              }
+          };
+      }));
+
+      setChatSessions(decryptedSessions);
+  } catch (error) {
+      console.error('Error fetching chat sessions:', error);
   }
+};
+
 
   useEffect(() => {
     fetchUserChatSessions();
@@ -246,6 +270,8 @@ const chatContainerRef = useRef(null);
   }
 
   function compactTimeFormat(timeString) {
+
+    if(timeString) {
     // Handle the "Just now" case directly
     if (timeString === "Just now") {
         return timeString;
@@ -286,6 +312,7 @@ const chatContainerRef = useRef(null);
         default:
             return timeString; // Return the original string if unit is unrecognized
     }
+  }
 }
 
 function deleteChatSession(chatSessionId) {
@@ -611,6 +638,9 @@ const handleRequest = async (requestId, action) => {
 
             if (!otherParticipant) return null; // Skip rendering if no other participant
 
+             // Decrypt the last message
+            const lastMessage = session.last_message;
+             
             return (
                 <div className="relative w-full flex items-center gap-4 p-3 py-2 hover:bg-muted transition duration-150 ease-in-out rounded-md" key={session.id} onClick={() => handleUserClick(otherParticipant)}>
                   <Popover >
@@ -645,7 +675,7 @@ const handleRequest = async (requestId, action) => {
                     {session.last_message && (
                     <div className="text-sm text-muted-foreground w-full flex justify-between items-center">
                       <div className="flex-1 overflow-hidden">
-                          <div className="overflow-hidden text-ellipsis whitespace-nowrap">{/* {truncateString(session.last_message.message, 24)} */}</div>
+                          <div className="overflow-hidden text-ellipsis whitespace-nowrap">{lastMessage.decrypted_message}</div>
                       </div>
                       <div className="text-xs flex-shrink-0">{compactTimeFormat(session.last_message.timestamp)}</div>
                     </div>
