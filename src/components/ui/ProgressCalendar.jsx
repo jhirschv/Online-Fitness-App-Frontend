@@ -51,7 +51,7 @@ function ProCalendar({
     // Custom rendering for dates with dayDatas
     if (dayData) {
       return (
-        <div onClick={() => sendDataToParent(dayData)} {...props} className={`flex flex-col items-center justify-center h-full w-full relative ${activeModifiers.selected? "bg-primary" : "bg-accent"} rounded-md`}>
+        <div onClick={() => sendDataToParent(dayData)} {...props} className={`flex flex-col items-center justify-center h-full w-full relative ${activeModifiers.selected || activeModifiers.today ? "bg-primary" : "bg-accent"} rounded-md`}>
           <div className="flex items-center justify-center">
             <span>{date.getDate()}</span>
           </div>

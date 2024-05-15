@@ -1378,7 +1378,7 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                                         variant='secondary'
                                         size='lg'
                                         onClick={resumeSession}
-                                        className='absolute bottom-4 right-2 self-center p-4 text-lg'>
+                                        className='absolute bottom-4 right-4 self-center p-4 text-lg'>
                                         Resume Workout
                                     </Button>
                                 ) : (
