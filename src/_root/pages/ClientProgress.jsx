@@ -21,7 +21,7 @@ SheetTitle,
 SheetTrigger,
 } from "@/components/ui/sheet"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+import { faPaperPlane, faChevronLeft } from '@fortawesome/free-solid-svg-icons';
 import { faFaceFrown } from '@fortawesome/free-regular-svg-icons';
 import { Bar, BarChart, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { format, parseISO } from 'date-fns';
@@ -76,13 +76,15 @@ import {
     DrawerTitle,
     DrawerTrigger,
   } from "@/components/ui/drawer"
+  import { useNavigate } from 'react-router-dom';
 
 
-const Progress = ({userWorkoutSessions}) => {
+const ClientProgress = ({userWorkoutSessions}) => {
     const [date, setDate] = React.useState()
     const { theme } = useTheme();
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
     let { user } = useContext(AuthContext)
+    const navigate = useNavigate();
 
     const handleSelect = (newDate) => {
         setDate(newDate);
@@ -201,13 +203,18 @@ const Progress = ({userWorkoutSessions}) => {
     }
     }, [exercises1rm]);
 
+    const handleReturnToChatClick = () => {
+        navigate('/chat')
+    }
+
 
     return (
         <div className={`w-full md:border rounded-lg overflow-y-auto ${backgroundColorClass} md:p-4 pb-24`}>
-            <Card className='border-0 md:border h-screen lg:h-full w-full md:border rounded-none md:rounded-lg flex justify-center p-4'>
+            <Card className='relative border-0 md:border h-screen lg:h-full w-full md:border rounded-none md:rounded-lg flex justify-center p-4'>
             <div className="w-full h-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 <div className="col-span-2 h-48">
-                    <Card className='flex w-full h-full'>
+                    <Card className='relative flex w-full h-full'>
+                        <Button className='absolute right-2 md:right-[51%] top-2' variant='outline' size='sm' onClick={handleReturnToChatClick}>Return to Chat</Button>
                         <div className='w-1/2 md:border-r h-full flex items-center gap-4'>
                             <Avatar className="ml-6 h-32 w-32">
                                 <AvatarImage src="https://github.com/shadcn.png" />
@@ -440,153 +447,4 @@ const Progress = ({userWorkoutSessions}) => {
     )
 }
 
-export default Progress
-
-
-
-{/* <div className='w-full flex justify-center md:w-1/2'>
-                <Tabs defaultValue="Strength" className="w-[100%] p-6">
-                    <div className='flex items-center justify-between'> 
-                        <TabsList className='w-full'>
-                            <TabsTrigger className='flex-1 text-xs md:text-md' value="Strength">Strength</TabsTrigger>
-                            <TabsTrigger className='text-xs flex-1 md:text-md' value="Consistency">Consistency</TabsTrigger>
-                            <TabsTrigger className='text-xs flex-1 md:text-md' value="totalWeightLifted">Total Weight Lifted</TabsTrigger>
-                        </TabsList>
-                        <Popover >
-                            <PopoverTrigger className='hidden md:flex' asChild>
-                                <Button
-                                variant={"outline"}
-                                className={cn(
-                                    "w-[280px] justify-start text-left font-normal",
-                                    !date && "text-muted-foreground"
-                                )}
-                                >
-                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                {date ? format(date, "PPP") : <span>Pick a date</span>}
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0">
-                                <Calendar
-                                mode="single"
-                                selected={date}
-                                onSelect={setDate}
-                                initialFocus
-                                />
-                            </PopoverContent>
-                        </Popover>
-                    </div>
-                
-                <TabsContent  value="Strength">
-                    <Card className='flex flex-col justify-center w-full pb-4'>
-                            <h1 className='px-4 py-6 text-xl font-semibold'>Back Squat</h1>
-                            <ResponsiveContainer width="100%" height={250}>
-                            
-                                <LineChart
-                                    width={500}
-                                    height={300}
-                                    data={data}
-                                    margin={{ top: 5, right: 30, left: 5, bottom: 5 }}
-                                >
-                                    <XAxis dataKey="date" 
-                                    stroke="#888888"
-                                    padding={{ left: 20, right: 20 }}
-                                    tickFormatter={(value) => format(parseISO(value), 'MMM dd')}
-                                    fontSize={12}
-                                    tickLine={false}
-                                    axisLine={false} />
-                                    <YAxis 
-                                    stroke="#888888"
-                                    tickFormatter={(value) => `${value} lbs`}
-                                    fontSize={12}
-                                    tickLine={false}
-                                    axisLine={false}/>
-                                    <Tooltip />
-                                    <Line type="monotone" strokeWidth={2} dataKey="weight" stroke="#471fad" activeDot={{r: 8, style: { fill: "var(--theme-primary)" },}} />
-                                </LineChart>
-                            </ResponsiveContainer>
-                        </Card>
-                    </TabsContent>
-                <TabsContent value="Consistency">
-                    <Card className='flex flex-col justify-center w-[50%] pb-4'>
-                        <h1 className='px-8 py-6 text-xl font-semibold'>Bench Press</h1>
-                        <ResponsiveContainer width="100%" height={250}>
-                                <LineChart
-                                    width={500}
-                                    height={300}
-                                    data={data}
-                                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                                >
-                                    <XAxis dataKey="date" 
-                                    stroke="#888888"
-                                    padding={{ left: 20, right: 20 }}
-                                    tickFormatter={(value) => format(parseISO(value), 'MMM dd')}
-                                    fontSize={12}
-                                    tickLine={false}
-                                    axisLine={false} />
-                                    <YAxis 
-                                    stroke="#888888"
-                                    tickFormatter={(value) => `${value} lbs`}
-                                    fontSize={12}
-                                    tickLine={false}
-                                    axisLine={false}/>
-                                    <Tooltip />
-                                    <Line type="monotone" strokeWidth={2} dataKey="weight" stroke="#471fad" activeDot={{r: 8, style: { fill: "var(--theme-primary)" },}} />
-                                </LineChart>
-                            </ResponsiveContainer>
-                        </Card>
-                </TabsContent>
-                </Tabs>
-
-            </div>
-            <div className='hidden md:block w-1/2 flex items-center justify-center'>
-                <ProCalendar
-                    mode="single"
-                    selected={date}
-                    className="hidden md:block h-[90%] m-4"
-                    />
-
-            </div> */}
-
-            {/* <div className='w-1/2 border-r h-full flex items-center gap-4'>
-                <Avatar className="ml-6 h-32 w-32">
-                    <AvatarImage src="https://github.com/shadcn.png" />
-                    <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-                <div className='h-full flex flex-col justify-center'>
-                    <h1 className='text-2xl font-semibold'>John</h1>
-                    <p>Weight: 180</p>
-                </div>
-            </div>
-            <div className='w-1/2 h-full p-4 flex flex-col gap-2'>
-                <h1 className='text-xl font-semibold'>Friends</h1>
-                <div>
-                    <div className='flex justify-between items-center w-full pb-2'>
-                        <div className='flex items-center gap-2'>
-                            <Avatar>
-                                <AvatarImage src="https://github.com/shadcn.png" />
-                                <AvatarFallback>CN</AvatarFallback>
-                            </Avatar>
-                            <h1>McKay</h1>
-                        </div>
-                        <div>
-                            <FontAwesomeIcon className='pr-4' size="lg" icon={faPaperPlane} />
-                        </div>
-                    </div>
-                    <Separator />
-                </div>
-                <div>
-                    <div className='flex justify-between items-center w-full pb-2'>
-                        <div className='flex items-center gap-2'>
-                            <Avatar>
-                                <AvatarImage src="https://github.com/shadcn.png" />
-                                <AvatarFallback>CN</AvatarFallback>
-                            </Avatar>
-                            <h1>Nick</h1>
-                        </div>
-                        <div>
-                            <FontAwesomeIcon className='pr-4' size="lg" icon={faPaperPlane} />
-                        </div>
-                    </div>
-                    <Separator />
-                </div>
-            </div> */}
+export default ClientProgress

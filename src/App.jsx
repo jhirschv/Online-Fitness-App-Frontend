@@ -21,6 +21,7 @@ import PhaseDetails from './_root/pages/WorkoutList';
 import WorkoutDetails from './_root/removedPages/WorkoutDetails';
 import ProgramOverview from './_root/pages/ProgramOverview';
 import WorkoutSession from './_root/pages/WorkoutSession';
+import ClientProgress from './_root/pages/ClientProgress';
 import Workout from './_root/pages/Workout'
 import ChatSession from './_root/pages/ChatSession';
 import React, { useState, useEffect, useContext } from 'react';
@@ -125,9 +126,8 @@ function App() {
               setSessionDetails={setSessionDetails}
               fetchSessionDetails={fetchSessionDetails}/>} />
               <Route path="/Progress" element={<Progress userWorkoutSessions={userWorkoutSessions}/>} />
-              <Route path="/chat" element={<Chat />} >
-                <Route path=":userId1/:userId2" element={<ChatSession />} />
-              </Route>
+              <Route path="/ClientProgress" element={<ClientProgress userWorkoutSessions={userWorkoutSessions}/>} />
+              <Route path="/chat" element={<Chat />} />
             </Route>
           </Route>
           <Route path="/login" element={<SigninForm fetchSessionDetails={fetchSessionDetails}/>} />

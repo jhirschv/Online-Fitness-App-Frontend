@@ -42,7 +42,7 @@ import {
 } from "@/components/ui/command";
 import { useEffect, useState } from 'react'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPenToSquare, faArrowUpRightFromSquare, faChevronLeft, faEllipsis, faDumbbell, faLock, faUserPlus, faArrowUpFromBracket } from "@fortawesome/free-solid-svg-icons";
+import { faPenToSquare, faArrowUpRightFromSquare, faChevronLeft, faEllipsis, faDumbbell, faLock, faUserPlus, faArrowUpFromBracket, faChartLine } from "@fortawesome/free-solid-svg-icons";
 import { faComments } from "@fortawesome/free-regular-svg-icons";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
@@ -82,8 +82,6 @@ import { Toaster } from "@/components/ui/toaster"
 import { ToastAction } from "@/components/ui/toast"
 import { useToast } from "@/components/ui/use-toast"
 
-
-
 const Chat = () => {
   const location = useLocation();
   const { theme } = useTheme();
@@ -91,6 +89,12 @@ const Chat = () => {
   const [users, setUsers] = useState([])
   let { user } = useContext(AuthContext)
   const { toast } = useToast()
+  const navigate = useNavigate();
+  
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = React.useState("");
+  const inputLength = input.trim().length;
+
 
   useEffect(() => {
     apiClient.get(`/users/`)
@@ -99,21 +103,20 @@ const Chat = () => {
             setUsers(filteredUsers)
         })
         .catch(error => console.error('Error:', error));
-    }, []);
+    }, [messages]);
 
   const [selectedChat, setSelectedChat] = useState(null)
   const [webSocket, setWebSocket] = useState(null);
 
   const handleUserClick = async (otherUser) => {
     setSelectedChat(otherUser);
+    console.log(otherUser)
     setIsPopoverOpen(false);
     setSearchTerm('');
     setSessionSearchTerm('');
 
     try {
         const response = await apiClient.get(`/chat/${otherUser.id}/`);
-
-        console.log(response.data)
 
         // Decrypt each message
         const decryptedMessages = await Promise.all(response.data.map(async (message) => {
@@ -126,8 +129,6 @@ const Chat = () => {
               decryptedMessage: await decryptMessage(encryptedData)
           };
       }));
-
-        console.log(decryptedMessages)
 
         setMessages(decryptedMessages); // Update this to decryptedMessages to reflect the actual decrypted data
         fetchUserChatSessions();
@@ -148,7 +149,6 @@ const Chat = () => {
     ws.onopen = () => console.log("WebSocket connection established.");
     ws.onmessage = async (event) => {
       const data = JSON.parse(event.data);
-      console.log("Received raw message:", data.message);
   
       // Determine whether the current user is the sender or recipient of the received message
       const isSender = user.user_id === data.message.sender;
@@ -165,7 +165,6 @@ const Chat = () => {
   
       // Update the messages state with the new message
       setMessages((prevMessages) => [...prevMessages, fullMessage]);
-      console.log("Decrypted and added message:", fullMessage);
   
       // Optionally update chat sessions
       const sessionToUpdate = findMatchingSessionId(chatSessions, user.user_id, selectedChat.id);
@@ -191,7 +190,6 @@ const Chat = () => {
     apiClient.get('/user_chats/')
         .then(response => {
             setChatSessions(response.data);
-            console.log(response.data)
         })
         .catch(error => console.error('Error fetching chat sessions:', error));
   }
@@ -200,9 +198,6 @@ const Chat = () => {
     fetchUserChatSessions();
 }, []);
 
-const [messages, setMessages] = useState([]);
-const [input, setInput] = React.useState("");
-const inputLength = input.trim().length;
 
 const findMatchingSessionId = (sessions, currentUserId, otherUserId) => {
   return sessions.find(session => 
@@ -495,7 +490,6 @@ useEffect(() => {
     try {
       const response = await apiClient.get('/trainer-requests/');
       setReceivedRequests(response.data.received_requests);
-      console.log(response.data.received_requests)
     } catch (error) {
       console.error('Error fetching trainer requests:', error);
     }
@@ -515,6 +509,34 @@ useEffect(() => {
   }
 }, [selectedChat, receivedRequests]);
 
+/* const sendRequestAcceptionMessage = async () => {
+  let userPublicKey = findUserPublicKey(chatSessions, user.user_id, selectedChat.id)
+  if (userPublicKey) {
+    const senderPublicKey = userPublicKey;
+    const recipientPublicKey = selectedChat.public_key;
+
+  // Encrypt the message for the recipient
+  const message = `I've accepted your Trainer request!`;
+  
+  const encryptedDataRecipient = await encryptMessage(message, recipientPublicKey);
+
+  // Encrypt message for the sender
+  const encryptedDataSender = await encryptMessage(message, senderPublicKey);
+
+  // Prepare the message object with both encrypted contents
+  const messageObject = {
+    senderId: user.user_id,
+    encrypted_message_recipient: encryptedDataRecipient.encryptedMessage,
+    encrypted_message_sender: encryptedDataSender.encryptedMessage,
+  };
+
+  // Send the message via WebSocket
+  webSocket.send(JSON.stringify(messageObject));
+  } else {
+    console.log('failed to send message')
+  }
+} */
+
 const handleRequest = async (requestId, action) => {
   try {
     const response = await apiClient.post(`/handle-trainer-request/${requestId}/`, { action });
@@ -522,11 +544,21 @@ const handleRequest = async (requestId, action) => {
       title: `Request has been ${action == 'accept' ? "accepted" : "rejected"}`,
       description: `The request has been ${action == 'accept' ? "accepted" : "rejected"}.`
   });
+/*   if(action == 'accept') {
+    sendRequestAcceptionMessage();
+  } */
     setReceivedRequests(receivedRequests.filter(request => request.id !== requestId));
   } catch (error) {
     console.error(`Error handling trainer request: ${action}`, error);
   }
 };
+
+  const [isClientPopoverOpen, setIsClientPopoverOpen] = useState(false)
+
+  const handleClientProgressClick = () => {
+    navigate('/ClientProgress')
+  }
+
   return (
     <div className={`w-full ${backgroundColorClass} md:border rounded-lg lg:p-4`}>
       <Toaster />
@@ -629,7 +661,7 @@ const handleRequest = async (requestId, action) => {
         {selectedChat ? 
           (
           <>
-            <CardHeader className="flex flex-row justify-between items-center pb-2">
+            <CardHeader className="flex flex-row justify-between items-center pt-2 pb-2 pr-0">
                 <div className="flex items-center space-x-4">
                     <FontAwesomeIcon onClick={handleBackClick} className='text-primary' size='xl' icon={faChevronLeft} />
                     <Avatar>
@@ -645,7 +677,8 @@ const handleRequest = async (requestId, action) => {
                     </div>
                 </div>
                 <div className="flex items-center gap-1">
-                  <div className="h-12 w-12 hover:bg-secondary rounded-full flex items-center justify-center">
+                {!selectedChat.trainers.includes(user.user_id) && (
+                  <div className="h-12 w-12 hover:bg-secondary rounded-full flex items-center justify-center mr-4">
                   <AlertDialog>
                       <AlertDialogTrigger>
                         <div className="h-12 w-12 lg:hover:bg-secondary rounded-full flex items-center justify-center">
@@ -666,53 +699,89 @@ const handleRequest = async (requestId, action) => {
                       </AlertDialogContent>
                     </AlertDialog>
                   </div>
-                  <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-                    <SheetTrigger asChild>
-                        <div className="h-12 w-12 lg:hover:bg-secondary rounded-full flex items-center justify-center">
-                          <FontAwesomeIcon onClick={() => setIsSheetOpen(true)} size='lg'className="text-primary" icon={faArrowUpFromBracket} />
-                        </div>
-                    </SheetTrigger>
-                    <SheetContent className="md:w-[400px] w-[100%]">
-                        <SheetHeader className='text-left pl-4 flex flex-row justify-between items-center mt-4'>
-                            <SheetTitle className='text-2xl' >Share Programs</SheetTitle>
-                        </SheetHeader>
-                        <div className='flex flex-col gap-2 mt-2 overflow-y-auto max-h-[75vh] scrollbar-custom'>
-                        {userPrograms.map((program) => (
-                        <div
-                            key={program.id}
-                            className={`flex items-center p-4 py-3 relative rounded border`}
-                            
-                        >
-                            <h1 className='w-[90%] '>{program.name}</h1>
-                            <AlertDialog>
-                              <AlertDialogTrigger>
-                              <div className="p-3 hover:bg-secondary rounded-md" >
-                                <Send className="h-6 w-6" />
-                              </div>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Would you like to share "{program.name}"?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Programs shared will be available to participants under their shared programs section.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => handleShareClick(program)}>Share</AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                        </div>
-                        ))}
-                        </div>
-                    </SheetContent>
-                  </Sheet>
+                )}
+                  {selectedChat.trainers.includes(user.user_id) && (
+                  <div className="flex items-center md:gap-2 md:mr-4">
+                    <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+                      <SheetTrigger asChild>
+                          <div className="h-12 w-12 hover:bg-secondary rounded-full flex items-center justify-center">
+                            <FontAwesomeIcon onClick={() => setIsSheetOpen(true)} size='lg'className="text-primary" icon={faArrowUpFromBracket} />
+                          </div>
+                      </SheetTrigger>
+                      <SheetContent className="md:w-[400px] w-[100%]">
+                          <SheetHeader className='text-left pl-4 flex flex-row justify-between items-center mt-4'>
+                              <SheetTitle className='text-2xl' >Share Programs</SheetTitle>
+                          </SheetHeader>
+                          <div className='flex flex-col gap-2 mt-2 overflow-y-auto max-h-[75vh] scrollbar-custom'>
+                          {userPrograms.map((program) => (
+                          <div
+                              key={program.id}
+                              className={`flex items-center p-4 py-3 relative rounded border`}
+                              
+                          >
+                              <h1 className='w-[90%] '>{program.name}</h1>
+                              <AlertDialog>
+                                <AlertDialogTrigger>
+                                <div className="h-12 w-12 hover:bg-secondary rounded-full flex items-center justify-center">
+                                  <FontAwesomeIcon onClick={() => setIsSheetOpen(true)} size='lg'className="text-primary" icon={faArrowUpFromBracket} />
+                                </div>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Would you like to share "{program.name}"?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Programs shared will be available to participants under their shared programs section.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => handleShareClick(program)}>Share</AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                          </div>
+                          ))}
+                          </div>
+                      </SheetContent>
+                    </Sheet>
+                    <div onClick={handleClientProgressClick} className="h-12 w-12 hover:bg-secondary rounded-full flex items-center justify-center">
+                      <FontAwesomeIcon className='text-primary' size='lg' icon={faChartLine} />
+                    </div>
+                    <Popover open={isClientPopoverOpen} onOpenChange={setIsClientPopoverOpen}>
+                      <PopoverTrigger>
+                      <div className="h-12 w-12 hover:bg-secondary rounded-full flex items-center justify-center">
+                        <FontAwesomeIcon className='text-primary' size='lg' icon={faEllipsis} />
+                      </div>
+                      </PopoverTrigger>
+                      <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md'>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                        <Button className='px-4 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>
+                        Remove Client</Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              {`This will remove ${selectedChat.username} as your client`}
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel onClick={() => setIsClientPopoverOpen(false)}>Cancel</AlertDialogCancel>
+                            <Button variant='destructive'>Remove</Button>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                      </PopoverContent>
+                  </Popover>
+                    
+                  </div>
+                  )}
                 </div>
                 
             </CardHeader>
             {matchingRequest && (
-                  <div className="bg-background border-y-2 flex justify-between items-center p-2">
+                  <div className="bg-background border-y flex justify-between items-center p-2">
                     <p className='text-sm font-medium'>{selectedChat.username} has sent you a trainer request.</p>
                     <div className="flex items-center gap-1">
                       <Button size='sm' onClick={() => handleRequest(matchingRequest.id, 'accept')}>Accept</Button>
