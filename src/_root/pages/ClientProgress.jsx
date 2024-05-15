@@ -77,14 +77,44 @@ import {
     DrawerTrigger,
   } from "@/components/ui/drawer"
   import { useNavigate } from 'react-router-dom';
+  import { useParams } from 'react-router-dom';
 
 
-const ClientProgress = ({userWorkoutSessions}) => {
+const ClientProgress = () => {
     const [date, setDate] = React.useState()
     const { theme } = useTheme();
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
     let { user } = useContext(AuthContext)
     const navigate = useNavigate();
+    const { clientId } = useParams();
+
+    const [client, setClient] = useState("")
+
+    useEffect(() => {
+        apiClient.get(`/users/`)
+            .then(response => {
+                const users = response.data;
+                const matchedClient = users.find(user => user.id == clientId);
+                if (matchedClient) {
+                    setClient(matchedClient);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }, [clientId]);
+
+    const [clientWorkoutSessions, setClientWorkoutSessions] = useState([])
+    useEffect(() => {
+        apiClient.get(`/client-workout-sessions/${clientId}/`)
+            .then(response => {
+                setClientWorkoutSessions(response.data)
+                })
+            
+            .catch(error => console.error('Error:', error));
+        }, [client]);
+  
+    const sendDataToParent = (childData) => {
+      onDataReceive(childData);
+    };
 
     const handleSelect = (newDate) => {
         setDate(newDate);
@@ -117,7 +147,7 @@ const ClientProgress = ({userWorkoutSessions}) => {
     useEffect(() => {
         const fetchVolume = async () => {
         try {
-            const response = await apiClient.get('/cumulative-weight/');
+            const response = await apiClient.get(`client-cumulative-weight/${clientId}/`);
             setTotalWeightLifted(response.data);
             console.log(response.data)
         } catch (error) {
@@ -132,7 +162,7 @@ const ClientProgress = ({userWorkoutSessions}) => {
     useEffect(() => {
         const fetchConsistencyData = async () => {
             try {
-                const response = await apiClient.get('workout_sessions_last_3_months/');
+                const response = await apiClient.get(`client-workout-sessions-last-3-months/${clientId}/`);
                 // Assume the response data is directly in the format expected by the chart
                 setConsistencyData(response.data);
             } catch (error) {
@@ -168,7 +198,7 @@ const ClientProgress = ({userWorkoutSessions}) => {
     useEffect(() => {
         const fetchExercises1rm = async () => {
         try {
-            const response = await apiClient.get('/exercises_with_weights/');
+            const response = await apiClient.get(`/client-exercises-with-weights/${clientId}/`);
             setExercises1rm(response.data);
             console.log(response.data)
         } catch (error) {
@@ -184,7 +214,7 @@ const ClientProgress = ({userWorkoutSessions}) => {
     useEffect(() => {
         const fetch1RMData = async () => {
           try {
-            const response = await apiClient.get(`/exercise/${exerciseId.id}/1rm/`);
+            const response = await apiClient.get(`client-exercise-1rm/${client.id}/${exerciseId.id}/`);
             setData1rm(response.data); // Assuming the data is in the response body directly
             console.log(response.data)
           } catch (err) {
@@ -221,7 +251,7 @@ const ClientProgress = ({userWorkoutSessions}) => {
                                 <AvatarFallback>CN</AvatarFallback>
                             </Avatar>
                             <div className='h-full flex flex-col justify-center'>
-                                <h1 className='text-2xl font-semibold'>{user.username}</h1>
+                                <h1 className='text-2xl font-semibold'>Client: {client.username}</h1>
                             </div>
                         </div>
                         <div className='w-1/2 hidden md:block h-[80%]'>
@@ -299,7 +329,7 @@ const ClientProgress = ({userWorkoutSessions}) => {
                     <Card className='w-full h-full flex justify-center pt-1'>
                         <ProCalendar
                             onDataReceive={handleDayData}
-                            userWorkoutSessions={userWorkoutSessions}
+                            userWorkoutSessions={clientWorkoutSessions}
                             onSelect={handleSelect}
                             mode="single"
                             selected={date}

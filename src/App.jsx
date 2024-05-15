@@ -126,7 +126,7 @@ function App() {
               setSessionDetails={setSessionDetails}
               fetchSessionDetails={fetchSessionDetails}/>} />
               <Route path="/Progress" element={<Progress userWorkoutSessions={userWorkoutSessions}/>} />
-              <Route path="/ClientProgress" element={<ClientProgress userWorkoutSessions={userWorkoutSessions}/>} />
+              <Route path="/ClientProgress/:clientId" element={<ClientProgress userWorkoutSessions={userWorkoutSessions}/>} />
               <Route path="/chat" element={<Chat />} />
             </Route>
           </Route>

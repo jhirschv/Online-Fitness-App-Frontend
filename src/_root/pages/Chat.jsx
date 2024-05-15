@@ -556,7 +556,7 @@ const handleRequest = async (requestId, action) => {
   const [isClientPopoverOpen, setIsClientPopoverOpen] = useState(false)
 
   const handleClientProgressClick = () => {
-    navigate('/ClientProgress')
+    navigate(`/ClientProgress/${selectedChat.id}`)
   }
 
   return (
