@@ -841,6 +841,7 @@ const handleRequest = async (requestId, action) => {
                   className="flex w-full items-center space-x-2"
               >
                   <Textarea
+                  maxLength={500}
                   id="message"
                   placeholder="Type your message..."
                   className="flex-1 h-10 resize-none"

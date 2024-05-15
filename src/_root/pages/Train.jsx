@@ -850,7 +850,7 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                                                             <AlertDialogHeader>
                                                             <AlertDialogTitle>Create Program</AlertDialogTitle>
                                                             </AlertDialogHeader>
-                                                            <Label htmlFor="programName">Name</Label><Input onChange={handleNameInputChange} value={programName} autoComplete="off" id="programName" />
+                                                            <Label htmlFor="programName">Name</Label><Input maxLength={30} onChange={handleNameInputChange} value={programName} autoComplete="off" id="programName" />
                                                             <AlertDialogFooter>
                                                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                                                             <SheetClose asChild>
@@ -979,7 +979,7 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                                                         </TabsList>
 
                                                         <TabsContent value="create">
-                                                            <Label htmlFor="programName">Name</Label><Input className='mb-2' value={workoutName} onChange={handleWorkoutNameChange} autoComplete="off" id="workoutName" />
+                                                            <Label htmlFor="programName">Name</Label><Input maxLength={30} className='mb-2' value={workoutName} onChange={handleWorkoutNameChange} autoComplete="off" id="workoutName" />
                                                             <AlertDialogFooter>
                                                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                                                                 <AlertDialogAction onClick={createWorkout}>Create Workout</AlertDialogAction>
@@ -1029,7 +1029,7 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                                                                 </Select>
                                                             </div> */}
                                                             <p className='text-sm text-muted-foreground py-2'>You have {remainingAIWorkouts} AI workouts left this week.</p>
-                                                            <Label htmlFor="prompt">Workout Description</Label><Textarea value={prompt} onChange={handlePromptChange} className='mb-2' placeholder="Describe your workout here." id='prompt' />
+                                                            <Label htmlFor="prompt">Workout Description</Label><Textarea maxLength={500} value={prompt} onChange={handlePromptChange} className='mb-2' placeholder="Describe your workout here." id='prompt' />
                                                             <AlertDialogFooter>
                                                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                                                                 <AlertDialogAction onClick={createAiWorkout}>Create<FontAwesomeIcon className='ml-1' icon={faWandMagicSparkles} /></AlertDialogAction>
@@ -1094,7 +1094,7 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                                                                         </CardHeader>
                                                                         <CardContent className='px-4 py-4 flex flex-col items-end'>
                                                                             <div className='flex items-center gap-1'>
-                                                                                <Input placeholder="Add or Create Exercise" onChange={(event) => setNewExercise(event.target.value)} value={newExercise}/>
+                                                                                <Input maxLength={25} placeholder="Add or Create Exercise" onChange={(event) => setNewExercise(event.target.value)} value={newExercise}/>
                                                                                 <Select value={newExerciseSets} onValueChange={(newValue) => setNewExerciseSets(newValue)}>
                                                                                     <SelectTrigger className="w-[80px] md:w-[80px] focus:ring-0 focus:ring-offset-0">
                                                                                         <SelectValue placeholder='sets' />
@@ -1260,7 +1260,7 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                                                 <AlertDialogHeader>
                                                 <AlertDialogTitle>Create Program</AlertDialogTitle>
                                                 </AlertDialogHeader>
-                                                <Label htmlFor="programName">Name</Label><Input onChange={handleNameInputChange} value={programName} autoComplete="off" id="programName" />
+                                                <Label htmlFor="programName">Name</Label><Input maxLength={30} onChange={handleNameInputChange} value={programName} autoComplete="off" id="programName" />
                                                 <AlertDialogFooter>
                                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                                                 <AlertDialogAction onClick={createAndActivateProgram}>Create</AlertDialogAction>
@@ -1283,7 +1283,7 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                                                             <AlertDialogHeader>
                                                             <AlertDialogTitle>Create Program</AlertDialogTitle>
                                                             </AlertDialogHeader>
-                                                            <Label htmlFor="programName">Name</Label><Input onChange={handleNameInputChange} value={programName} autoComplete="off" id="programName" />
+                                                            <Label htmlFor="programName">Name</Label><Input maxLenght={30} onChange={handleNameInputChange} value={programName} autoComplete="off" id="programName" />
                                                             <AlertDialogFooter>
                                                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                                                             <SheetClose asChild>
@@ -1360,7 +1360,7 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                                             <AlertDialogTitle>Try Our AI Program Creator!</AlertDialogTitle>
                                             <AlertDialogDescription>You have {remainingAIPrograms} AI programs left this week.</AlertDialogDescription>
                                             </AlertDialogHeader>
-                                            <Label htmlFor="programName">Descripton</Label><Textarea value={programPrompt} onChange={handleProgramPromptChange} autoComplete="off" id="programName" />
+                                            <Label htmlFor="programName">Descripton</Label><Textarea maxLength={500} value={programPrompt} onChange={handleProgramPromptChange} autoComplete="off" id="programName" />
                                             <AlertDialogFooter>
                                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                                             <AlertDialogAction onClick={createAiProgram}>Create</AlertDialogAction>

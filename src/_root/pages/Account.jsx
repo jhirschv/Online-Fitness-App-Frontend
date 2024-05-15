@@ -107,18 +107,18 @@ const Account = () => {
 
                                 </div>
 
-                                <div>
+                                {/* <div>
                                     <Label>Username</Label>
                                     <Input className='md:w-96 rounded-xs mt-1' placeholder="Username"></Input>
                                 </div>
                                 <div>
                                     <Label>Email</Label>
                                     <Input className='md:w-96 rounded-xs mt-1' placeholder="Email"></Input>
-                                </div>
+                                </div> */}
                                 
                                 
                                 <div className='flex gap-2'>
-                                    <Button className='rounded-xs w-30 '>Update Account</Button>
+                                    {/* <Button className='rounded-xs w-30 '>Update Account</Button> */}
                                     <AlertDialog>
                                         <AlertDialogTrigger asChild>
                                             <Button className='rounded-xs w-30 h-[41px]' variant="outline">Delete Account</Button>

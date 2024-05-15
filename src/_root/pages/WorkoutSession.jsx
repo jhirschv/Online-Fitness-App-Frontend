@@ -120,7 +120,12 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
     };
 
     const handleRepsChange = (exerciseLogId, setId, newReps) => {
+        // Validate the newReps value
         const repValue = newReps === '' ? null : parseInt(newReps, 10);
+        if (repValue !== null && (isNaN(repValue) || repValue < 0 || repValue > 999)) {
+            return; // Do not update if the value is not valid
+        }
+    
         const updatedSessionDetails = {
             ...sessionDetails,
             exercise_logs: sessionDetails.exercise_logs.map(log => {
@@ -142,6 +147,12 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
     };
     
     const handleWeightChange = (exerciseLogId, setId, newWeight) => {
+        // Validate the newWeight value
+        const weightValue = newWeight === '' ? null : parseFloat(newWeight);
+        if (weightValue !== null && (isNaN(weightValue) || weightValue < 0 || weightValue > 999)) {
+            return; // Do not update if the value is not valid
+        }
+    
         const updatedSessionDetails = {
             ...sessionDetails,
             exercise_logs: sessionDetails.exercise_logs.map(log => {
@@ -150,7 +161,7 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                         ...log,
                         sets: log.sets.map(set => {
                             if (set.id === setId) {
-                                return { ...set, weight_used: newWeight };
+                                return { ...set, weight_used: weightValue };
                             }
                             return set;
                         })
@@ -328,32 +339,47 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
         const file = event.target.files[0];
         if (!file) return;
     
-        const formData = new FormData();
-        formData.append('video', file);
+        // Create a video element to check the duration
+        const videoElement = document.createElement('video');
+        const fileURL = URL.createObjectURL(file);
+        videoElement.src = fileURL;
     
-        // Set only the relevant setId to true
-        setUploading(prev => ({ ...prev, [setId]: true }));
-        
-        try {
-            const response = await apiClient.patch(`/upload_video/${setId}/`, formData);
-            
-            // Set only the relevant setId to false after response
-            setUploading(prev => ({ ...prev, [setId]: false }));
-            
-            if (response.data.status === 'success') {
-                console.log('Video uploaded successfully');
-                fetchSessionDetails();
-            } else {
-                console.error('Upload failed:', response.data.message);
+        videoElement.onloadedmetadata = async () => {
+            URL.revokeObjectURL(fileURL); // Clean up the object URL
+    
+            // Check the duration of the video
+            if (videoElement.duration > 60) {
+                alert('Video length must be 1 minute or less.');
+                return;
             }
-        } catch (error) {
-            setUploading(prev => ({ ...prev, [setId]: false }));
-            if (error.response) {
-                console.error('Error uploading video:', error.response.data);
-            } else {
-                console.error('Error uploading video:', error.message);
+    
+            const formData = new FormData();
+            formData.append('video', file);
+    
+            // Set only the relevant setId to true
+            setUploading(prev => ({ ...prev, [setId]: true }));
+    
+            try {
+                const response = await apiClient.patch(`/upload_video/${setId}/`, formData);
+    
+                // Set only the relevant setId to false after response
+                setUploading(prev => ({ ...prev, [setId]: false }));
+    
+                if (response.data.status === 'success') {
+                    console.log('Video uploaded successfully');
+                    fetchSessionDetails();
+                } else {
+                    console.error('Upload failed:', response.data.message);
+                }
+            } catch (error) {
+                setUploading(prev => ({ ...prev, [setId]: false }));
+                if (error.response) {
+                    console.error('Error uploading video:', error.response.data);
+                } else {
+                    console.error('Error uploading video:', error.message);
+                }
             }
-        }
+        };
     };
 
     function transformVideoURL(originalURL) {
@@ -600,15 +626,19 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                                 <p className='w-4'>{set.set_number}</p>
                                                                 
                                                                 <Input 
+                                                                    type='number'
+                                                                    inputMode='numeric'
                                                                     value={set.reps !== null ? set.reps : ''}
                                                                     onChange={(e) => handleRepsChange(exercise.id, set.id, e.target.value)} 
                                                                     placeholder={String(exercise.workout_exercise.reps)}
                                                                     id="reps"
-                                                                    className="w-12 ml-4 mr-1 text-center font-semibold text-lg"
+                                                                    className="w-16 ml-4 mr-1 text-center font-semibold text-lg"
                                                                 />
                                                                 <Label htmlFor="reps" className='mr-2'>Reps</Label>
 
                                                                 <Input id='weight' className='w-16 ml-4 mr-2 font-semibold text-lg'
+                                                                inputMode='numeric'
+                                                                type='number'
                                                                 value={set.weight_used || ''} // Handle potential null or undefined values
                                                                 onChange={(e) => handleWeightChange(exercise.id, set.id, e.target.value)}></Input>
                                                                 <p>lbs</p>
@@ -725,6 +755,7 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                                 <AlertDialogTitle>Note</AlertDialogTitle>
                                                             </AlertDialogHeader>
                                                             <Textarea 
+                                                                maxLength={500}
                                                                 className="resize-none h-28 text-md"
                                                                 value={currentNotes[exercise.id] || ''}  // Use currentNotes here
                                                                 onChange={(e) => handleNoteChange(exercise.id, e.target.value)}
