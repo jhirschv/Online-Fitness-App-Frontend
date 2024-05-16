@@ -119,6 +119,12 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
         }));
     };
 
+    const preventInvalidInput = (e) => {
+        if (['e', 'E', '+', '-', '.'].includes(e.key)) {
+            e.preventDefault();
+        }
+    };
+
     const handleRepsChange = (exerciseLogId, setId, newReps) => {
         // Validate the newReps value
         const repValue = newReps === '' ? null : parseInt(newReps, 10);
@@ -630,17 +636,19 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                                     inputMode='numeric'
                                                                     value={set.reps !== null ? set.reps : ''}
                                                                     onChange={(e) => handleRepsChange(exercise.id, set.id, e.target.value)} 
+                                                                    onKeyDown={preventInvalidInput}
                                                                     placeholder={String(exercise.workout_exercise.reps)}
                                                                     id="reps"
-                                                                    className="w-16 ml-4 mr-1 text-center font-semibold text-lg"
+                                                                    className="w-16 ml-1 mr-1 text-center font-semibold text-lg"
                                                                 />
                                                                 <Label htmlFor="reps" className='mr-2'>Reps</Label>
 
-                                                                <Input id='weight' className='w-16 ml-4 mr-2 font-semibold text-lg'
+                                                                <Input id='weight' className='w-16 ml-1 mr-2 font-semibold text-lg'
                                                                 inputMode='numeric'
                                                                 type='number'
                                                                 value={set.weight_used || ''} // Handle potential null or undefined values
-                                                                onChange={(e) => handleWeightChange(exercise.id, set.id, e.target.value)}></Input>
+                                                                onChange={(e) => handleWeightChange(exercise.id, set.id, e.target.value)}
+                                                                onKeyDown={preventInvalidInput}></Input>
                                                                 <p>lbs</p>
                                                                 <FontAwesomeIcon className={`ml-2 md:ml-4 ${set.is_logged ? 'text-green-500' : 'text-muted-foreground'}`} size='xl' icon={faCircleCheck} />
                                                                 {set.video ? (
