@@ -78,11 +78,21 @@ import {
   } from "@/components/ui/drawer"
 
 
-const Progress = ({userWorkoutSessions, userInfo}) => {
+const Progress = ({userInfo}) => {
     const [date, setDate] = React.useState()
     const { theme } = useTheme();
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
     let { user } = useContext(AuthContext)
+
+    const [userWorkoutSessions, setUserWorkoutSessions] = useState([])
+    useEffect(() => {
+        apiClient.get('/user_workout_sessions/')
+            .then(response => {
+                setUserWorkoutSessions(response.data)
+                })
+            
+            .catch(error => console.error('Error:', error));
+        }, [user]);
 
     const handleSelect = (newDate) => {
         setDate(newDate);

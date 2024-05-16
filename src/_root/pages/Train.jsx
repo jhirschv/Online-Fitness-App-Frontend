@@ -104,12 +104,22 @@ import { useToast } from "@/components/ui/use-toast"
 
   
   
-const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWorkouts, userWorkoutSessions, sessionDetails, isActiveSession, fetchSessionDetails, loadingSessionDetails}) => {
+const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWorkouts, sessionDetails, isActiveSession, fetchSessionDetails, loadingSessionDetails}) => {
     let { user } = useContext(AuthContext);
     const { theme } = useTheme();
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
     const navigate = useNavigate();
     const { toast } = useToast()
+
+    const [userWorkoutSessions, setUserWorkoutSessions] = useState([])
+    useEffect(() => {
+        apiClient.get('/user_workout_sessions/')
+            .then(response => {
+                setUserWorkoutSessions(response.data)
+                })
+            
+            .catch(error => console.error('Error:', error));
+        }, [user]);
     
     //ai workout
     const [prompt, setPrompt] = useState('');

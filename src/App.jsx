@@ -66,7 +66,7 @@ function App() {
       });
   }, [user]);
 
-  //fetch user workout sessions
+  /* //fetch user workout sessions
   const [userWorkoutSessions, setUserWorkoutSessions] = useState([])
   useEffect(() => {
     apiClient.get('/user_workout_sessions/')
@@ -79,7 +79,7 @@ function App() {
   
     const sendDataToParent = (childData) => {
       onDataReceive(childData);
-    };
+    }; */
 
     const [isActiveSession, setIsActiveSession] = useState(false);
     const [sessionDetails, setSessionDetails] = useState();
@@ -126,7 +126,6 @@ function App() {
               setActiveProgram={setActiveProgram}
               workouts={workouts}
               setWorkouts={setWorkouts}
-              userWorkoutSessions={userWorkoutSessions}
               sessionDetails={sessionDetails}
               isActiveSession={isActiveSession}
               fetchSessionDetails={fetchSessionDetails}
@@ -137,8 +136,8 @@ function App() {
               sessionDetails={sessionDetails}
               setSessionDetails={setSessionDetails}
               fetchSessionDetails={fetchSessionDetails}/>} />
-              <Route path="/Progress" element={<Progress userWorkoutSessions={userWorkoutSessions} userInfo={userInfo}/>} />
-              <Route path="/ClientProgress/:clientId" element={<ClientProgress userWorkoutSessions={userWorkoutSessions}/>} />
+              <Route path="/Progress" element={<Progress userInfo={userInfo}/>} />
+              <Route path="/ClientProgress/:clientId" element={<ClientProgress />} />
               <Route path="/chat" element={<Chat />} />
             </Route>
           </Route>
