@@ -88,7 +88,8 @@ const ClientProgress = () => {
     const navigate = useNavigate();
     const { clientId } = useParams();
 
-    const [client, setClient] = useState("")
+    const [client, setClient] = useState(null)
+    const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
         apiClient.get(`/users/`)
@@ -97,9 +98,11 @@ const ClientProgress = () => {
                 const matchedClient = users.find(user => user.id == clientId);
                 if (matchedClient) {
                     setClient(matchedClient);
+                    setIsLoading(false)
                 }
             })
             .catch(error => console.error('Error:', error));
+            setIsLoading(false)
     }, [clientId]);
 
     const [clientWorkoutSessions, setClientWorkoutSessions] = useState([])
@@ -246,12 +249,12 @@ const ClientProgress = () => {
                     <Card className='relative flex w-full h-full'>
                         <Button className='absolute right-2 md:right-[51%] top-2' variant='outline' size='sm' onClick={handleReturnToChatClick}>Return to Chat</Button>
                         <div className='w-1/2 md:border-r h-full flex items-center gap-4'>
-                            <Avatar className="ml-6 h-32 w-32">
-                                <AvatarImage src="https://github.com/shadcn.png" />
+                            <Avatar className="ml-6 h-28 w-28">
+                                <AvatarImage src={!isLoading && client ? client.profile_picture || "https://github.com/shadcn.png" : null} />
                                 <AvatarFallback>CN</AvatarFallback>
                             </Avatar>
                             <div className='h-full flex flex-col justify-center'>
-                                <h1 className='text-2xl font-semibold'>Client: {client.username}</h1>
+                                <h1 className='text-2xl font-semibold'>Client: {client?.username}</h1>
                             </div>
                         </div>
                         <div className='w-1/2 hidden md:block h-[80%]'>

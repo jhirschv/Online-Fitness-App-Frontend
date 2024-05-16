@@ -1283,7 +1283,7 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                                                             <AlertDialogHeader>
                                                             <AlertDialogTitle>Create Program</AlertDialogTitle>
                                                             </AlertDialogHeader>
-                                                            <Label htmlFor="programName">Name</Label><Input maxLenght={30} onChange={handleNameInputChange} value={programName} autoComplete="off" id="programName" />
+                                                            <Label htmlFor="programName">Name</Label><Input maxLength={30} onChange={handleNameInputChange} value={programName} autoComplete="off" id="programName" />
                                                             <AlertDialogFooter>
                                                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                                                             <SheetClose asChild>

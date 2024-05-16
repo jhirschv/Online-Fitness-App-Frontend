@@ -29,7 +29,7 @@ import { faFolder } from '@fortawesome/free-regular-svg-icons';
 import { faDumbbell, faPersonRunning, faChartLine, faWandMagicSparkles, faComments, faUserGroup, faGear, faBars } from '@fortawesome/free-solid-svg-icons';
 
 
-const Topbar = () => {
+const Topbar = ({userInfo}) => {
   const { setTheme } = useTheme()
   const { theme } = useTheme();
   const fontColor = theme === 'dark' ? 'text-muted-foreground' : 'text-primary';
@@ -51,10 +51,11 @@ const Topbar = () => {
                   <ul className="flex flex-col gap-1">
                     <NavLink to='/account'>
                       <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md transition duration-300 ease-in-out">
+                        {userInfo && 
                         <Avatar className="mr-3">
-                          <AvatarImage src="https://github.com/shadcn.png" />
+                          <AvatarImage src={userInfo.profile_picture } />
                           <AvatarFallback>CN</AvatarFallback>
-                        </Avatar>
+                        </Avatar>}
                         Account
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -119,10 +120,11 @@ const Topbar = () => {
         </Sheet >
           
           <NavLink to='/account'>
-            <Avatar className="mx-3 md:hidden">
-              <AvatarImage src="https://github.com/shadcn.png" />
+          {userInfo && 
+            <Avatar className="mr-3">
+              <AvatarImage src={userInfo.profile_picture || "https://github.com/shadcn.png" } />
               <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
+            </Avatar>}
           </NavLink>
         </div>
         

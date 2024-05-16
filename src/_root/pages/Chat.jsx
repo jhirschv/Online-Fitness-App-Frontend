@@ -101,6 +101,7 @@ const Chat = () => {
         .then(response => {
             const filteredUsers = response.data.filter(u => u.id !== user.user_id);
             setUsers(filteredUsers)
+            console.log(response.data)
         })
         .catch(error => console.error('Error:', error));
     }, [messages]);
@@ -609,7 +610,7 @@ const handleRequest = async (requestId, action) => {
                                     <Separator />
                                     <div className="w-full flex items-center gap-4 p-3">
                                       <Avatar className="">
-                                        <AvatarImage src="https://github.com/shadcn.png" />
+                                        <AvatarImage src={filteredUser.profile_picture || "https://github.com/shadcn.png"} />
                                         <AvatarFallback>CN</AvatarFallback>
                                       </Avatar>
                                       <div className="h-full flex flex-col justify-center">
@@ -667,7 +668,7 @@ const handleRequest = async (requestId, action) => {
                       </PopoverContent>
                   </Popover>
                   <Avatar className='h-14 w-14'>
-                    <AvatarImage src={otherParticipant.avatar_url || "https://github.com/shadcn.png"} />
+                    <AvatarImage src={otherParticipant.profile_picture || "https://github.com/shadcn.png"} />
                     <AvatarFallback>CN</AvatarFallback>
                   </Avatar>
                   <div className="h-full flex flex-col justify-center w-full">
@@ -695,7 +696,7 @@ const handleRequest = async (requestId, action) => {
                 <div className="flex items-center space-x-4">
                     <FontAwesomeIcon onClick={handleBackClick} className='text-primary' size='xl' icon={faChevronLeft} />
                     <Avatar>
-                      <AvatarImage src="https://github.com/shadcn.png" />
+                      <AvatarImage src={selectedChat.profile_picture || "https://github.com/shadcn.png"} />
                       <AvatarFallback>CN</AvatarFallback>
                     </Avatar>
                     <div>

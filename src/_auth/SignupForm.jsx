@@ -161,17 +161,17 @@ export function SignupForm() {
             <div className="grid w-full gap-4">
               <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" name="email" value={email} onChange={handleEmailChange} className={errors.email ? 'border-red-500' : ''} placeholder="Enter your email"/>
+                <Input maxLength={40} id="email" name="email" value={email} onChange={handleEmailChange} className={errors.email ? 'border-red-500' : ''} placeholder="Enter your email"/>
                 {errors.email && <div className="text-sm text-red-500">{errors.email}</div>}
               </div>
               <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="username">Username</Label>
-                <Input type="text" id="username" name="username" value={username} onChange={handleUsernameChange} className={errors.username ? 'border-red-500' : ''} placeholder="Enter username"/>
+                <Input maxLength={30} type="text" id="username" name="username" value={username} onChange={handleUsernameChange} className={errors.username ? 'border-red-500' : ''} placeholder="Enter username"/>
                 {errors.username && <div className="text-sm text-red-500">{errors.username}</div>}
               </div>
               <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="password">Password</Label>
-                <Input type="password" id="password" name="password" value={password} onChange={handlePasswordChange} className={errors.password ? 'border-red-500' : ''} placeholder="Enter password"/>
+                <Input maxLength={30} type="password" id="password" name="password" value={password} onChange={handlePasswordChange} className={errors.password ? 'border-red-500' : ''} placeholder="Enter password"/>
                 {errors.password && <div className="text-sm text-red-500">{errors.password}</div>}
               </div>
               <Button type="submit">Sign up</Button>

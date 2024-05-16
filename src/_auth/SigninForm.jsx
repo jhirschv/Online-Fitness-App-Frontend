@@ -38,11 +38,11 @@ export function SigninForm({fetchSessionDetails}) {
             <div className="grid w-full items-center gap-4">
               <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="name">Username</Label>
-                <Input type="text" name="username" placeholder="Enter username"/>
+                <Input maxLength={30} type="text" name="username" placeholder="Enter username"/>
               </div>
               <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="framework">Password</Label>
-                <Input type="password" name="password" placeholder="Enter password"/>
+                <Input maxLength={30} type="password" name="password" placeholder="Enter password"/>
               </div>
               <Button type="submit">Sign in</Button>
             </div>

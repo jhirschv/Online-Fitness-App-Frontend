@@ -34,6 +34,18 @@ function App() {
   const { user } = useContext(AuthContext);
   const [loadingSessionDetails, setLoadingSessionDetails] = useState(true);
   const [programLoading, setProgramLoading] = useState(null)
+  const [userInfo, setUserInfo] = useState(null)
+
+  useEffect(() => {
+    if(user){
+    apiClient.get(`/users/${user.user_id}/`)
+        .then(response => {
+            setUserInfo(response.data)
+            console.log(response.data)
+        })
+        .catch(error => console.error('Error:', error));
+      }
+    }, []);
 
   //fetch active program and workouts
   const [activeProgram, setActiveProgram] = useState(null)
@@ -101,9 +113,9 @@ function App() {
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         <Routes>
-          <Route element={<RootLayout />}>
+          <Route element={<RootLayout userInfo={userInfo}/>}>
             <Route element={<PrivateRoute />}>
-              <Route path="account" element={<Account />} />  
+              <Route path="account" element={<Account userInfo={userInfo} setUserInfo={setUserInfo}/>} />  
               {/* <Route path="edit/:phaseId/:workoutId" element={<Edit />} />  
               <Route path='workout/:workoutId' element={<Workout />} />
               <Route path='programs' element={<Programs />} />       
@@ -125,7 +137,7 @@ function App() {
               sessionDetails={sessionDetails}
               setSessionDetails={setSessionDetails}
               fetchSessionDetails={fetchSessionDetails}/>} />
-              <Route path="/Progress" element={<Progress userWorkoutSessions={userWorkoutSessions}/>} />
+              <Route path="/Progress" element={<Progress userWorkoutSessions={userWorkoutSessions} userInfo={userInfo}/>} />
               <Route path="/ClientProgress/:clientId" element={<ClientProgress userWorkoutSessions={userWorkoutSessions}/>} />
               <Route path="/chat" element={<Chat />} />
             </Route>

@@ -78,7 +78,7 @@ import {
   } from "@/components/ui/drawer"
 
 
-const Progress = ({userWorkoutSessions}) => {
+const Progress = ({userWorkoutSessions, userInfo}) => {
     const [date, setDate] = React.useState()
     const { theme } = useTheme();
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
@@ -209,8 +209,8 @@ const Progress = ({userWorkoutSessions}) => {
                 <div className="col-span-2 h-48">
                     <Card className='flex w-full h-full'>
                         <div className='w-1/2 md:border-r h-full flex items-center gap-4'>
-                            <Avatar className="ml-6 h-32 w-32">
-                                <AvatarImage src="https://github.com/shadcn.png" />
+                            <Avatar className="ml-6 h-28 w-28">
+                                <AvatarImage src={userInfo && userInfo.profile_picture && userInfo.profile_picture ||  "https://github.com/shadcn.png"} />
                                 <AvatarFallback>CN</AvatarFallback>
                             </Avatar>
                             <div className='h-full flex flex-col justify-center'>
