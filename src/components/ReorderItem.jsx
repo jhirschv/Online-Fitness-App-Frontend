@@ -13,11 +13,7 @@ import {
 export const ReorderItem = ({ isDragging, setIsDragging, onPointerDown, onPointerUp, onPointerCancel, workout, index, handleWorkoutClick, clickedWorkout, deleteWorkout }) => {
   const dragControls = useDragControls();
   const onDragStart = (event) => {
-    event.stopPropagation();
-    onPointerDown();
     dragControls.start(event); 
-    setIsDragging(true); 
-  
   };
 
   const handleOnPointerUp = () => {
@@ -30,24 +26,12 @@ export const ReorderItem = ({ isDragging, setIsDragging, onPointerDown, onPointe
 
   return (
     <Reorder.Item onPointerUp={onPointerUp} onPointerCancel={onPointerCancel} onClick={() => handleWorkoutClick(workout)} dragControls={dragControls} id={workout} key={workout.id} value={workout} 
-    dragListener={false}  className="w-full flex justify-between h-20 px-4 border rounded-xs relative my-2" 
-    >
-        <div className={`absolute left-0 top-0 bottom-0 w-1 ${clickedWorkout && clickedWorkout.id === workout.id ? 'bg-primary' : 'bg-transparent'}`} style={{width: '5px'}}></div>
-        <div className='font-semibold p-2'>{index + 1}. {workout.name}</div>
-        <div  onPointerDown={onDragStart} onPointerUp={handleOnPointerUp} className='pr-4 pl-2 py-4 absolute top-4 left-0 text-border'>
+    dragListener={false}  className="w-full flex items-center h-12 px-2 border rounded-xs relative my-2" >
+        <div  onPointerDown={onDragStart} className='text-border'>
             <FontAwesomeIcon size='lg' icon={faGripVertical} />
         </div>
+        <div className='font-semibold py-2 px-4'>{index + 1}. {workout.name}</div>
         
-        <div>
-            <FontAwesomeIcon className='absolute top-8 right-8' icon={faChevronRight} />
-            <Popover >
-                <PopoverTrigger onClick={(event) => event.stopPropagation()} className='absolute top-1 right-3'><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
-                <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md'>
-                    <Button onClick={(event) => {event.stopPropagation(); deleteWorkout(workout.id); }} className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>
-                    Delete Workout</Button>
-                </PopoverContent>
-            </Popover>
-        </div>
     </Reorder.Item>
   );
 };

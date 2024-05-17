@@ -50,7 +50,7 @@ import {
     SheetTrigger,
   } from "@/components/ui/sheet"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEllipsis, faPlus, faChevronRight, faXmark, faTrashCan, faGripVertical, faWandMagicSparkles } from '@fortawesome/free-solid-svg-icons';
+import { faEllipsis, faPlus, faChevronRight, faXmark, faTrashCan, faGripVertical, faWandMagicSparkles, faArrowRightArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { faFaceFrown } from '@fortawesome/free-regular-svg-icons';
 import {
     AlertDialog,
@@ -101,6 +101,7 @@ import { ScaleLoader } from 'react-spinners';
 import { Toaster } from "@/components/ui/toaster"
 import { ToastAction } from "@/components/ui/toast"
 import { useToast } from "@/components/ui/use-toast"
+
 
   
   
@@ -945,41 +946,68 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                                             <Card className='border-none rounded-none h-full'>
                                             
                                                 <CardContent className="p-0 pb-6 h-full items-center flex flex-col gap-2">
-                                                    <div className='flex gap-10 self-start items-center'>
+                                                    <div className='w-full flex justify-between items-center'>
                                                         <h1 className='mr-2 p-1 text-lg self-start font-semibold'>{activeProgram.name}</h1>
                                                         <p className='text-sm text-muted-foreground whitespace-nowrap'>{activeProgram?.workouts?.length ?? 0} workouts</p>
+                                                            <Sheet>
+                                                                <SheetTrigger>
+                                                                <div className='flex flex-col items-center justify-center'>
+                                                                    <FontAwesomeIcon icon={faArrowRightArrowLeft} className="rotate-90 text-primary" size='lg' />
+                                                                    <p className='text-xs text-muted-foreground'>Reorder</p>
+                                                                </div>
+                                                                </SheetTrigger>
+                                                                <SheetContent className="md:w-[400px] w-[100%]">
+                                                                    <SheetHeader>
+                                                                    <SheetTitle className='text-2xl'>Reorder <FontAwesomeIcon icon={faArrowRightArrowLeft} className="rotate-90 text-primary" /></SheetTitle>
+                                                                    <Reorder.Group
+                                                                        axis="y"
+                                                                        onReorder={handleReorder}
+                                                                        values={workouts}
+                                                                        className="w-full"
+                                                                    >
+                                                                        {workouts && workouts.map((workout, index) => (
+                                                                            <ReorderItem
+                                                                                isDragging={isDragging}
+                                                                                setIsDragging={setIsDragging}
+                                                                                onPointerDown={() => toggleWatchDrag(false)}
+                                                                                onPointerUp={() => toggleWatchDrag(true)}
+                                                                                onPointerCancel={() => toggleWatchDrag(true)}
+                                                                                handleWorkoutClick={handleWorkoutClick}
+                                                                                clickedWorkout={clickedWorkout}
+                                                                                deleteWorkout={deleteWorkout}
+                                                                                index={index}
+                                                                                key={workout.id}
+                                                                                workout={workout}
+                                                                            />
+                                                                        ))}
+                                                                    </Reorder.Group>
+                                                                    </SheetHeader>
+                                                                </SheetContent>
+                                                            </Sheet>
                                                     </div>
-                                                    <div 
-                                                    onTouchStart={handleTouchStart}
-                                                    onTouchMove={handleTouchMove}
-                                                    onTouchEnd={handleTouchEnd}
-                                                    ref={touchAreaRef} className='w-full flex-1 overflow-y-scroll scrollbar-custom' style={{ height: `calc(100vh - 150px)` }}>
-                                                    <Reorder.Group
-                                                        axis="y"
-                                                        onReorder={handleReorder}
-                                                        values={workouts}
-                                                        className="w-full"
-                                                    >
+                                                    <div className='w-full flex flex-col gap-2 overflow-y-scroll scrollbar-custom' style={{ height: `calc(100vh - 150px)` }}>
                                                         {workouts && workouts.map((workout, index) => (
-                                                            <ReorderItem
-                                                                isDragging={isDragging}
-                                                                setIsDragging={setIsDragging}
-                                                                onPointerDown={() => toggleWatchDrag(false)}
-                                                                onPointerUp={() => toggleWatchDrag(true)}
-                                                                onPointerCancel={() => toggleWatchDrag(true)}
-                                                                handleWorkoutClick={handleWorkoutClick}
-                                                                clickedWorkout={clickedWorkout}
-                                                                deleteWorkout={deleteWorkout}
-                                                                index={index}
-                                                                key={workout.id}
-                                                                workout={workout}
-                                                            />
+                                                            <div onClick={() => handleWorkoutClick(workout)} key={workout.id} 
+                                                            className="flex-shrink-0 w-full flex justify-between h-20 px-4 border rounded-xs relative" 
+                                                            >
+                                                                <div className={`absolute left-0 top-0 bottom-0 w-1 ${clickedWorkout && clickedWorkout.id === workout.id ? 'bg-primary' : 'bg-transparent'}`} style={{width: '5px'}}></div>
+                                                                <div className='text-lg font-semibold p-2'>{index + 1}. {workout.name}</div>
+                                                                <div>
+                                                                    <FontAwesomeIcon className='absolute top-8 right-8' icon={faChevronRight} />
+                                                                    <Popover >
+                                                                        <PopoverTrigger onClick={(event) => event.stopPropagation()} className='absolute top-1 right-3'><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
+                                                                        <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md'>
+                                                                            <Button onClick={(event) => {event.stopPropagation(); deleteWorkout(workout.id); }} className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>
+                                                                            Delete Workout</Button>
+                                                                        </PopoverContent>
+                                                                    </Popover>
+                                                                </div>
+                                                            </div>
                                                         ))}
-                                                    </Reorder.Group>
-                                                    
+                                                    </div>
                                                 <AlertDialog>
                                                     <AlertDialogTrigger className='w-full flex items-center' asChild>
-                                                        <div className='w-full py-4 text-lg text-primary font-semibold underline-offset-4 hover:underline text-x'><FontAwesomeIcon className='mr-2' icon={faPlus}/>Add Workout</div>
+                                                        <div className='w-full py-4 px-2 text-lg text-primary font-semibold underline-offset-4 hover:underline text-x'><FontAwesomeIcon className='mr-2' icon={faPlus}/>Add Workout</div>
                                                     </AlertDialogTrigger>
                                                     <AlertDialogContent>
                                                         <Tabs defaultValue="create">
@@ -1048,7 +1076,6 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                                                         </Tabs>
                                                     </AlertDialogContent>
                                                 </AlertDialog>
-                                                </div>
                                                 </CardContent>
                                             </Card>
                                             </div>
@@ -1057,41 +1084,167 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                                             <div className="flex-grow mt-2">
                                             <Card className='border-none rounded-none h-full'>
                                                 <CardContent className="p-0 justify-center flex flex-col gap-2">
-                                                    <div className='flex gap-10 items-center'>
+                                                    <div className='flex justify-between items-center'>
                                                         <h1 className='p-1 font-semibold text-xl'>{clickedWorkout && clickedWorkout.name}</h1>
                                                         <p className='text-sm text-muted-foreground'>{clickedWorkout && clickedWorkout.workout_exercises ? clickedWorkout.workout_exercises.length : 0} exercises</p>
+                                                        <Sheet>
+                                                                <SheetTrigger>
+                                                                <div className='flex flex-col items-center justify-center'>
+                                                                    <FontAwesomeIcon icon={faArrowRightArrowLeft} className="rotate-90 text-primary" size='lg' />
+                                                                    <p className='text-xs text-muted-foreground'>Reorder</p>
+                                                                </div>
+                                                                </SheetTrigger>
+                                                                <SheetContent className="md:w-[400px] w-[100%]">
+                                                                    <SheetHeader>
+                                                                    <SheetTitle className='text-2xl'>Reorder <FontAwesomeIcon icon={faArrowRightArrowLeft} className="rotate-90 text-primary" /></SheetTitle>
+                                                                        <Reorder.Group
+                                                                            axis="y"
+                                                                            onReorder={handleExerciseReorder}
+                                                                            values={clickedWorkoutExercises}
+                                                                            className="w-full"
+                                                                        >
+                                                                                {clickedWorkoutExercises && clickedWorkoutExercises.map((workout_exercise, index) => (
+                                                                                    <ReorderExercise
+                                                                                        isDragging={isDragging}
+                                                                                        setIsDragging={setIsDragging}
+                                                                                        onPointerDown={() => toggleWatchDrag(false)}
+                                                                                        onPointerUp={() => toggleWatchDrag(true)}
+                                                                                        onPointerCancel={() => toggleWatchDrag(true)}
+                                                                                        index={index}
+                                                                                        key={workout_exercise.id}
+                                                                                        workout_exercise={workout_exercise}
+                                                                                        deleteWorkoutExercise={deleteWorkoutExercise}
+                                                                                        updateWorkout={updateWorkout}
+                                                                                        handleEditSetsChange={handleEditSetsChange}
+                                                                                        handleEditRepsChange={handleEditRepsChange}
+                                                                                    />
+                                                                                ))}
+                                                                        </Reorder.Group>
+                                                                    </SheetHeader>
+                                                                </SheetContent>
+                                                            </Sheet>
                                                     </div>
-                                                <div 
-                                                onTouchStart={handleTouchStart2}
-                                                onTouchMove={handleTouchMove2}
-                                                onTouchEnd={handleTouchEnd2}
-                                                ref={touchAreaRef2}className='flex flex-col gap-2 pb-4 overflow-y-auto md:pr-2 scrollbar-custom' style={{ height: `calc(100vh - 235px)` }}>
-                                                <Reorder.Group
-                                                        axis="y"
-                                                        onReorder={handleExerciseReorder}
-                                                        values={clickedWorkoutExercises}
-                                                        className="w-full"
-                                                    >
+                                                <div className='w-full flex flex-col gap-2 overflow-y-scroll scrollbar-custom' style={{ height: `calc(100vh - 275px)` }}>
                                                         {clickedWorkoutExercises && clickedWorkoutExercises.map((workout_exercise, index) => (
-                                                            <ReorderExercise
-                                                                isDragging={isDragging}
-                                                                setIsDragging={setIsDragging}
-                                                                onPointerDown={() => toggleWatchDrag(false)}
-                                                                onPointerUp={() => toggleWatchDrag(true)}
-                                                                onPointerCancel={() => toggleWatchDrag(true)}
-                                                                index={index}
-                                                                key={workout_exercise.id}
-                                                                workout_exercise={workout_exercise}
-                                                                deleteWorkoutExercise={deleteWorkoutExercise}
-                                                                updateWorkout={updateWorkout}
-                                                                handleEditSetsChange={handleEditSetsChange}
-                                                                handleEditRepsChange={handleEditRepsChange}
-                                                            />
+                                                           <div key={workout_exercise.id} className='flex-shrink-0 py-6 pl-8 pr-10 w-full flex justify-between items-center border rounded-xs relative h-20 overflow-hidden'>
+                                                               <div className='w-1/2 font-semibold text-lg'>{index + 1}. {workout_exercise.exercise.name}</div>
+                                                                   <div className='font-semibold text-lg'>{workout_exercise.sets} x {workout_exercise.reps}</div>
+                                                                   {workout_exercise.exercise.video ? (
+                                                                       <div className='h-14 w-14'>
+                                                                           <AlertDialog>
+                                                                               <AlertDialogTrigger>
+                                                                                   <img
+                                                                                       src={`https://img.youtube.com/vi/${workout_exercise.exercise.video}/maxresdefault.jpg`}
+                                                                                       alt="Video Thumbnail"
+                                                                                       className="object-cover rounded-full cursor-pointer w-14 h-14"
+                                                                                   />
+                                                                               </AlertDialogTrigger>
+                                                                               <AlertDialogContent className='gap-0'>
+                                                                                   <div className="aspect-w-16 aspect-h-9 w-full h-72">
+                                                                                       <iframe
+                                                                                           className="w-full h-full"
+                                                                                           src={`https://www.youtube.com/embed/${workout_exercise.exercise.video}`}
+                                                                                           title="YouTube video player"
+                                                                                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                                                           allowFullScreen>
+                                                                                       </iframe>
+                                                                                   </div>
+                                                                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                               </AlertDialogContent>
+                                                                               </AlertDialog>
+                                                                           </div>
+                                                                       ) : (
+                                                                           <div className='h-12 w-12'></div>
+                                                                       )
+                                                                   }
+                                                                   <Drawer>
+                                                                       <DrawerTrigger className='absolute top-1 right-3'><FontAwesomeIcon icon={faEllipsis} /></DrawerTrigger>
+                                                                       <DrawerContent className='h-1/2'>
+                                                                           <DrawerHeader>
+                                                                           <DrawerTitle>Edit Exercise</DrawerTitle>
+                                                                           </DrawerHeader>
+                                                                           <div className='flex items-center p-6 border rounded-sm mx-4'>
+                                                                               <div className='w-1/3 font-semibold' >{workout_exercise.exercise.name}</div>
+                                                                               <Select  value={workout_exercise.sets > 0 ? workout_exercise.sets.toString() : ''}
+                                                                               onValueChange={(newValue) => handleEditSetsChange(workout_exercise.exercise.id, parseInt(newValue, 10))}
+                                                                               >
+                                                                                   <SelectTrigger className="w-[55px] md:w-[80px] focus:ring-0 focus:ring-offset-0">
+                                                                                       <SelectValue placeholder='sets' />
+                                                                                   </SelectTrigger>
+                                                                                   <SelectContent>
+                                                                                       <SelectGroup>
+                                                                                           <SelectLabel>sets</SelectLabel>
+                                                                                           <SelectItem value="1">1</SelectItem>
+                                                                                           <SelectItem value="2">2</SelectItem>
+                                                                                           <SelectItem value="3">3</SelectItem>
+                                                                                           <SelectItem value="4">4</SelectItem>
+                                                                                           <SelectItem value="5">5</SelectItem>
+                                                                                           <SelectItem value="6">6</SelectItem>
+                                                                                           <SelectItem value="7">7</SelectItem>
+                                                                                           <SelectItem value="8">8</SelectItem>
+                                                                                           <SelectItem value="9">9</SelectItem>
+                                                                                           <SelectItem value="10">10</SelectItem>
+                                                                                           <SelectItem value="11">11</SelectItem>
+                                                                                           <SelectItem value="12">12</SelectItem>
+                                                                                           <SelectItem value="13">13</SelectItem>
+                                                                                           <SelectItem value="14">14</SelectItem>
+                                                                                           <SelectItem value="15">15</SelectItem>
+                                                                                           <SelectItem value="16">16</SelectItem>
+                                                                                           <SelectItem value="17">17</SelectItem>
+                                                                                           <SelectItem value="18">18</SelectItem>
+                                                                                           <SelectItem value="19">19</SelectItem>
+                                                                                           <SelectItem value="20">20</SelectItem>
+                                                                                       </SelectGroup>
+                                                                                   </SelectContent>
+                                                                               </Select>
+                                                                               <FontAwesomeIcon className='m-2' icon={faXmark} />
+                                                                               <Select  value={workout_exercise.reps > 0 ? workout_exercise.reps.toString() : ''}
+                                                                               onValueChange={(newValue) => handleEditRepsChange(workout_exercise.exercise.id, parseInt(newValue, 10))}
+                                                                               >
+                                                                                   <SelectTrigger className="w-[55px] md:w-[80px] focus:ring-0 focus:ring-offset-0">
+                                                                                       <SelectValue placeholder='reps' />
+                                                                                   </SelectTrigger>
+                                                                                   <SelectContent>
+                                                                                       <SelectGroup>
+                                                                                           <SelectLabel>reps</SelectLabel>
+                                                                                           <SelectItem value="1">1</SelectItem>
+                                                                                           <SelectItem value="2">2</SelectItem>
+                                                                                           <SelectItem value="3">3</SelectItem>
+                                                                                           <SelectItem value="4">4</SelectItem>
+                                                                                           <SelectItem value="5">5</SelectItem>
+                                                                                           <SelectItem value="6">6</SelectItem>
+                                                                                           <SelectItem value="7">7</SelectItem>
+                                                                                           <SelectItem value="8">8</SelectItem>
+                                                                                           <SelectItem value="9">9</SelectItem>
+                                                                                           <SelectItem value="10">10</SelectItem>
+                                                                                           <SelectItem value="11">11</SelectItem>
+                                                                                           <SelectItem value="12">12</SelectItem>
+                                                                                           <SelectItem value="13">13</SelectItem>
+                                                                                           <SelectItem value="14">14</SelectItem>
+                                                                                           <SelectItem value="15">15</SelectItem>
+                                                                                           <SelectItem value="16">16</SelectItem>
+                                                                                           <SelectItem value="17">17</SelectItem>
+                                                                                           <SelectItem value="18">18</SelectItem>
+                                                                                           <SelectItem value="19">19</SelectItem>
+                                                                                           <SelectItem value="20">20</SelectItem>
+                                                                                       </SelectGroup>
+                                                                                   </SelectContent>
+                                                                               </Select>
+                                                                               <FontAwesomeIcon className='ml-auto' size='lg' onClick={() => deleteWorkoutExercise(workout_exercise.id)} icon={faTrashCan} />
+                                                                           </div>
+                                                                           <DrawerFooter>
+                                                                               <DrawerClose asChild>
+                                                                                   <Button onClick={() => updateWorkout()}>Save</Button>
+                                                                               </DrawerClose>
+                                                                           </DrawerFooter>
+                                                                       </DrawerContent>
+                                                                   </Drawer>
+                                                       
+                                                           </div>
                                                         ))}
-                                                </Reorder.Group>
                                                     <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
                                                         <DrawerTrigger className='w-full flex items-center'>
-                                                        <div className='py-4 px-4 text-lg text-primary font-semibold underline-offset-4 hover:underline'><FontAwesomeIcon className='mr-2' icon={faPlus}/>
+                                                        <div className='py-4 px-2 text-lg text-primary font-semibold underline-offset-4 hover:underline'><FontAwesomeIcon className='mr-2' icon={faPlus}/>
                                                         Add Exercise</div>
                                                         </DrawerTrigger>
                                                         <DrawerContent className='h-5/6'>
