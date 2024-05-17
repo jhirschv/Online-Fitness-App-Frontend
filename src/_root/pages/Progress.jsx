@@ -3,6 +3,17 @@ import { useEffect, useState } from 'react';
 import { useTheme } from '@/components/theme-provider';
 import apiClient from '../../services/apiClient';
 import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+    } from "@/components/ui/alert-dialog"
+import {
     Card,
     CardContent,
     CardDescription,
@@ -22,7 +33,7 @@ SheetTrigger,
 } from "@/components/ui/sheet"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
-import { faFaceFrown } from '@fortawesome/free-regular-svg-icons';
+import { faFaceFrown, faTrashCan, } from '@fortawesome/free-regular-svg-icons';
 import { Bar, BarChart, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { format, parseISO } from 'date-fns';
 import { Calendar as CalendarIcon } from "lucide-react"
@@ -64,7 +75,7 @@ import {
   } from "@/components/ui/accordion"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import moment from 'moment';
-import { useContext } from 'react';
+import { useContext, useRef } from 'react';
 import AuthContext from '../../context/AuthContext';
 import {
     Drawer,
@@ -211,6 +222,41 @@ const Progress = ({userInfo}) => {
     }
     }, [exercises1rm]);
 
+    const [uploading, setUploading] = useState({});
+    const fileInputRefs = useRef({});
+
+    function transformVideoURL(originalURL) {
+        const backendBaseURL = 'http://127.0.0.1:8000'; // URL where Django serves media files
+        
+        // Check if the original URL is already a full URL or just a relative path
+        if (originalURL.startsWith('http')) {
+            return originalURL; // It's a full URL, no transformation needed
+        } else {
+            // It's a relative path, prepend the backend base URL
+            const newURL = backendBaseURL + originalURL;
+            return newURL;
+        }
+    }
+
+    const handleDeleteVideo = async (setId) => {
+        setUploading(prev => ({ ...prev, [setId]: true }));  // Optionally show loading state
+    
+        try {
+            const response = await apiClient.delete(`/delete_video/${setId}/`);
+            setUploading(prev => ({ ...prev, [setId]: false }));
+    
+            if (response.status === 204) {
+                console.log('Video deleted successfully');
+                fetchSessionDetails();                // Optional: Update state or perform further actions after delete
+            } else {
+                console.error('Delete failed:', response.statusText);
+            }
+        } catch (error) {
+            setUploading(prev => ({ ...prev, [setId]: false }));
+            console.error('Error deleting video:', error);
+        }
+    };
+
 
     return (
         <div className={`w-full md:border rounded-lg overflow-y-auto ${backgroundColorClass} md:p-4 pb-24`}>
@@ -325,7 +371,7 @@ const Progress = ({userInfo}) => {
                                         <TableBody>
                                             {dayData.exercise_logs && dayData.exercise_logs.length > 0 ? (
                                                 dayData.exercise_logs.map((exercise, index) => (
-                                                    <TableRow key={exercise.id}>
+                                                    <TableRow key={exercise.id} >
                                                         <Accordion type="single" collapsible>
                                                             <AccordionItem value="item-1">
                                                                 <AccordionTrigger className='p-0 pr-4'>
@@ -337,10 +383,49 @@ const Progress = ({userInfo}) => {
                                                                 <AccordionContent>
                                                                     {exercise.sets.map((set) => (
                                                                         <div className='px-3'>
-                                                                            <div className='p-4 w-full flex justify-between items-center'>
-                                                                                <p className='w-2/5'>Set: {set.set_number}</p>
-                                                                                <p className='w-2/5'>Reps: {set.reps}</p>
-                                                                                <p className='w-1/2'>Weight: {set.weight_used ? set.weight_used : 0} lbs</p>
+                                                                            <div className='p-4 h-20 w-full flex justify-between items-center'>
+                                                                                <p className='w-1/4'>{set.set_number}</p>
+                                                                                <p className='w-1/4'>Reps: {set.reps}</p>
+                                                                                <p className='w-1/3'>Weight: {set.weight_used ? set.weight_used : 0} lbs</p>
+                                                                                {set.video && (
+                                                                                <AlertDialog>
+                                                                                    <AlertDialogTrigger as="div" className="cursor-pointer ml-auto">
+                                                                                        <video
+                                                                                            style={{
+                                                                                                width: '56px',  // equivalent to w-14 in TailwindCSS
+                                                                                                height: '56px', // equivalent to h-14 in TailwindCSS
+                                                                                                borderRadius: '25%', // makes the video rounded like rounded-full
+                                                                                                objectFit: 'cover', // covers the video area, similar to object-cover for images
+                                                                                                pointerEvents: 'none' // ensures video cannot be interacted with directly
+                                                                                            }}
+                                                                                            src={transformVideoURL(set.video)}
+                                                                                            loop
+                                                                                            muted
+                                                                                            playsInline
+                                                                                            preload="metadata"
+                                                                                            onError={(e) => {
+                                                                                                console.error('Video trigger error:', e);
+                                                                                            }}
+                                                                                        >
+                                                                                            <source src={transformVideoURL(set.video)} type="video/mp4" />
+                                                                                            Your browser does not support the video tag.
+                                                                                        </video>
+                                                                                    </AlertDialogTrigger>
+                                                                                    <AlertDialogContent >
+                                                                                        <div className="aspect-w-16 aspect-h-9 w-full h-72 relative">
+                                                                                        <video controls autoPlay className="w-full h-full" src={transformVideoURL(set.video)}  onError={(e) => {
+                                                                                            console.error('Video error:', e);
+                                                                                            console.error('Error occurred with video source:', e.target.src);
+                                                                                        }}>
+                                                                                            Your browser does not support the video tag.
+                                                                                        </video>
+                                                                                        </div>
+                                                                                        <AlertDialogCancel as="button">Close</AlertDialogCancel>
+                                                                                        <div className='absolute top-2 right-8' onClick={() => handleDeleteVideo(set.id)}>
+                                                                                            <FontAwesomeIcon size='lg' icon={faTrashCan} />
+                                                                                        </div>
+                                                                                    </AlertDialogContent>
+                                                                                </AlertDialog>)}
                                                                             </div>
                                                                             <Separator />
                                                                         </div>

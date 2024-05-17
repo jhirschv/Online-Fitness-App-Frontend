@@ -688,7 +688,7 @@ const handleRequest = async (requestId, action) => {
           </div>
           </div>
         </Card>
-        <Card className={`flex-col flex-grow rounded-none border-l border-r-0 border-y-0 flex ${!selectedChat ? 'hidden sm:flex' : ''}`}> 
+        <Card className={`flex-col flex-grow rounded-none border-0 lg:border-l border-r-0 border-y-0 flex ${!selectedChat ? 'hidden sm:flex' : ''}`}> 
         {selectedChat ? 
           (
           <>
