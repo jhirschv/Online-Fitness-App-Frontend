@@ -112,6 +112,49 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
     const navigate = useNavigate();
     const { toast } = useToast()
 
+    const [editWorkoutName, setEditWorkoutName] = useState("")
+    const [editProgramName, setEditProgramName] = useState("")
+    const [openProgramDrawer, setOpenProgramDrawer] = useState(false)
+    const [openProgramPopover, setOpenProgramPopover] = useState(false)
+    
+
+    const updateWorkoutName = (workoutId) => {
+        apiClient.patch(`/workouts/${workoutId}/`, { name: editWorkoutName })
+        .then(response => {
+            // Update the workout in the workouts state array
+            const updatedWorkouts = workouts.map(workout => {
+                if (workout.id === workoutId) {
+                    // Assuming response.data is the updated workout object
+                    return response.data;
+                }
+                return workout;
+            });
+            
+            // Assuming setWorkouts is your state updater function
+            setWorkouts(updatedWorkouts);
+    
+            console.log("Updated workout:", response.data);
+            setWorkoutName('') // Reset the input field for workout name
+            setDrawerOpen(false) // Close the drawer UI element
+        })
+        .catch(error => {
+            console.error("Failed to update workout:", error);
+        });
+    }
+
+    const updateProgramName = () => {
+        apiClient.patch(`/programs/${activeProgram.id}/`, { name: editProgramName })
+        .then(response => {
+            setActiveProgram(response.data)
+            setEditProgramName('') // Reset the input field for workout name
+            setOpenProgramDrawer(false)
+            setOpenProgramPopover(false)
+        })
+        .catch(error => {
+            console.error("Failed to update workout:", error);
+        });
+    }
+
     const [userWorkoutSessions, setUserWorkoutSessions] = useState([])
     useEffect(() => {
         apiClient.get('/user_workout_sessions/')
@@ -750,6 +793,15 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
         }
       };
 
+      const [drawerOpen, setDrawerOpen] = useState(false);
+      const [activeWorkoutId, setActiveWorkoutId] = useState(null);
+  
+      const handleDrawerTriggerClick = (event, workoutId) => {
+          event.stopPropagation(); // Prevent click from propagating to the parent div
+          setActiveWorkoutId(workoutId);
+          setDrawerOpen(true);
+      };
+
     const { touchAreaRef, handleTouchStart, handleTouchMove, handleTouchEnd } = useTouchScroll(() => isDragging);
     const { touchAreaRef: touchAreaRef2, handleTouchStart: handleTouchStart2, handleTouchMove: handleTouchMove2, handleTouchEnd: handleTouchEnd2 } = useTouchScroll(() => isDragging);
 
@@ -842,101 +894,93 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                             {activeProgram ? (
                                 <div className='flex flex-col h-full'>
                                     <Carousel watchDrag={watchDrag} onApiChange={setCarouselApi} className="flex flex-col w-full h-full">
-                                        <div className='flex'>
-                                        <CarouselTabs />
-                                        <div className='ml-auto flex gap-4'>
+                                        <div className='flex w-full'>
+                                            <CarouselTabs />
+                    
                                         {activeProgram && 
-                                        <Sheet>
-                                            <SheetTrigger asChild>
-                                                <Button variant="outline">All Programs</Button>
-                                            </SheetTrigger>
-                                            <SheetContent className="md:w-[400px] w-[100%]">
-                                                <SheetHeader className='text-left pl-4 flex flex-row justify-between items-center mt-4'>
-                                                    <SheetTitle className='text-2xl' >All Programs</SheetTitle>
-                                                    <AlertDialog>
-                                                        <AlertDialogTrigger asChild>
-                                                            <Button variant='outline' className='flex items-center gap-1'><FontAwesomeIcon icon={faPlus} /><p className='mb-1'>New Program</p></Button>
-                                                        </AlertDialogTrigger>
-                                                        <AlertDialogContent>
-                                                            <AlertDialogHeader>
-                                                            <AlertDialogTitle>Create Program</AlertDialogTitle>
-                                                            </AlertDialogHeader>
-                                                            <Label htmlFor="programName">Name</Label><Input maxLength={30} onChange={handleNameInputChange} value={programName} autoComplete="off" id="programName" />
-                                                            <AlertDialogFooter>
-                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                            <SheetClose asChild>
-                                                                <AlertDialogAction onClick={createAndActivateProgram}>Create</AlertDialogAction>
-                                                            </SheetClose>
-                                                            </AlertDialogFooter>
-                                                        </AlertDialogContent>
-                                                    </AlertDialog>  
-                                                </SheetHeader>
-                                                <Tabs defaultValue="Your Programs" className="w-full">
-                                                    <TabsList className='rounded-xs'>
-                                                        <TabsTrigger  className='rounded-xs' value="Your Programs">Your Programs</TabsTrigger>
-                                                        <TabsTrigger  className='rounded-xs' value="Shared">Shared</TabsTrigger>
-                                                    </TabsList>
-                                                    <TabsContent value="Your Programs">
-                                                    <div className='flex flex-col gap-2 mt-2 overflow-y-auto max-h-[75vh] scrollbar-custom'>
-                                                    {userPrograms.map((program) => (
-                                                    <div
-                                                        key={program.id}
-                                                        className={`p-4 py-6 relative rounded border ${selectedProgram === program.id ? 'bg-secondary' : 'bg-background'}`}
-                                                        onClick={() => handleProgramClick(program.id)}
-                                                    >
-                                                        <h1>{program.name}</h1>
-                                                        <div className='absolute bottom-6 right-2' onClick={(event) => event.stopPropagation()}>
-                                                            <Popover>
-                                                                <PopoverTrigger className='p-4'><FontAwesomeIcon size='lg' icon={faEllipsis} /></PopoverTrigger>
-                                                                <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md' >
-                                                                    <Button onClick={() => deleteProgram(program.id)} className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>Delete Program</Button>
-                                                                </PopoverContent>
-                                                            </Popover>
-                                                        </div> 
-                                                    </div>
-                                                    ))}
-                                                    </div>
-                                                    </TabsContent>
-                                                    <TabsContent value="Shared">
-                                                    <div className='flex flex-col gap-2 mt-2 overflow-y-auto max-h-[75vh] scrollbar-custom'>
-                                                    {sharedPrograms.map((program) => (
-                                                    <div
-                                                        key={program.id}
-                                                        className={`p-4 py-6 relative rounded border ${selectedProgram === program.id ? 'bg-secondary' : 'bg-background'}`}
-                                                        onClick={() => handleProgramClick(program.id)}
-                                                    >
-                                                        <h1>{program.name}</h1>
-                                                        <div className='absolute bottom-6 right-2' onClick={(event) => event.stopPropagation()}>
-                                                            <Popover>
-                                                                <PopoverTrigger className='p-4'><FontAwesomeIcon size='lg' icon={faEllipsis} /></PopoverTrigger>
-                                                                <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md' >
-                                                                    <Button onClick={() => handleRemoveClick(program.id)} className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>Delete Program</Button>
-                                                                </PopoverContent>
-                                                            </Popover>
+                                            <Sheet>
+                                                <SheetTrigger asChild>
+                                                    <Button className='ml-auto' variant="outline">All Programs</Button>
+                                                </SheetTrigger>
+                                                <SheetContent className="md:w-[400px] w-[100%]">
+                                                    <SheetHeader className='text-left pl-4 flex flex-row justify-between items-center mt-4'>
+                                                        <SheetTitle className='text-2xl' >All Programs</SheetTitle>
+                                                        <AlertDialog>
+                                                            <AlertDialogTrigger asChild>
+                                                                <Button variant='outline' className='flex items-center gap-1'><FontAwesomeIcon icon={faPlus} /><p className='mb-1'>New Program</p></Button>
+                                                            </AlertDialogTrigger>
+                                                            <AlertDialogContent>
+                                                                <AlertDialogHeader>
+                                                                <AlertDialogTitle>Create Program</AlertDialogTitle>
+                                                                </AlertDialogHeader>
+                                                                <Label htmlFor="programName">Name</Label><Input maxLength={30} onChange={handleNameInputChange} value={programName} autoComplete="off" id="programName" />
+                                                                <AlertDialogFooter>
+                                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                <SheetClose asChild>
+                                                                    <AlertDialogAction onClick={createAndActivateProgram}>Create</AlertDialogAction>
+                                                                </SheetClose>
+                                                                </AlertDialogFooter>
+                                                            </AlertDialogContent>
+                                                        </AlertDialog>  
+                                                    </SheetHeader>
+                                                    <Tabs defaultValue="Your Programs" className="w-full">
+                                                        <TabsList className='rounded-xs'>
+                                                            <TabsTrigger  className='rounded-xs' value="Your Programs">Your Programs</TabsTrigger>
+                                                            <TabsTrigger  className='rounded-xs' value="Shared">Shared</TabsTrigger>
+                                                        </TabsList>
+                                                        <TabsContent value="Your Programs">
+                                                        <div className='flex flex-col gap-2 mt-2 overflow-y-auto max-h-[75vh] scrollbar-custom'>
+                                                        {userPrograms.map((program) => (
+                                                        <div
+                                                            key={program.id}
+                                                            className={`p-4 py-6 relative rounded border ${selectedProgram === program.id ? 'bg-secondary' : 'bg-background'}`}
+                                                            onClick={() => handleProgramClick(program.id)}
+                                                        >
+                                                            <h1>{program.name}</h1>
+                                                            <div className='absolute bottom-6 right-2' onClick={(event) => event.stopPropagation()}>
+                                                                <Popover>
+                                                                    <PopoverTrigger className='p-4'><FontAwesomeIcon size='lg' icon={faEllipsis} /></PopoverTrigger>
+                                                                    <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md' >
+                                                                        <Button onClick={() => deleteProgram(program.id)} className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>Delete Program</Button>
+                                                                    </PopoverContent>
+                                                                </Popover>
+                                                            </div> 
                                                         </div>
-                                                        <div className='absolute bottom-1 right-3'>
-                                                            <p className='text-sm text-muted-foreground'>{program.creator.username}</p>
+                                                        ))}
                                                         </div>
-                                                    </div>
-                                                    ))}
-                                                    </div>
-                                                    </TabsContent>
-                                                </Tabs>
-                                                <SheetFooter className='mt-4'>
-                                                <SheetClose asChild>
-                                                    <Button type="submit" onClick={() => updateActiveProgram(selectedProgram)}>Set Active</Button>
-                                                </SheetClose>
-                                                </SheetFooter>
-                                            </SheetContent>
-                                        </Sheet>}
-                                        {activeProgram &&
-                                        <Popover>
-                                            <PopoverTrigger><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
-                                            <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md'>
-                                                <Button onClick={turnOffProgram} className='px-2 py-1.5 text-sm outline-none hover:bg-accent bg-popover text-secondary-foreground'>Turn off program</Button>
-                                            </PopoverContent>
-                                        </Popover>}
-                                    </div>
+                                                        </TabsContent>
+                                                        <TabsContent value="Shared">
+                                                        <div className='flex flex-col gap-2 mt-2 overflow-y-auto max-h-[75vh] scrollbar-custom'>
+                                                        {sharedPrograms.map((program) => (
+                                                        <div
+                                                            key={program.id}
+                                                            className={`p-4 py-6 relative rounded border ${selectedProgram === program.id ? 'bg-secondary' : 'bg-background'}`}
+                                                            onClick={() => handleProgramClick(program.id)}
+                                                        >
+                                                            <h1>{program.name}</h1>
+                                                            <div className='absolute bottom-6 right-2' onClick={(event) => event.stopPropagation()}>
+                                                                <Popover>
+                                                                    <PopoverTrigger className='p-4'><FontAwesomeIcon size='lg' icon={faEllipsis} /></PopoverTrigger>
+                                                                    <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md' >
+                                                                        <Button onClick={() => handleRemoveClick(program.id)} className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>Delete Program</Button>
+                                                                    </PopoverContent>
+                                                                </Popover>
+                                                            </div>
+                                                            <div className='absolute bottom-1 right-3'>
+                                                                <p className='text-sm text-muted-foreground'>{program.creator.username}</p>
+                                                            </div>
+                                                        </div>
+                                                        ))}
+                                                        </div>
+                                                        </TabsContent>
+                                                    </Tabs>
+                                                    <SheetFooter className='mt-4'>
+                                                    <SheetClose asChild>
+                                                        <Button type="submit" onClick={() => updateActiveProgram(selectedProgram)}>Set Active</Button>
+                                                    </SheetClose>
+                                                    </SheetFooter>
+                                                </SheetContent>
+                                            </Sheet>}
                                     </div>
                                     
                                     <CarouselContent className='h-full'>
@@ -947,13 +991,12 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                                             
                                                 <CardContent className="p-0 pb-6 h-full items-center flex flex-col gap-2">
                                                     <div className='w-full flex justify-between items-center'>
-                                                        <h1 className='mr-2 p-1 text-lg self-start font-semibold'>{activeProgram.name}</h1>
+                                                        <h1 className='w-1/2 p-1 text-lg self-start font-semibold'>{activeProgram.name}</h1>
                                                         <p className='text-sm text-muted-foreground whitespace-nowrap'>{activeProgram?.workouts?.length ?? 0} workouts</p>
                                                             <Sheet>
                                                                 <SheetTrigger>
                                                                 <div className='flex flex-col items-center justify-center'>
                                                                     <FontAwesomeIcon icon={faArrowRightArrowLeft} className="rotate-90 text-primary" size='lg' />
-                                                                    <p className='text-xs text-muted-foreground'>Reorder</p>
                                                                 </div>
                                                                 </SheetTrigger>
                                                                 <SheetContent className="md:w-[400px] w-[100%]">
@@ -984,23 +1027,74 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                                                                     </SheetHeader>
                                                                 </SheetContent>
                                                             </Sheet>
+                                                            {activeProgram &&
+                                                            <Popover open={openProgramPopover} onOpenChange={setOpenProgramPopover}>
+                                                                <PopoverTrigger><FontAwesomeIcon className='mr-2' size='lg' icon={faEllipsis} /></PopoverTrigger>
+                                                                <PopoverContent className='flex flex-col w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md'>
+                                                                    <Button onClick={turnOffProgram} className='rounded-b-none px-2 py-1.5 text-sm outline-none hover:bg-accent bg-popover text-secondary-foreground'>Turn off program</Button>
+                                                                    <Separator />
+                                                                    <Drawer open={openProgramDrawer} onOpenChange={(isOpen) => {
+                                                                            setOpenProgramDrawer(isOpen);
+                                                                            if (!isOpen) {
+                                                                                setEditProgramName('');
+                                                                                setOpenProgramPopover(false); // Clear the workout name when the drawer is closed
+                                                                            }
+                                                                        }}>
+                                                                            <DrawerTrigger>
+                                                                                <Button  className='rounded-t-none px-2 py-1.5 text-sm outline-none hover:bg-accent bg-popover text-secondary-foreground'>Edit Program Name</Button>
+                                                                            </DrawerTrigger>
+                                                                            <DrawerContent className='h-1/3'>
+                                                                                <DrawerHeader className='relative'>
+                                                                                    <DrawerTitle>Edit Program Name</DrawerTitle>
+                                                                                </DrawerHeader>
+                                                                                <div className='flex justify-center items-center'>
+                                                                                    <Input maxLength={30} value={editProgramName} onChange={(event) => setEditProgramName(event.target.value)} placeholder='Edit Program Name' className='mx-4'/>
+                                                                                </div>
+                                                                                <DrawerFooter>
+                                                                                    <Button onClick={updateProgramName}>Save Changes</Button>
+                                                                                    <DrawerClose asChild>
+                                                                                        <Button variant="secondary">Cancel</Button>
+                                                                                    </DrawerClose>
+                                                                                </DrawerFooter>
+                                                                            </DrawerContent>
+                                                                        </Drawer>
+                                                                </PopoverContent>
+                                                            </Popover>}
                                                     </div>
                                                     <div className='w-full flex flex-col gap-2 overflow-y-scroll scrollbar-custom' style={{ height: `calc(100vh - 150px)` }}>
                                                         {workouts && workouts.map((workout, index) => (
-                                                            <div onClick={() => handleWorkoutClick(workout)} key={workout.id} 
+                                                            <div  key={workout.id} 
                                                             className="flex-shrink-0 w-full flex justify-between h-20 px-4 border rounded-xs relative" 
                                                             >
                                                                 <div className={`absolute left-0 top-0 bottom-0 w-1 ${clickedWorkout && clickedWorkout.id === workout.id ? 'bg-primary' : 'bg-transparent'}`} style={{width: '5px'}}></div>
-                                                                <div className='text-lg font-semibold p-2'>{index + 1}. {workout.name}</div>
+                                                                <div onClick={() => handleWorkoutClick(workout)} className='text-lg font-semibold py-2 break-all w-[98%]'>{index + 1}. {workout.name}</div>
                                                                 <div>
-                                                                    <FontAwesomeIcon className='absolute top-8 right-8' icon={faChevronRight} />
-                                                                    <Popover >
-                                                                        <PopoverTrigger onClick={(event) => event.stopPropagation()} className='absolute top-1 right-3'><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
-                                                                        <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md'>
-                                                                            <Button onClick={(event) => {event.stopPropagation(); deleteWorkout(workout.id); }} className='px-2 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>
-                                                                            Delete Workout</Button>
-                                                                        </PopoverContent>
-                                                                    </Popover>
+                                                                    <FontAwesomeIcon className='absolute top-8 right-10' icon={faChevronRight} />
+                                                                    <FontAwesomeIcon onClick={(event) => handleDrawerTriggerClick(event, workout.id)} className='absolute top-2 right-3' icon={faEllipsis} />
+                                                                    {drawerOpen && activeWorkoutId === workout.id && (
+                                                                        <Drawer open={drawerOpen} onOpenChange={(isOpen) => {
+                                                                            setDrawerOpen(isOpen);
+                                                                            if (!isOpen) {
+                                                                                setEditWorkoutName(''); // Clear the workout name when the drawer is closed
+                                                                            }
+                                                                        }}>
+                                                                            <DrawerContent className='h-1/3'>
+                                                                                <DrawerHeader className='relative'>
+                                                                                    <DrawerTitle>Edit Workout Name</DrawerTitle>
+                                                                                    <FontAwesomeIcon className='absolute top-4 right-4' size='lg' onClick={(event) => {event.stopPropagation(); deleteWorkout(workout.id); }} icon={faTrashCan} />
+                                                                                </DrawerHeader>
+                                                                                <div className='flex justify-center items-center'>
+                                                                                    <Input maxLength={30} value={editWorkoutName} onChange={(event) => setEditWorkoutName(event.target.value)} placeholder='Edit Workout Name' className='mx-4'/>
+                                                                                </div>
+                                                                                <DrawerFooter>
+                                                                                    <Button onClick={() => updateWorkoutName(workout.id)}>Save Changes</Button>
+                                                                                    <DrawerClose asChild>
+                                                                                        <Button variant="secondary">Cancel</Button>
+                                                                                    </DrawerClose>
+                                                                                </DrawerFooter>
+                                                                            </DrawerContent>
+                                                                        </Drawer>
+                                                                    )}
                                                                 </div>
                                                             </div>
                                                         ))}
@@ -1126,8 +1220,8 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                                                     </div>
                                                 <div className='w-full flex flex-col gap-2 overflow-y-scroll scrollbar-custom' style={{ height: `calc(100vh - 275px)` }}>
                                                         {clickedWorkoutExercises && clickedWorkoutExercises.map((workout_exercise, index) => (
-                                                           <div key={workout_exercise.id} className='flex-shrink-0 py-6 pl-8 pr-10 w-full flex justify-between items-center border rounded-xs relative h-20 overflow-hidden'>
-                                                               <div className='w-1/2 font-semibold text-lg'>{index + 1}. {workout_exercise.exercise.name}</div>
+                                                           <div key={workout_exercise.id} className='flex-shrink-0 py-6 pl-4 pr-8 w-full flex justify-between items-center border rounded-xs relative h-20 overflow-hidden'>
+                                                               <div className='w-3/5 break-all font-semibold text-lg'>{index + 1}. {workout_exercise.exercise.name}</div>
                                                                    <div className='font-semibold text-lg'>{workout_exercise.sets} x {workout_exercise.reps}</div>
                                                                    {workout_exercise.exercise.video ? (
                                                                        <div className='h-14 w-14'>
@@ -1159,7 +1253,7 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                                                                    }
                                                                    <Drawer>
                                                                        <DrawerTrigger className='absolute top-1 right-3'><FontAwesomeIcon icon={faEllipsis} /></DrawerTrigger>
-                                                                       <DrawerContent className='h-1/2'>
+                                                                       <DrawerContent className='h-1/3'>
                                                                            <DrawerHeader>
                                                                            <DrawerTitle>Edit Exercise</DrawerTitle>
                                                                            </DrawerHeader>
@@ -1234,7 +1328,7 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                                                                            </div>
                                                                            <DrawerFooter>
                                                                                <DrawerClose asChild>
-                                                                                   <Button onClick={() => updateWorkout()}>Save</Button>
+                                                                                   <Button onClick={() => updateWorkout()}>Save Changes</Button>
                                                                                </DrawerClose>
                                                                            </DrawerFooter>
                                                                        </DrawerContent>
