@@ -41,7 +41,6 @@ function App() {
     apiClient.get(`/users/${user.user_id}/`)
         .then(response => {
             setUserInfo(response.data)
-            console.log(response.data)
         })
         .catch(error => console.error('Error:', error));
       }
@@ -66,21 +65,6 @@ function App() {
       });
   }, [user]);
 
-  /* //fetch user workout sessions
-  const [userWorkoutSessions, setUserWorkoutSessions] = useState([])
-  useEffect(() => {
-    apiClient.get('/user_workout_sessions/')
-        .then(response => {
-            setUserWorkoutSessions(response.data)
-            })
-        
-        .catch(error => console.error('Error:', error));
-    }, [user]);
-  
-    const sendDataToParent = (childData) => {
-      onDataReceive(childData);
-    }; */
-
     const [isActiveSession, setIsActiveSession] = useState(false);
     const [sessionDetails, setSessionDetails] = useState();
   
@@ -91,7 +75,6 @@ function App() {
           if (response.data.active) {
               setIsActiveSession(true);
               setSessionDetails(response.data);
-              console.log(response.data)
           } else {
               setIsActiveSession(false);
               setSessionDetails({}); // Clear session details as session is inactive
@@ -104,11 +87,91 @@ function App() {
         setLoadingSessionDetails(false);  // End loading
       }
   };
+
+  //chat
+  const [chatSessions, setChatSessions] = useState([]);
+
+  const fetchUserChatSessions = async () => {
+    try {
+      const response = await apiClient.get('/user_chats/');
+      const sessions = response.data;
+      setChatSessions(sessions);
+  } catch (error) {
+      console.error('Error fetching chat sessions:', error);
+  }
+};
+
+  useEffect(() => {
+    fetchUserChatSessions();
+}, []);
+
+  const findMatchingSessionId = (sessions, currentUserId, otherUserId) => {
+    return sessions.find(session => 
+        session.participants.some(participant => participant.id === currentUserId) &&
+        session.participants.some(participant => participant.id === otherUserId)
+    );
+  };
+
+  const updateLastMessageInChatSessions = (message, sessionId) => {
+    setChatSessions(prevSessions => prevSessions.map(session => {
+        if (session.id === sessionId) {
+            const formattedMessage = {
+                message: (message.sender === user.user_id ? "You: " : "") + message.content,
+                timestamp: "Just now"  // This will need to be updated based on actual time logic
+            };
+            return {...session, last_message: formattedMessage};
+        }
+        return session;
+    }));
+  };
   
-    useEffect(() => {
-      fetchSessionDetails();
-      console.log("fetching session details")
-    }, []);
+  const [webSocket, setWebSocket] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [selectedChat, setSelectedChat] = useState(null)
+
+
+  useEffect(() => {
+    if (!user) return;
+
+    const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+    const wsURL = `${wsScheme}://localhost:8000/ws/user/${user.user_id}/`;
+
+    const ws = new WebSocket(wsURL);
+
+    ws.onopen = () => console.log("WebSocket connection established.");
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      setMessages((prevMessages) => [...prevMessages, data.message]);
+      fetchUserChatSessions()
+      const sessionToUpdate = findMatchingSessionId(chatSessions, user.user_id, selectedChat.id);
+
+        if (sessionToUpdate) {
+            updateLastMessageInChatSessions(data.message, sessionToUpdate.id);
+        }
+    };
+
+    
+
+
+    setWebSocket(ws);  // Store WebSocket in state
+
+    // Cleanup function to close WebSocket when component unmounts or user logs out
+    return () => {
+      ws.close();
+    };
+
+  }, [user]);  // Dependency on user ensures reconnection if the user changes
+
+  const sendMessage = (input) => {
+    if (input) {
+      const messageObject = {
+        senderId: user.user_id,
+        recipientId: selectedChat.id,  // Make sure selectedChat is managed appropriately
+        content: input.trim()
+      };
+      webSocket.send(JSON.stringify(messageObject));
+    }
+  };
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
@@ -138,7 +201,8 @@ function App() {
               fetchSessionDetails={fetchSessionDetails}/>} />
               <Route path="/Progress" element={<Progress userInfo={userInfo}/>} />
               <Route path="/ClientProgress/:clientId" element={<ClientProgress />} />
-              <Route path="/chat" element={<Chat />} />
+              <Route path="/chat" element={<Chat sendMessage={sendMessage} messages={messages} setMessages={setMessages} chatSessions={chatSessions}
+              setChatSessions={setChatSessions} fetchUserChatSessions={fetchUserChatSessions} selectedChat={selectedChat} setSelectedChat={setSelectedChat}/>} />
             </Route>
           </Route>
           <Route path="/login" element={<SigninForm fetchSessionDetails={fetchSessionDetails}/>} />

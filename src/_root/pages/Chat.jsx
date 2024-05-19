@@ -82,7 +82,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { ToastAction } from "@/components/ui/toast"
 import { useToast } from "@/components/ui/use-toast"
 
-const Chat = () => {
+const Chat = ({sendMessage, messages, setMessages, chatSessions, setChatSessions, fetchUserChatSessions, selectedChat, setSelectedChat}) => {
   const location = useLocation();
   const { theme } = useTheme();
   const backgroundColorClass = theme === "dark" ? "bg-popover" : "bg-secondary";
@@ -90,8 +90,7 @@ const Chat = () => {
   let { user } = useContext(AuthContext)
   const { toast } = useToast()
   const navigate = useNavigate();
-  
-  const [messages, setMessages] = useState([]);
+
   const [input, setInput] = React.useState("");
   const inputLength = input.trim().length;
 
@@ -101,13 +100,11 @@ const Chat = () => {
         .then(response => {
             const filteredUsers = response.data.filter(u => u.id !== user.user_id);
             setUsers(filteredUsers)
-            console.log(response.data)
         })
         .catch(error => console.error('Error:', error));
     }, [messages]);
 
-  const [selectedChat, setSelectedChat] = useState(null)
-  const [webSocket, setWebSocket] = useState(null);
+  //const [webSocket, setWebSocket] = useState(null);
 
   const handleUserClick = (otherUser) => {
     setSelectedChat(otherUser);
@@ -125,11 +122,11 @@ const Chat = () => {
         });
   };
 
-  useEffect(() => {
+  /* useEffect(() => {
     console.log(selectedChat)
-  }, [selectedChat])
+  }, [selectedChat]) */
 
-  useEffect(() => {
+  /* useEffect(() => {
     if (!selectedChat) return;
 
     console.log('ahhhh')
@@ -159,46 +156,9 @@ const Chat = () => {
         ws.close();
     };
 
-}, [selectedChat, user.user_id]); 
+}, [selectedChat, user.user_id]); */ 
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [chatSessions, setChatSessions] = useState([]);
-
-  const fetchUserChatSessions = async () => {
-    try {
-      const response = await apiClient.get('/user_chats/');
-      const sessions = response.data;
-      setChatSessions(sessions);
-  } catch (error) {
-      console.error('Error fetching chat sessions:', error);
-  }
-};
-
-
-  useEffect(() => {
-    fetchUserChatSessions();
-}, []);
-
-
-const findMatchingSessionId = (sessions, currentUserId, otherUserId) => {
-  return sessions.find(session => 
-      session.participants.some(participant => participant.id === currentUserId) &&
-      session.participants.some(participant => participant.id === otherUserId)
-  );
-};
-
-const updateLastMessageInChatSessions = (message, sessionId) => {
-  setChatSessions(prevSessions => prevSessions.map(session => {
-      if (session.id === sessionId) {
-          const formattedMessage = {
-              message: (message.sender === user.user_id ? "You: " : "") + message.content,
-              timestamp: "Just now"  // This will need to be updated based on actual time logic
-          };
-          return {...session, last_message: formattedMessage};
-      }
-      return session;
-  }));
-};
+const [searchTerm, setSearchTerm] = useState('');
 
 const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
@@ -248,7 +208,7 @@ const chatContainerRef = useRef(null);
 
     // Handling the case for zero minutes specifically
     if (number === 0 && (unit === 'minutes' || unit === 'minute')) {
-        return "1m";  // Assuming any duration less than a minute should display as "1m"
+        return "Just Now";  // Assuming any duration less than a minute should display as "1m"
     }
 
     switch (unit) {
@@ -291,16 +251,10 @@ const filteredSessions = chatSessions.filter(session => {
   return otherParticipant ? otherParticipant.username.toLowerCase().includes(sessionSearchTerm.toLowerCase()) : false;
 });
 
-const sendMessage = () => {
-  if (input.trim()) {
-    const messageObject = {
-      senderId: user.user_id, 
-      content: input.trim()
-  };
-    webSocket.send(JSON.stringify(messageObject)); 
-    setInput(''); 
-  }
-};
+const handleSendMessage = (input) => {
+  sendMessage(input)
+  setInput('')
+}
 
 const [userPrograms, setUserPrograms] = useState([]);
 const [selectedProgram, setSelectedProgram] = useState(null)
@@ -712,7 +666,7 @@ const handleRequest = async (requestId, action) => {
                   autoComplete="off"
                   value={input}
                   onChange={(event) => setInput(event.target.value)} />
-                  <Button onClick={sendMessage} size="icon" disabled={inputLength === 0}>
+                  <Button onClick={() => handleSendMessage(input, selectedChat)} size="icon" disabled={inputLength === 0}>
                   <Send className="h-4 w-4" />
                   <span className="sr-only">Send</span>
                   </Button>

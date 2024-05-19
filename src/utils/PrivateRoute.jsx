@@ -7,10 +7,6 @@ const PrivateRoute = () => {
 
     let { user } = useContext(AuthContext);
 
-    useEffect(()=>{
-        console.log(user)
-    },[])
-
     return !user? <Navigate to='/login'/> : <Outlet />
 }
     
