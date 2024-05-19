@@ -36,7 +36,7 @@ const Topbar = ({userInfo}) => {
   let { user, logoutUser } = useContext(AuthContext)
 
   return (
-    <div  className="fixed z-50 top-0 w-full h-0 flex items-center justify-between p-6 py-8 bg-background border-b md:border-none">
+    <div  className="fixed z-50 top-0 w-full h-12 lg:h-0 flex items-center justify-between p-3 pt-3 pb-4 lg:py-8 bg-background border-b md:border-none">
         <div className='flex font-bold text-3xl ml-4'><h1>Train.</h1><h1 className={`${fontColor}`}>io</h1></div>
         <div className='flex items-center'>
         
@@ -120,11 +120,10 @@ const Topbar = ({userInfo}) => {
         </Sheet >
           
           <NavLink to='/account'>
-          {userInfo && 
             <Avatar className="mr-3">
-              <AvatarImage src={userInfo.profile_picture || "https://github.com/shadcn.png" } />
+              <AvatarImage src={userInfo && userInfo.profile_picture && userInfo.profile_picture || "https://github.com/shadcn.png" } />
               <AvatarFallback>CN</AvatarFallback>
-            </Avatar>}
+            </Avatar>
           </NavLink>
         </div>
         

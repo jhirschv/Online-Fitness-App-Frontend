@@ -1179,13 +1179,12 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                                             <Card className='border-none rounded-none h-full'>
                                                 <CardContent className="p-0 justify-center flex flex-col gap-2">
                                                     <div className='flex justify-between items-center'>
-                                                        <h1 className='p-1 font-semibold text-xl'>{clickedWorkout && clickedWorkout.name}</h1>
+                                                        <h1 className='p-1 font-semibold text-xl w-3/5'>{clickedWorkout && clickedWorkout.name}</h1>
                                                         <p className='text-sm text-muted-foreground'>{clickedWorkout && clickedWorkout.workout_exercises ? clickedWorkout.workout_exercises.length : 0} exercises</p>
                                                         <Sheet>
                                                                 <SheetTrigger>
-                                                                <div className='flex flex-col items-center justify-center'>
+                                                                <div className='mr-4 flex flex-col items-center justify-center'>
                                                                     <FontAwesomeIcon icon={faArrowRightArrowLeft} className="rotate-90 text-primary" size='lg' />
-                                                                    <p className='text-xs text-muted-foreground'>Reorder</p>
                                                                 </div>
                                                                 </SheetTrigger>
                                                                 <SheetContent className="md:w-[400px] w-[100%]">
@@ -1356,7 +1355,13 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                                                                                     <SelectTrigger className="w-[80px] md:w-[80px] focus:ring-0 focus:ring-offset-0">
                                                                                         <SelectValue placeholder='sets' />
                                                                                     </SelectTrigger>
-                                                                                    <SelectContent>
+                                                                                    <SelectContent 
+                                                                                    ref={(ref) => {
+                                                                                        if (!ref) return;
+                                                                                        ref.ontouchstart = (e) => {
+                                                                                            e.preventDefault();
+                                                                                        };
+                                                                                    }}>
                                                                                         <SelectGroup>
                                                                                             <SelectLabel>sets</SelectLabel>
                                                                                             <SelectItem value="1">1</SelectItem>
@@ -1387,7 +1392,13 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                                                                                     <SelectTrigger className="w-[80px] md:w-[80px] focus:ring-0 focus:ring-offset-0">
                                                                                         <SelectValue placeholder='reps' />
                                                                                     </SelectTrigger>
-                                                                                    <SelectContent>
+                                                                                    <SelectContent
+                                                                                    ref={(ref) => {
+                                                                                        if (!ref) return;
+                                                                                        ref.ontouchstart = (e) => {
+                                                                                            e.preventDefault();
+                                                                                        };
+                                                                                    }}>
                                                                                         <SelectGroup>
                                                                                             <SelectLabel>reps</SelectLabel>
                                                                                             <SelectItem value="1">1</SelectItem>
