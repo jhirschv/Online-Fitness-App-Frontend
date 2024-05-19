@@ -109,80 +109,57 @@ const Chat = () => {
   const [selectedChat, setSelectedChat] = useState(null)
   const [webSocket, setWebSocket] = useState(null);
 
-  const handleUserClick = async (otherUser) => {
+  const handleUserClick = (otherUser) => {
     setSelectedChat(otherUser);
-    console.log(otherUser)
-    setIsPopoverOpen(false);
-    setSearchTerm('');
-    setSessionSearchTerm('');
+    setIsPopoverOpen(false)
+    setSearchTerm('')
+    setSessionSearchTerm('')
+    apiClient.get(`/chat/${otherUser.id}/`)
+        .then(response => {
+            setMessages(response.data);
+            fetchUserChatSessions();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            setMessages([]);
+        });
+  };
 
-    try {
-        const response = await apiClient.get(`/chat/${otherUser.id}/`);
-
-        // Decrypt each message
-        const decryptedMessages = await Promise.all(response.data.map(async (message) => {
-          // Determine whether the current user is the sender or recipient
-          const isSender = user.user_id === message.sender;
-          const encryptedData = isSender ? message.encrypted_message_sender : message.encrypted_message_recipient;
-      
-          return {
-              ...message,
-              decryptedMessage: await decryptMessage(encryptedData)
-          };
-      }));
-
-        setMessages(decryptedMessages); // Update this to decryptedMessages to reflect the actual decrypted data
-        fetchUserChatSessions();
-    } catch (error) {
-        console.error('Error:', error);
-        setMessages([]);
-    }
-};
+  useEffect(() => {
+    console.log(selectedChat)
+  }, [selectedChat])
 
   useEffect(() => {
     if (!selectedChat) return;
 
+    console.log('ahhhh')
+
     const sortedIds = [user.user_id, selectedChat.id].sort();
     const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
     const wsURL = `${wsScheme}://localhost:8000/ws/chat/${sortedIds[0]}/${sortedIds[1]}/`;
+
     const ws = new WebSocket(wsURL);
 
     ws.onopen = () => console.log("WebSocket connection established.");
-    ws.onmessage = async (event) => {
-      const data = JSON.parse(event.data);
-  
-      // Determine whether the current user is the sender or recipient of the received message
-      const isSender = user.user_id === data.message.sender;
-      const encryptedData = isSender ? data.message.encrypted_message_sender : data.message.encrypted_message_recipient;
-  
-      // Decrypt the message
-      const decryptedMessage = await decryptMessage(encryptedData);
-  
-      // Construct the full message object including the decrypted message
-      const fullMessage = {
-          ...data.message,
-          decryptedMessage
-      };
-  
-      // Update the messages state with the new message
-      setMessages((prevMessages) => [...prevMessages, fullMessage]);
-  
-      // Optionally update chat sessions
-      const sessionToUpdate = findMatchingSessionId(chatSessions, user.user_id, selectedChat.id);
-      if (sessionToUpdate) {
-          updateLastMessageInChatSessions(fullMessage, sessionToUpdate.id);
+    ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        setMessages((prevMessages) => [...prevMessages, data.message]);
+        console.log(data.message)
+        const sessionToUpdate = findMatchingSessionId(chatSessions, user.user_id, selectedChat.id);
+
+        if (sessionToUpdate) {
+            updateLastMessageInChatSessions(data.message, sessionToUpdate.id);
         }
     };
-    ws.onclose = () => console.log("WebSocket connection closed.");
-
+    
     setWebSocket(ws);  // Store WebSocket in state
 
     // Cleanup function to close WebSocket when component unmounts or selectedChat changes
     return () => {
         ws.close();
     };
-
-  }, [selectedChat, user.user_id]); 
+    
+}, [selectedChat, user.user_id]); 
 
   const [searchTerm, setSearchTerm] = useState('');
   const [chatSessions, setChatSessions] = useState([]);
@@ -191,28 +168,7 @@ const Chat = () => {
     try {
       const response = await apiClient.get('/user_chats/');
       const sessions = response.data;
-
-      // Decrypt the last messages
-      const decryptedSessions = await Promise.all(sessions.map(async (session) => {
-          const lastMessage = session.last_message;
-          let decryptedMessage = "";
-          if (lastMessage) {
-              if (lastMessage.sender === user.user_id) {
-                  decryptedMessage = await decryptMessage(lastMessage.encrypted_message_sender);
-              } else {
-                  decryptedMessage = await decryptMessage(lastMessage.encrypted_message_recipient);
-              }
-          }
-          return {
-              ...session,
-              last_message: {
-                  ...lastMessage,
-                  decrypted_message: decryptedMessage,
-              }
-          };
-      }));
-
-      setChatSessions(decryptedSessions);
+      setChatSessions(sessions);
   } catch (error) {
       console.error('Error fetching chat sessions:', error);
   }
@@ -335,95 +291,15 @@ const filteredSessions = chatSessions.filter(session => {
   return otherParticipant ? otherParticipant.username.toLowerCase().includes(sessionSearchTerm.toLowerCase()) : false;
 });
 
-const findUserPublicKey = (sessions, currentUserId, otherUserId) => {
-  const session = findMatchingSessionId(sessions, currentUserId, otherUserId);
-  if (session) {
-    const userParticipant = session.participants.find(participant => participant.id === currentUserId);
-    if (userParticipant) {
-      return userParticipant.public_key;
-    } else {
-      console.log("User's public key not found in the session.");
-      return null;
-    }
-  } else {
-    console.log("Matching session not found.");
-    return null;
-  }
-};
-
-initCrypto();
-
-const sendEncryptedMessage = async () => {
-  let userPublicKey = findUserPublicKey(chatSessions, user.user_id, selectedChat.id)
-  if (userPublicKey) {
-    const senderPublicKey = userPublicKey;
-    const recipientPublicKey = selectedChat.public_key;
-
-    // Encrypt message for the recipient
-    const encryptedDataRecipient = await encryptMessage(input, recipientPublicKey);
-
-    // Encrypt message for the sender
-    const encryptedDataSender = await encryptMessage(input, senderPublicKey);
-
-    // Prepare the message object with both encrypted contents
+const sendMessage = () => {
+  if (input.trim()) {
     const messageObject = {
-      senderId: user.user_id,
-      encrypted_message_recipient: encryptedDataRecipient.encryptedMessage,
-      encrypted_message_sender: encryptedDataSender.encryptedMessage,
-    };
-
-    // Send the message via WebSocket or any other communication protocol
-    webSocket.send(JSON.stringify(messageObject));
+      senderId: user.user_id, 
+      content: input.trim()
+  };
+    webSocket.send(JSON.stringify(messageObject)); 
     setInput(''); 
-  } else {
-    console.log("no public key");
   }
-};
-
-const encryptMessage = async (message, publicKey) => {
-  await sodium.ready;
-
-  const publicKeyBinary = sodium.from_base64(publicKey);
-
-  const encryptedMessage = sodium.crypto_box_seal(message, publicKeyBinary);
-
-  return {
-    encryptedMessage: sodium.to_base64(encryptedMessage),
-  }
-}
-
-const decryptMessage = async (encryptedMessage) => {
-  // Retrieve private key from local storage
-  const privateKeyKey = `keys_${user.user_id}`;
-  const keyPairJSON = localStorage.getItem(privateKeyKey);
-
-  if (!keyPairJSON) {
-    console.error(`Key pair for user ${user.user_id} not available`);
-    return null;
-  }
-
-  const keyPair = JSON.parse(keyPairJSON);
-  const privateKey = keyPair.privateKey;
-  const publicKey = keyPair.publicKey; // Ensure you have stored this or retrieve accordingly
-
-  if (!privateKey) {
-    console.error(`Private key for user ${user.user_id} not found in key pair`);
-    return null;
-  }
-
-  const encryptedMessageBinary = sodium.from_base64(encryptedMessage);
-  const privateKeyBinary = sodium.from_base64(privateKey);
-  const publicKeyBinary = sodium.from_base64(publicKey); // Use the public key from the key pair
-
-  // Decrypt the message using the recipient's private key and public key
-  const decryptedMessage = sodium.crypto_box_seal_open(encryptedMessageBinary, publicKeyBinary, privateKeyBinary);
-
-  if (!decryptedMessage) {
-    console.error("Decryption failed: Incorrect keys or corrupted data");
-    return null;
-  }
-
-  return sodium.to_string(decryptedMessage);
 };
 
 const [userPrograms, setUserPrograms] = useState([]);
@@ -446,31 +322,17 @@ useEffect(() => {
 const [isSheetOpen, setIsSheetOpen] = useState(false);
 
 const sendProgramSharedMessage = async (programName) => {
-  let userPublicKey = findUserPublicKey(chatSessions, user.user_id, selectedChat.id)
-  if (userPublicKey) {
-    const senderPublicKey = userPublicKey;
-    const recipientPublicKey = selectedChat.public_key;
 
   // Encrypt the message for the recipient
   const message = `"${programName}" has been shared.`;
-  
-  const encryptedDataRecipient = await encryptMessage(message, recipientPublicKey);
-
-  // Encrypt message for the sender
-  const encryptedDataSender = await encryptMessage(message, senderPublicKey);
 
   // Prepare the message object with both encrypted contents
   const messageObject = {
     senderId: user.user_id,
-    encrypted_message_recipient: encryptedDataRecipient.encryptedMessage,
-    encrypted_message_sender: encryptedDataSender.encryptedMessage,
+    content: message
   };
-
   // Send the message via WebSocket
   webSocket.send(JSON.stringify(messageObject));
-  } else {
-    console.log('failed to send message')
-  }
 }
 
 const addParticipantToProgram = async (programId, userId) => {
@@ -833,7 +695,7 @@ const handleRequest = async (requestId, action) => {
                         : "bg-muted"
                     )}
                 >
-                    <p>{message.decryptedMessage}</p>
+                    <p>{message.content}</p>
                 </div>
                 ))}
                 </div>
@@ -850,7 +712,7 @@ const handleRequest = async (requestId, action) => {
                   autoComplete="off"
                   value={input}
                   onChange={(event) => setInput(event.target.value)} />
-                  <Button onClick={sendEncryptedMessage} size="icon" disabled={inputLength === 0}>
+                  <Button onClick={sendMessage} size="icon" disabled={inputLength === 0}>
                   <Send className="h-4 w-4" />
                   <span className="sr-only">Send</span>
                   </Button>
