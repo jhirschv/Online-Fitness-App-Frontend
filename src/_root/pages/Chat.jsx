@@ -158,7 +158,7 @@ const Chat = () => {
     return () => {
         ws.close();
     };
-    
+
 }, [selectedChat, user.user_id]); 
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -539,7 +539,7 @@ const handleRequest = async (requestId, action) => {
                     {session.last_message && (
                     <div className="text-sm text-muted-foreground w-full flex justify-between items-center">
                       <div className="flex-1 overflow-hidden">
-                          <div className="overflow-hidden text-ellipsis whitespace-nowrap">{lastMessage.decrypted_message}</div>
+                          <div className="overflow-hidden text-ellipsis whitespace-nowrap">{lastMessage.message}</div>
                       </div>
                       <div className="text-xs flex-shrink-0">{compactTimeFormat(session.last_message.timestamp)}</div>
                     </div>
