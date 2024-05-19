@@ -260,6 +260,7 @@ const chatContainerRef = useRef(null);
 
   const handleBackClick = () => {
     setSelectedChat(null);
+    setInput('')
     setMessages([]);
   }
 
@@ -837,7 +838,7 @@ const handleRequest = async (requestId, action) => {
                 ))}
                 </div>
             </CardContent>
-            <CardFooter className='mt-auto pt-2'>
+            <CardFooter className='mt-auto pt-2 px-2 pb-2'>
               <div
                   className="flex w-full items-center space-x-2"
               >

@@ -559,7 +559,7 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
         <div className={`w-full ${backgroundColorClass} lg:border lg:rounded-lg lg:p-4`}>
             <Toaster />
             <Card className='border-0 md:border h-full w-full rounded-none md:rounded-lg relative'>
-                <FontAwesomeIcon className='absolute top-1 xl:top-4 left-4 z-20' onClick={goBack} size="lg" icon={faAngleLeft} />
+                <FontAwesomeIcon className='absolute top-0 xl:top-4 left-4 z-20' onClick={goBack} size="lg" icon={faAngleLeft} />
 
                 <div className='w-full h-full flex justify-center'>
                     
@@ -716,17 +716,17 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                 ))}
                                                 <div className={`h-20 flex flex-col justify-between`}>
                                                         <Separator/>
-                                                            <div className='ml-4 flex items-center'>
+                                                            <div className='ml-3 flex items-center'>
                                                                 <FontAwesomeIcon onClick={() => handleAddExerciseSet(exercise.id, exercise.workout_exercise.reps)} size='lg' className='text-muted-foreground' icon={faPlus} />
                                                                 <Input 
                                                                 disabled
                                                                     placeholder={String(exercise.workout_exercise.reps)}
                                                                     id="reps"
-                                                                    className="w-12 ml-4 mr-1 text-center font-semibold text-lg"
+                                                                    className="w-16 ml-2 mr-1 text-center font-semibold text-lg"
                                                                 />
                                                                 <Label htmlFor="reps" className='mr-2 text-muted-foreground'>Reps</Label>
 
-                                                                <Input disabled id='weight' className='w-16 ml-4 mr-2 font-semibold text-lg'></Input>
+                                                                <Input disabled id='weight' className='w-16 ml-1 mr-2 font-semibold text-lg'></Input>
                                                                 <p className='text-muted-foreground'>lbs</p>
                                                                 <AlertDialog>
                                                                 <AlertDialogTrigger className='ml-auto mr-4' asChild>
