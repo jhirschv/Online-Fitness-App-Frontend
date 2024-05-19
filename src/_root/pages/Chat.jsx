@@ -94,6 +94,10 @@ const Chat = ({sendMessage, messages, setMessages, chatSessions, setChatSessions
   const [input, setInput] = React.useState("");
   const inputLength = input.trim().length;
 
+  useEffect(() => {
+    fetchUserChatSessions();
+  }, [])
+
 
   useEffect(() => {
     apiClient.get(`/users/`)
