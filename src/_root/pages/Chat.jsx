@@ -82,7 +82,8 @@ import { Toaster } from "@/components/ui/toaster"
 import { ToastAction } from "@/components/ui/toast"
 import { useToast } from "@/components/ui/use-toast"
 
-const Chat = ({sendMessage, messages, setMessages, chatSessions, setChatSessions, fetchUserChatSessions, selectedChat, setSelectedChat}) => {
+const Chat = ({sendMessage, messages, setMessages, chatSessions, setChatSessions, fetchUserChatSessions, 
+  sendRequestAcceptionMessage, selectedChat, setSelectedChat, sendTrainerRequestMessage, webSocket, receivedRequests, setReceivedRequests}) => {
   const location = useLocation();
   const { theme } = useTheme();
   const backgroundColorClass = theme === "dark" ? "bg-popover" : "bg-secondary";
@@ -106,7 +107,7 @@ const Chat = ({sendMessage, messages, setMessages, chatSessions, setChatSessions
             setUsers(filteredUsers)
         })
         .catch(error => console.error('Error:', error));
-    }, [messages]);
+    }, []);
 
   //const [webSocket, setWebSocket] = useState(null);
 
@@ -287,6 +288,7 @@ const sendProgramSharedMessage = async (programName) => {
   // Prepare the message object with both encrypted contents
   const messageObject = {
     senderId: user.user_id,
+    recipientId: selectedChat.id,
     content: message
   };
   // Send the message via WebSocket
@@ -322,17 +324,45 @@ const handleShareClick = async (program) => {
   }
 };
 
+
+
 const sendTrainerRequest = async () => {
   try {
+    // Send POST request to the backend to save the trainer request
     const response = await apiClient.post(`/send-trainer-request/${selectedChat.id}/`);
-    alert(response.data.status);
+
+    // Check if the request was successful
+    if (response.status === 201) {  // Assuming the server returns a 201 Created on success
+      // Construct the trainer request message to send via WebSocket
+      const trainerRequestMessage = {
+        type: 'trainer-request-sent',
+        id: response.data.id, // Assuming the response includes the ID of the new trainer request
+        from_user: user.user_id, // Assuming you have access to the current user's ID from your user state
+        to_user: selectedChat.id,
+        created_at: new Date().toISOString(),
+        is_active: true // Assuming you want to include the creation time; adjust if the server sends it
+      };
+
+      console.log(JSON.stringify(trainerRequestMessage))
+
+      // Send a WebSocket message to notify involved clients
+      webSocket.send(JSON.stringify(trainerRequestMessage));
+
+      console.log('Trainer request sent successfully');
+    } else {
+      console.error('Failed to send trainer request with status:', response.status);
+    }
   } catch (error) {
     console.error('Error sending trainer request:', error);
-    alert('Failed to send trainer request.');
+    toast({
+      title: `Request Failed`,
+      description: `Request has already been sent.`,
+      variant: 'destructive'
+  });
   }
 };
 
-const [receivedRequests, setReceivedRequests] = useState([]);
+
 
 useEffect(() => {
   const fetchTrainerRequests = async () => {
@@ -345,7 +375,7 @@ useEffect(() => {
   };
 
   fetchTrainerRequests();
-}, [selectedChat]);
+}, [selectedChat, chatSessions]);
 
 const [matchingRequest, setMatchingRequest] = useState(null);
 
@@ -358,33 +388,6 @@ useEffect(() => {
   }
 }, [selectedChat, receivedRequests]);
 
-/* const sendRequestAcceptionMessage = async () => {
-  let userPublicKey = findUserPublicKey(chatSessions, user.user_id, selectedChat.id)
-  if (userPublicKey) {
-    const senderPublicKey = userPublicKey;
-    const recipientPublicKey = selectedChat.public_key;
-
-  // Encrypt the message for the recipient
-  const message = `I've accepted your Trainer request!`;
-  
-  const encryptedDataRecipient = await encryptMessage(message, recipientPublicKey);
-
-  // Encrypt message for the sender
-  const encryptedDataSender = await encryptMessage(message, senderPublicKey);
-
-  // Prepare the message object with both encrypted contents
-  const messageObject = {
-    senderId: user.user_id,
-    encrypted_message_recipient: encryptedDataRecipient.encryptedMessage,
-    encrypted_message_sender: encryptedDataSender.encryptedMessage,
-  };
-
-  // Send the message via WebSocket
-  webSocket.send(JSON.stringify(messageObject));
-  } else {
-    console.log('failed to send message')
-  }
-} */
 
 const handleRequest = async (requestId, action) => {
   try {
@@ -393,9 +396,9 @@ const handleRequest = async (requestId, action) => {
       title: `Request has been ${action == 'accept' ? "accepted" : "rejected"}`,
       description: `The request has been ${action == 'accept' ? "accepted" : "rejected"}.`
   });
-/*   if(action == 'accept') {
+  if(action == 'accept') {
     sendRequestAcceptionMessage();
-  } */
+  }
     setReceivedRequests(receivedRequests.filter(request => request.id !== requestId));
   } catch (error) {
     console.error(`Error handling trainer request: ${action}`, error);

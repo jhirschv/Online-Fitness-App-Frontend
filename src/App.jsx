@@ -105,10 +105,10 @@ function App() {
     fetchUserChatSessions();
 }, []);
 
-  const findMatchingSessionId = (sessions, currentUserId, otherUserId) => {
+  const findMatchingSessionId = (sessions, currentUserId, otherUser) => {
     return sessions.find(session => 
         session.participants.some(participant => participant.id === currentUserId) &&
-        session.participants.some(participant => participant.id === otherUserId)
+        session.participants.some(participant => participant.id === otherUser.id)
     );
   };
 
@@ -127,8 +127,15 @@ function App() {
   
   const [webSocket, setWebSocket] = useState(null);
   const [messages, setMessages] = useState([]);
-  const [selectedChat, setSelectedChat] = useState(null)
-
+  const [selectedChat, setSelectedChat] = useState()
+  const [receivedRequests, setReceivedRequests] = useState([]);
+  
+  useEffect(() => {
+    console.log("Selected chat object:", selectedChat);
+    if (selectedChat && selectedChat.id) {
+      console.log("Selected chat ID:", selectedChat.id);
+    } else { console.log('no id')}
+  }, [selectedChat]);
 
   useEffect(() => {
     if (!user) return;
@@ -141,20 +148,43 @@ function App() {
     ws.onopen = () => console.log("WebSocket connection established.");
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      setMessages((prevMessages) => [...prevMessages, data.message]);
-      fetchUserChatSessions()
-      const sessionToUpdate = findMatchingSessionId(chatSessions, user.user_id, selectedChat.id);
-
-        if (sessionToUpdate) {
-            updateLastMessageInChatSessions(data.message, sessionToUpdate.id);
-        }
-    };
-
     
+      // Handling different types of messages based on their 'type'
+      switch (data.type) {
+        case 'message':
+          
+          // Handling standard chat messages
+          setMessages((prevMessages) => [...prevMessages, data.message]);
+          const sessionToUpdate = findMatchingSessionId(chatSessions, user.user_id, selectedChat);
+          if (sessionToUpdate) {
+              updateLastMessageInChatSessions(data.message, sessionToUpdate.id);
+          }
+          break;
+    
+        case 'trainer-request-sent':
+          console.log(data)
+          
+          // Handling new trainer requests
+          setReceivedRequests(prev => [
+            ...prev,
+            {
+              id: data.data.id, // Assuming the message includes the ID of the request
+              from_user: data.data.from_user, // Assuming the message includes the ID of the user who sent the request
+              to_user: data.data.to_user, // Assuming the message includes the ID of the recipient
+              created_at: data.data.created_at, // Assuming the message includes the timestamp when the request was created
+              is_active: true // Assuming new requests are active by default
+            }
+          ]);
 
-
+          break;
+    
+        default:
+          console.warn('Received an unhandled message type:', data.type);
+      }
+    };
+    
     setWebSocket(ws);  // Store WebSocket in state
-
+    
     // Cleanup function to close WebSocket when component unmounts or user logs out
     return () => {
       ws.close();
@@ -165,6 +195,7 @@ function App() {
   const sendMessage = (input) => {
     if (input) {
       const messageObject = {
+        type: 'message',
         senderId: user.user_id,
         recipientId: selectedChat.id,  // Make sure selectedChat is managed appropriately
         content: input.trim()
@@ -172,6 +203,36 @@ function App() {
       webSocket.send(JSON.stringify(messageObject));
     }
   };
+
+  const sendTrainerRequestMessage = async () => {
+
+    // Encrypt the message for the recipient
+    const message = `${user.username} has requested to be your Trainer`;
+  
+    // Prepare the message object with both encrypted contents
+    const messageObject = {
+      senderId: user.user_id,
+      recipientId: selectedChat.id,
+      content: message
+    };
+    // Send the message via WebSocket
+    webSocket.send(JSON.stringify(messageObject));
+  }
+
+  const sendRequestAcceptionMessage = async () => {
+    // Encrypt the message for the recipient
+    const message = `I've accepted your Trainer request!`;
+  
+    const messageObject = {
+      senderId: user.user_id,
+      recipientId: selectedChat.id,
+      content: message
+    };
+  
+    // Send the message via WebSocket
+    webSocket.send(JSON.stringify(messageObject));
+  
+  }
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
@@ -202,7 +263,9 @@ function App() {
               <Route path="/Progress" element={<Progress userInfo={userInfo}/>} />
               <Route path="/ClientProgress/:clientId" element={<ClientProgress />} />
               <Route path="/chat" element={<Chat sendMessage={sendMessage} messages={messages} setMessages={setMessages} chatSessions={chatSessions}
-              setChatSessions={setChatSessions} fetchUserChatSessions={fetchUserChatSessions} selectedChat={selectedChat} setSelectedChat={setSelectedChat}/>} />
+              setChatSessions={setChatSessions} fetchUserChatSessions={fetchUserChatSessions} selectedChat={selectedChat} setSelectedChat={setSelectedChat}
+              sendTrainerRequestMessage={sendTrainerRequestMessage} sendRequestAcceptionMessage={sendRequestAcceptionMessage} webSocket={webSocket}
+              receivedRequests={receivedRequests} setReceivedRequests={setReceivedRequests}/>} />
             </Route>
           </Route>
           <Route path="/login" element={<SigninForm fetchSessionDetails={fetchSessionDetails}/>} />
