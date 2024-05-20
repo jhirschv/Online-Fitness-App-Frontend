@@ -392,14 +392,30 @@ useEffect(() => {
 const handleRequest = async (requestId, action) => {
   try {
     const response = await apiClient.post(`/handle-trainer-request/${requestId}/`, { action });
-    toast({
-      title: `Request has been ${action == 'accept' ? "accepted" : "rejected"}`,
-      description: `The request has been ${action == 'accept' ? "accepted" : "rejected"}.`
-  });
-  if(action == 'accept') {
-    sendRequestAcceptionMessage();
-  }
-    setReceivedRequests(receivedRequests.filter(request => request.id !== requestId));
+
+    // Assuming the server response indicates a successful operation
+    if (response.status === 200) {
+      const wsMessage = {
+        type: action === 'accept' ? 'trainer-request-accepted' : 'trainer-request-rejected',
+        id: requestId,
+        from_user: user.user_id,
+        to_user: selectedChat.id,
+        action: action
+      };
+
+      // Send a WebSocket message to notify involved clients
+      webSocket.send(JSON.stringify(wsMessage));
+
+      toast({
+        title: `Request has been ${action === 'accept' ? "accepted" : "rejected"}`,
+        description: `The request has been ${action === 'accept' ? "accepted" : "rejected"}.`
+      });
+
+      // Update local state to remove the handled request
+      setReceivedRequests(receivedRequests.filter(request => request.id !== requestId));
+    } else {
+      console.error('Failed to handle trainer request with status:', response.status);
+    }
   } catch (error) {
     console.error(`Error handling trainer request: ${action}`, error);
   }

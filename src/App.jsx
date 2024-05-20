@@ -177,6 +177,21 @@ function App() {
           ]);
 
           break;
+        
+          case 'trainer_request_accepted':
+          case 'trainer_request_rejected':
+            console.log(data.type)
+            console.log(user.user_id)
+            console.log(data.data.to_user)
+            if (data.type === 'trainer_request_accepted' && data.data.to_user === user.user_id) {
+              // Add to trainers if accepted and current user is the recipient
+              console.log("aoifbnasfb")
+              setSelectedChat(prev => ({
+                ...prev,
+                trainers: [...prev.trainers, data.data.to_user]
+              }));
+            }
+            break;
     
         default:
           console.warn('Received an unhandled message type:', data.type);
