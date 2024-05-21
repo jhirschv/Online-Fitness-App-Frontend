@@ -15,6 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Link } from 'react-router-dom';
+import { useTheme } from "@/components/theme-provider"
 
 export function SigninForm({fetchSessionDetails}) {
 
@@ -25,9 +26,13 @@ export function SigninForm({fetchSessionDetails}) {
     await loginUser(event); // Assuming loginUser is setup to handle the event correctly
     fetchSessionDetails(); // Call after loginUser has completed
   };
+  const { setTheme } = useTheme()
+  const { theme } = useTheme();
+  const fontColor = theme === 'dark' ? 'text-muted-foreground' : 'text-primary';
 
   return (
-    <div className="bg-deafult h-screen flex items-center justify-center gap-x-4">
+    <div className="bg-deafult flex flex-col gap-4 h-screen flex items-center justify-center gap-x-4">
+        <div className='flex font-bold text-5xl'><h1>Train.</h1><h1 className={`${fontColor}`}>io</h1></div>
         <Card className="w-[350px]">
         <CardHeader>
           <CardTitle>Sign In</CardTitle>

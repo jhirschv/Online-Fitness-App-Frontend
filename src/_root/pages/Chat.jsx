@@ -413,6 +413,12 @@ const handleRequest = async (requestId, action) => {
 
       // Update local state to remove the handled request
       setReceivedRequests(receivedRequests.filter(request => request.id !== requestId));
+      if( action === 'accept') {
+        setSelectedChat(prev => ({
+          ...prev,
+          clients: [...prev.clients, user.user_id]
+        }));
+      }
     } else {
       console.error('Failed to handle trainer request with status:', response.status);
     }
@@ -426,6 +432,73 @@ const handleRequest = async (requestId, action) => {
   const handleClientProgressClick = () => {
     navigate(`/ClientProgress/${selectedChat.id}`)
   }
+
+  // Arrow function to remove a client
+const removeClient = (clientId) => {
+  return apiClient.delete(`/remove-client/${clientId}/`)
+      .then(response => {
+          console.log("Client removed successfully:", response.data);
+          setIsClientPopoverOpen(false)
+          setSelectedChat(prev => ({
+            ...prev,
+            trainers: prev.trainers.filter(trainerId => trainerId !== user.user_id)
+        }));
+
+        if (response.status === 204) {
+          const wsMessage = {
+            type: 'remove-client',
+            from_user: user.user_id,
+            to_user: selectedChat.id,
+          };
+          webSocket.send(JSON.stringify(wsMessage));
+        }
+      })
+      .catch(error => {
+          console.error("Failed to remove client:", error.response?.data || error.message);
+          // Handle errors, possibly showing error messages to the user
+      });
+}
+
+// Arrow function to remove a trainer
+const removeTrainer = (trainerId) => {
+  return apiClient.delete(`/remove-trainer/${trainerId}/`)
+      .then(response => {
+          console.log("Trainer removed successfully:", response.data);
+          setIsClientPopoverOpen(false)
+          setSelectedChat(prev => ({
+            ...prev,
+            clients: prev.clients.filter(clientId => clientId !== user.user_id)
+        }));
+
+        if (response.status === 204) {
+          const wsMessage = {
+            type: 'remove-trainer',
+            from_user: user.user_id,
+            to_user: selectedChat.id,
+          };
+          webSocket.send(JSON.stringify(wsMessage));
+        }
+      })
+      .catch(error => {
+          console.error("Failed to remove trainer:", error.response?.data || error.message);
+          // Error handling
+      });
+}
+
+// Example usage within a component method or effect
+// Assuming selectedChat.id is available and refers to the relevant user ID
+
+const handleRemoveClient = () => {
+  if (selectedChat && selectedChat.id) {
+      removeClient(selectedChat.id);
+  }
+};
+
+const handleRemoveTrainer = () => {
+  if (selectedChat && selectedChat.id) {
+      removeTrainer(selectedChat.id);
+  }
+};
 
   return (
     <div className={`w-full ${backgroundColorClass} md:border rounded-lg lg:p-4`}>
@@ -540,39 +613,67 @@ const handleRequest = async (requestId, action) => {
                       <AvatarFallback>CN</AvatarFallback>
                     </Avatar>
                     <div>
-                    <p className="text-sm font-medium leading-none">{selectedChat.username}</p>
-                    <div className="flex items-center gap-1">
-                      <FontAwesomeIcon className="text-xs text-muted-foreground" icon={faLock} />
-                      <p className="text-xs text-muted-foreground">end-to-end encrypted</p>
-                    </div>
+                      <p className="text-sm font-medium leading-none">{selectedChat.username}</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-1">
                 {!selectedChat.trainers.includes(user.user_id) && (
-                  <div className="h-12 w-12 hover:bg-secondary rounded-full flex items-center justify-center mr-4">
-                  <AlertDialog>
-                      <AlertDialogTrigger>
-                        <div className="h-12 w-12 lg:hover:bg-secondary rounded-full flex items-center justify-center">
-                          <FontAwesomeIcon size='lg' className="text-primary ml-1" icon={faUserPlus} />
-                        </div>
+                  <div className="flex items-center md:gap-2 mr-2 md:mr-4">
+                    <div className="h-12 w-12 hover:bg-secondary rounded-full flex items-center justify-center">
+                    <AlertDialog>
+                        <AlertDialogTrigger>
+                          <div className="h-12 w-12 lg:hover:bg-secondary rounded-full flex items-center justify-center">
+                            <FontAwesomeIcon size='lg' className="text-primary ml-1" icon={faUserPlus} />
+                          </div>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Would you like to send {selectedChat.username} a Trainer request?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              As a Trainer you will gain access to {selectedChat.username}'s workout calendar and progress charts
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={sendTrainerRequest}>Send Request</AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                    {selectedChat.clients.includes(user.user_id) ? (
+                    <Popover open={isClientPopoverOpen} onOpenChange={setIsClientPopoverOpen}>
+                    <PopoverTrigger>
+                    <div className="h-12 w-12 hover:bg-secondary rounded-full flex items-center justify-center">
+                      <FontAwesomeIcon className='text-primary' size='lg' icon={faEllipsis} />
+                    </div>
+                    </PopoverTrigger>
+                    <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md'>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                      <Button className='px-4 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>
+                      Remove Trainer</Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Would you like to send {selectedChat.username} a Trainer request?</AlertDialogTitle>
+                          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                           <AlertDialogDescription>
-                            As a Trainer you will gain access to {selectedChat.username}'s workout calendar and progress charts
+                            {`This will remove ${selectedChat.username} as your Trainer.`}
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={sendTrainerRequest}>Send Request</AlertDialogAction>
+                          <AlertDialogCancel onClick={() => setIsClientPopoverOpen(false)}>Cancel</AlertDialogCancel>
+                          <Button variant='destructive' onClick={handleRemoveTrainer}>Remove</Button>
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>
-                  </div>
+                    </PopoverContent>
+                  </Popover>) : (
+                    <div className="h-12 w-1"></div>
+                    )}
+                </div>
                 )}
                   {selectedChat.trainers.includes(user.user_id) && (
-                  <div className="flex items-center md:gap-2 md:mr-4">
+                  <div className="flex items-center md:gap-2 md:mr-4 mr-2">
                     <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                       <SheetTrigger asChild>
                           <div className="h-12 w-12 hover:bg-secondary rounded-full flex items-center justify-center">
@@ -624,25 +725,44 @@ const handleRequest = async (requestId, action) => {
                         <FontAwesomeIcon className='text-primary' size='lg' icon={faEllipsis} />
                       </div>
                       </PopoverTrigger>
-                      <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md'>
+                      <PopoverContent className='w-full flex flex-col overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md'>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                        <Button className='px-4 py-1.5 text-sm outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>
+                        <Button className='px-4 py-1.5 text-sm outline-none rounded-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>
                         Remove Client</Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
                             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                             <AlertDialogDescription>
-                              {`This will remove ${selectedChat.username} as your client`}
+                              {`This will remove ${selectedChat.username} as your client.`}
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel onClick={() => setIsClientPopoverOpen(false)}>Cancel</AlertDialogCancel>
-                            <Button variant='destructive'>Remove</Button>
+                            <Button variant='destructive' onClick={handleRemoveClient}>Remove</Button>
                           </AlertDialogFooter>
                         </AlertDialogContent>
                       </AlertDialog>
+                      {selectedChat.clients.includes(user.user_id) &&
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                          <Button className='px-4 py-1.5 text-sm rounded-none outline-none hover:bg-accent hover:bg-destructive bg-popover text-secondary-foreground'>
+                          Remove Trainer</Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                {`This will remove ${selectedChat.username} as your Trainer.`}
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel onClick={() => setIsClientPopoverOpen(false)}>Cancel</AlertDialogCancel>
+                              <Button variant='destructive' onClick={handleRemoveTrainer}>Remove</Button>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>}
                       </PopoverContent>
                   </Popover>
                     

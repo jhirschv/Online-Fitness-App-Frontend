@@ -9,6 +9,7 @@ import apiClient from '../services/apiClient';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
 import { generateKeyPair } from '../utils/crypto';
+import { useTheme } from "@/components/theme-provider"
 
 export function SignupForm() {
   let {setUser, setAuthTokens, loginUser} = useContext(AuthContext)
@@ -148,9 +149,13 @@ export function SignupForm() {
         }
     }
 };
+const { setTheme } = useTheme()
+const { theme } = useTheme();
+const fontColor = theme === 'dark' ? 'text-muted-foreground' : 'text-primary';
 
   return (
-    <div className="bg-default h-screen flex items-center justify-center gap-x-4">
+    <div className="bg-default h-screen flex flex-col gap-4 items-center justify-center gap-x-4">
+      <div className='flex font-bold text-5xl'><h1>Train.</h1><h1 className={`${fontColor}`}>io</h1></div>
       <Card className="w-[350px]">
         <CardHeader>
           <CardTitle>Sign up</CardTitle>
