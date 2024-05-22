@@ -1040,7 +1040,7 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                                                                                 setOpenProgramPopover(false); // Clear the workout name when the drawer is closed
                                                                             }
                                                                         }}>
-                                                                            <DrawerTrigger>
+                                                                            <DrawerTrigger asChild>
                                                                                 <Button  className='rounded-t-none px-2 py-1.5 text-sm outline-none hover:bg-accent bg-popover text-secondary-foreground'>Edit Program Name</Button>
                                                                             </DrawerTrigger>
                                                                             <DrawerContent className='h-1/3'>

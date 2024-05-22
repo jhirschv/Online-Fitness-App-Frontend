@@ -589,7 +589,7 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                                 ?.slice()  // Creates a shallow copy of the array
                                                                 .reverse()?.map(set => (
                                                                     <div className='h-12 flex items-center border-b' key={set.id}>
-                                                                        <p className=''>{set.reps} x {set.weight_used ? `${set.weight_used} lbs` : 'No weight logged'}</p>
+                                                                        <p>{set.reps} x {set.weight_used ? `${set.weight_used} lbs` : 'No weight logged'}</p>
                                                                     </div>
                                                                 ))}
                                                             </ScrollArea>

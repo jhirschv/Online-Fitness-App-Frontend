@@ -88,6 +88,11 @@ function App() {
       }
   };
 
+  useEffect(() => {
+    fetchSessionDetails();
+    console.log("fetching session details")
+  }, []);
+
   //chat
   const [chatSessions, setChatSessions] = useState([]);
 
@@ -130,12 +135,6 @@ function App() {
   const [selectedChat, setSelectedChat] = useState()
   const [receivedRequests, setReceivedRequests] = useState([]);
   
-  useEffect(() => {
-    console.log("Selected chat object:", selectedChat);
-    if (selectedChat && selectedChat.id) {
-      console.log("Selected chat ID:", selectedChat.id);
-    } else { console.log('no id')}
-  }, [selectedChat]);
 
   useEffect(() => {
     if (!user) return;
@@ -162,7 +161,6 @@ function App() {
           break;
     
         case 'trainer-request-sent':
-          console.log(data)
           
           // Handling new trainer requests
           setReceivedRequests(prev => [
@@ -190,7 +188,6 @@ function App() {
             break;
           
           case 'remove_client':
-            console.log("Youve been removed as a client")
             setSelectedChat(prev => ({
               ...prev,
               clients: prev.clients.filter(clientId => clientId !== user.user_id)
@@ -199,7 +196,6 @@ function App() {
           break;
 
           case 'remove_trainer':
-            console.log("youve been removed as a trainer")
             setSelectedChat(prev => ({
               ...prev,
               trainers: prev.trainers.filter(trainerId => trainerId !== user.user_id)

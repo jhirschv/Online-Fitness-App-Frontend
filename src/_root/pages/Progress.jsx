@@ -75,7 +75,7 @@ import {
   } from "@/components/ui/accordion"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import moment from 'moment';
-import { useContext, useRef } from 'react';
+import { useContext, useRef, useLayoutEffect } from 'react';
 import AuthContext from '../../context/AuthContext';
 import {
     Drawer,
@@ -110,6 +110,7 @@ const Progress = ({userInfo}) => {
         setIsSheetOpen(true);
     }
     const [dayData, setDayData] = useState({
+        exercise_logs: [],
         workout: {
           workout_exercises: []
         }
@@ -123,10 +124,10 @@ const Progress = ({userInfo}) => {
         day: 'numeric', // "8"
     });
     const [isSheetOpen, setIsSheetOpen] = useState(false);
-    const handleDayData = (receivedDayData) => {
-        console.log('Sending event data to parent:', receivedDayData);
+    const handleDayData = (receivedDayData) => {;
         // Even if receivedDayData is undefined or null, setDayData to an empty object
         setDayData(receivedDayData || {});
+        console.log(receivedDayData)
     };
     
 
@@ -138,7 +139,6 @@ const Progress = ({userInfo}) => {
         try {
             const response = await apiClient.get('/cumulative-weight/');
             setTotalWeightLifted(response.data);
-            console.log(response.data)
         } catch (error) {
             console.error("Failed to fetch exercises:", error);
         }
@@ -189,7 +189,6 @@ const Progress = ({userInfo}) => {
         try {
             const response = await apiClient.get('/exercises_with_weights/');
             setExercises1rm(response.data);
-            console.log(response.data)
         } catch (error) {
             console.error("Failed to fetch exercises:", error);
         }
@@ -205,7 +204,6 @@ const Progress = ({userInfo}) => {
           try {
             const response = await apiClient.get(`/exercise/${exerciseId.id}/1rm/`);
             setData1rm(response.data); // Assuming the data is in the response body directly
-            console.log(response.data)
           } catch (err) {
             console.error("Failed to fetch 1RM data:", err);
             setData1rm([]); // Reset data on error
@@ -224,6 +222,18 @@ const Progress = ({userInfo}) => {
 
     const [uploading, setUploading] = useState({});
     const fileInputRefs = useRef({});
+
+      useEffect(() => {
+        // Iterate over all keys in the uploading state to check the refs
+        Object.keys(uploading).forEach(setId => {
+            // Log the current state of the ref to ensure it's not null and is ready
+            if (fileInputRefs.current[setId] && fileInputRefs.current[setId].current) {
+                console.log(`Ref for set ID ${setId} is ready.`);
+            } else {
+                console.log(`Ref for set ID ${setId} is not ready or does not exist.`);
+            }
+        });
+    }, [uploading]);
 
     function transformVideoURL(originalURL) {
         const backendBaseURL = 'http://127.0.0.1:8000'; // URL where Django serves media files
@@ -246,8 +256,21 @@ const Progress = ({userInfo}) => {
             setUploading(prev => ({ ...prev, [setId]: false }));
     
             if (response.status === 204) {
-                console.log('Video deleted successfully');
-                fetchSessionDetails();                // Optional: Update state or perform further actions after delete
+                console.log("Delete successful");
+                setDayData(currentDayData => {
+                    return {
+                        ...currentDayData,
+                        exercise_logs: currentDayData.exercise_logs.map(log => ({
+                            ...log,
+                            sets: log.sets.map(set => {
+                                if (set.id === setId) {
+                                    return { ...set, video: null };  // Set video to null or appropriate value
+                                }
+                                return set;
+                            })
+                        }))
+                    };
+                });
             } else {
                 console.error('Delete failed:', response.statusText);
             }
@@ -255,6 +278,63 @@ const Progress = ({userInfo}) => {
             setUploading(prev => ({ ...prev, [setId]: false }));
             console.error('Error deleting video:', error);
         }
+    };
+    
+    const handleFileSelectAndUpload = async (event, setId) => {
+        const file = event.target.files[0];
+        if (!file) return;
+    
+        const videoElement = document.createElement('video');
+        const fileURL = URL.createObjectURL(file);
+        videoElement.src = fileURL;
+    
+        videoElement.onloadedmetadata = async () => {
+            URL.revokeObjectURL(fileURL); // Clean up the object URL
+    
+            if (videoElement.duration > 60) {
+                alert('Video length must be 1 minute or less.');
+                return;
+            }
+    
+            const formData = new FormData();
+            formData.append('video', file);
+            setUploading(prev => ({ ...prev, [setId]: true }));
+    
+            try {
+                const response = await apiClient.patch(`/upload_video/${setId}/`, formData);
+                setUploading(prev => ({ ...prev, [setId]: false }));
+    
+                if (response.status === 200) {
+                    console.log('Video uploaded successfully');
+    
+                    // Update dayData with the new video URL in the specific set
+                    setDayData(currentDayData => {
+                        return {
+                            ...currentDayData,
+                            exercise_logs: currentDayData.exercise_logs.map(log => ({
+                                ...log,
+                                sets: log.sets.map(set => {
+                                    if (set.id === setId) {
+                                        return { ...set, video: response.data.video }; // Assuming 'videoURL' is the field name in the response
+                                    }
+                                    return set;
+                                })
+                            }))
+                        };
+                    });
+    
+                } else {
+                    console.error('Upload failed:', response.data.message);
+                }
+            } catch (error) {
+                setUploading(prev => ({ ...prev, [setId]: false }));
+                if (error.response) {
+                    console.error('Error uploading video:', error.response.data);
+                } else {
+                    console.error('Error uploading video:', error.message);
+                }
+            }
+        };
     };
 
 
@@ -275,7 +355,7 @@ const Progress = ({userInfo}) => {
                         </div>
                         <div className='w-1/2 hidden md:block h-[80%]'>
                             <h1 className='font-semibold py-2 pl-4'>Total Weight Lifted</h1>
-                            <ResponsiveContainer width="100%" height="100%">
+                            <ResponsiveContainer width="100%" minWidth={0} minHeight={0} height="100%">
                                 <LineChart
                                 width={500}
                                 height={300}
@@ -312,7 +392,7 @@ const Progress = ({userInfo}) => {
 
                 <div className='border rounded-lg col-span-2 md:hidden h-full'>
                 <h1 className='font-semibold py-2 pl-4'>Total Weight Lifted</h1>
-                    <ResponsiveContainer width="100%" height="83%">
+                    <ResponsiveContainer width="100%" minWidth={0} minHeight={0} height="83%">
                         <LineChart
                         width={500}
                         height={300}
@@ -362,86 +442,101 @@ const Progress = ({userInfo}) => {
                                     <h1 className='font-semibold text-lg'>{dayData.workout.name}</h1>
                                     <h1>{formattedDate}</h1>
                                     </div>
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead className='pl-0'>Exercises</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
+                                        <div>
                                             {dayData.exercise_logs && dayData.exercise_logs.length > 0 ? (
                                                 dayData.exercise_logs.map((exercise, index) => (
-                                                    <TableRow key={exercise.id} >
-                                                        <Accordion type="single" collapsible>
+                                                    <div key={exercise.id} >
+                                                        <Accordion  type="single" collapsible>
                                                             <AccordionItem value="item-1">
-                                                                <AccordionTrigger className='p-0 pr-4'>
-                                                                    <TableCell className="font-medium pl-0 flex gap-2">
+                                                                <AccordionTrigger className='py-4 pr-4'>
+                                                                    <div className="font-medium pl-0 flex gap-2">
                                                                         {index + 1}. {exercise.workout_exercise.exercise.name}
                                                                         <p className='text-sm text-muted-foreground'>{exercise.sets.length} sets</p>
-                                                                    </TableCell>
+                                                                    </div>
                                                                 </AccordionTrigger>
-                                                                <AccordionContent>
-                                                                    {exercise.sets.map((set) => (
-                                                                        <div className='px-3'>
-                                                                            <div className='p-4 h-20 w-full flex justify-between items-center'>
-                                                                                <p className='w-1/4'>{set.set_number}</p>
-                                                                                <p className='w-1/4'>Reps: {set.reps}</p>
-                                                                                <p className='w-1/3'>Weight: {set.weight_used ? set.weight_used : 0} lbs</p>
-                                                                                {set.video && (
+                                                                <AccordionContent className='pb-0'>
+                                                                {exercise.sets.map((set) => {
+                                                                // Dynamically create a ref for each set if it doesn't already exist
+                                                                if (!fileInputRefs.current[set.id]) {
+                                                                    fileInputRefs.current[set.id] = React.createRef();
+                                                                }
+
+                                                                return (
+                                                                    <div key={set.id} className='px-3'>
+                                                                        <div className='p-4 h-20 w-full flex justify-between items-center'>
+                                                                            <p className='w-1/12 font-medium text-base'>{set.set_number}.</p>
+                                                                            <p className='w-1/4 font-medium text-base'>{set.reps} {set.reps === 1 ? "rep" : "reps"}</p>
+                                                                            <p className='w-1/4 font-medium text-base'>{set.weight_used ? set.weight_used : 0} lbs</p>
+                                                                            {set.video ? (
                                                                                 <AlertDialog>
-                                                                                    <AlertDialogTrigger as="div" className="cursor-pointer ml-auto">
+                                                                                    <AlertDialogTrigger as="div" className="cursor-pointer w-1/4">
                                                                                         <video
                                                                                             style={{
-                                                                                                width: '56px',  // equivalent to w-14 in TailwindCSS
-                                                                                                height: '56px', // equivalent to h-14 in TailwindCSS
-                                                                                                borderRadius: '25%', // makes the video rounded like rounded-full
-                                                                                                objectFit: 'cover', // covers the video area, similar to object-cover for images
-                                                                                                pointerEvents: 'none' // ensures video cannot be interacted with directly
+                                                                                                width: '56px',
+                                                                                                height: '56px',
+                                                                                                borderRadius: '25%',
+                                                                                                objectFit: 'cover',
+                                                                                                pointerEvents: 'none'
                                                                                             }}
                                                                                             src={transformVideoURL(set.video)}
                                                                                             loop
                                                                                             muted
                                                                                             playsInline
                                                                                             preload="metadata"
-                                                                                            onError={(e) => {
-                                                                                                console.error('Video trigger error:', e);
-                                                                                            }}
+                                                                                            onError={(e) => console.error('Video trigger error:', e)}
                                                                                         >
                                                                                             <source src={transformVideoURL(set.video)} type="video/mp4" />
                                                                                             Your browser does not support the video tag.
                                                                                         </video>
                                                                                     </AlertDialogTrigger>
-                                                                                    <AlertDialogContent >
+                                                                                    <AlertDialogContent>
                                                                                         <div className="aspect-w-16 aspect-h-9 w-full h-72 relative">
-                                                                                        <video controls autoPlay className="w-full h-full" src={transformVideoURL(set.video)}  onError={(e) => {
-                                                                                            console.error('Video error:', e);
-                                                                                            console.error('Error occurred with video source:', e.target.src);
-                                                                                        }}>
-                                                                                            Your browser does not support the video tag.
-                                                                                        </video>
+                                                                                            <video controls autoPlay className="w-full h-full" src={transformVideoURL(set.video)} onError={(e) => console.error('Video error:', e)}>
+                                                                                                Your browser does not support the video tag.
+                                                                                            </video>
                                                                                         </div>
                                                                                         <AlertDialogCancel as="button">Close</AlertDialogCancel>
                                                                                         <div className='absolute top-2 right-8' onClick={() => handleDeleteVideo(set.id)}>
                                                                                             <FontAwesomeIcon size='lg' icon={faTrashCan} />
                                                                                         </div>
                                                                                     </AlertDialogContent>
-                                                                                </AlertDialog>)}
-                                                                            </div>
-                                                                            <Separator />
+                                                                                </AlertDialog>
+                                                                            ) : (
+                                                                                <div className='w-1/4'>
+                                                                                    <input
+                                                                                        type="file"
+                                                                                        style={{ display: 'none' }}
+                                                                                        ref={fileInputRefs.current[set.id]}
+                                                                                        onChange={(e) => handleFileSelectAndUpload(e, set.id)}
+                                                                                        accept="video/*"
+                                                                                    />
+                                                                                    <Button
+                                                                                        size='sm'
+                                                                                        variant='outline'
+                                                                                        className='ml-auto mr-2'
+                                                                                        onClick={() => fileInputRefs.current[set.id].current.click()}
+                                                                                        disabled={uploading[set.id]}
+                                                                                    >
+                                                                                        {uploading[set.id] ? 'Uploading...' : 'Add Video'}
+                                                                                    </Button>
+                                                                                </div>
+                                                                            )}
                                                                         </div>
-                                                                    ))}
+                                                                        <Separator />
+                                                                    </div>
+                                                                );
+                                                            })}
                                                                 </AccordionContent>
                                                             </AccordionItem>
                                                         </Accordion>
-                                                    </TableRow>
+                                                    </div>
                                                 ))
                                             ) : (
-                                                <TableRow>
-                                                    <TableCell className="text-center pt-8 text-xl font-semibold" colSpan="100%">No exercises logged for this day.</TableCell>
-                                                </TableRow>
+                                                <div>
+                                                    <div className="text-center pt-8 text-xl font-semibold" colSpan="100%">No exercises logged for this day.</div>
+                                                </div>
                                             )}
-                                        </TableBody>
-                                    </Table>
+                                        </div>
                                 </div>
                             : <div className='h-full flex flex items-center justify-center gap-1'>
                                 <h1 className='font-semibold text-xl'>No data available for this day</h1>
@@ -467,7 +562,7 @@ const Progress = ({userInfo}) => {
                             </SelectContent>
                         </Select>
                     </div>
-                    <ResponsiveContainer width="100%" height={300}>
+                    <ResponsiveContainer width="100%" height={300} minWidth={0} minHeight={0}>
                     
                         <LineChart
                             width={500}
@@ -499,7 +594,7 @@ const Progress = ({userInfo}) => {
                 <div className="mb-[1px] h-52 col-span-2 xl:col-span-1 xl:row-span-1">
                     <Card className='w-full h-48'>
                         <h1 className='font-semibold px-4 py-2'>Workouts Per Week</h1>
-                        <ResponsiveContainer width="100%" height={145}>
+                        <ResponsiveContainer width="100%" height={145} minWidth={0} minHeight={0}>
                             <BarChart data={processedData}
                              margin={{ top: 15, right: 25, bottom: 5, left: -25 }}>
 
