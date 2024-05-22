@@ -440,7 +440,7 @@ const Progress = ({userInfo}) => {
                                 <div className='h-full overflow-y-scroll scrollbar-custom px-4 pt-8 pb-4'>
                                     <div className='flex items-center justify-between pr-2'>
                                     <h1 className='font-semibold text-lg'>{dayData.workout.name}</h1>
-                                    <h1>{formattedDate}</h1>
+                                    <h1 className='font-semibold text-base'>{formattedDate}</h1>
                                     </div>
                                         <div>
                                             {dayData.exercise_logs && dayData.exercise_logs.length > 0 ? (
