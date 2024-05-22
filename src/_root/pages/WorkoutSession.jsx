@@ -371,18 +371,18 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                 // Set only the relevant setId to false after response
                 setUploading(prev => ({ ...prev, [setId]: false }));
     
-                if (response.data.status === 'success') {
+                if (response.status === 200) {
                     console.log('Video uploaded successfully');
                     fetchSessionDetails();
                 } else {
-                    console.error('Upload failed:', response.data.message);
+                    console.error('Upload failed:', response.data);
                 }
             } catch (error) {
                 setUploading(prev => ({ ...prev, [setId]: false }));
                 if (error.response) {
                     console.error('Error uploading video:', error.response.data);
                 } else {
-                    console.error('Error uploading video:', error.message);
+                    console.error('Error uploading video:', error);
                 }
             }
         };
@@ -584,15 +584,51 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                                                 <p className='text-sm text-muted-foreground mr-4'>Most Recent</p>
                                                             </SheetTitle>
                                                             </SheetHeader>
-                                                            <ScrollArea className="min-h-[200px] h-[94%] min-w-[200px] w-full rounded-md border  my-4">
+                                                            <div className="overflow-y-scroll scrollbar-custom h-[95%] w-full w-full my-4">
                                                                 {exerciseHistories[exercise.workout_exercise.exercise.id]
                                                                 ?.slice()  // Creates a shallow copy of the array
                                                                 .reverse()?.map(set => (
-                                                                    <div className='h-12 flex items-center border-b' key={set.id}>
-                                                                        <p>{set.reps} x {set.weight_used ? `${set.weight_used} lbs` : 'No weight logged'}</p>
+                                                                    <div className='p-4 h-20 flex items-center border-b' key={set.id}>
+                                                                        <p className='font-semibold text-lg'>{set.reps} x {set.weight_used ? `${set.weight_used} lbs` : 'No weight logged'}</p>
+                                                                        {set.video ? (
+                                                                                <AlertDialog>
+                                                                                    <AlertDialogTrigger as="div" className="cursor-pointer ml-auto">
+                                                                                        <video
+                                                                                            style={{
+                                                                                                width: '56px',
+                                                                                                height: '56px',
+                                                                                                borderRadius: '25%',
+                                                                                                objectFit: 'cover',
+                                                                                                pointerEvents: 'none'
+                                                                                            }}
+                                                                                            src={transformVideoURL(set.video)}
+                                                                                            loop
+                                                                                            muted
+                                                                                            playsInline
+                                                                                            preload="metadata"
+                                                                                            onError={(e) => console.error('Video trigger error:', e)}
+                                                                                        >
+                                                                                            <source src={transformVideoURL(set.video)} type="video/mp4" />
+                                                                                            Your browser does not support the video tag.
+                                                                                        </video>
+                                                                                    </AlertDialogTrigger>
+                                                                                    <AlertDialogContent>
+                                                                                        <div className="aspect-w-16 aspect-h-9 w-full h-72 relative">
+                                                                                            <video controls autoPlay className="w-full h-full" src={transformVideoURL(set.video)} onError={(e) => console.error('Video error:', e)}>
+                                                                                                Your browser does not support the video tag.
+                                                                                            </video>
+                                                                                        </div>
+                                                                                        <AlertDialogCancel as="button">Close</AlertDialogCancel>
+                                                                                        <div className='absolute top-2 right-8' onClick={() => handleDeleteVideo(set.id)}>
+                                                                                            <FontAwesomeIcon size='lg' icon={faTrashCan} />
+                                                                                        </div>
+                                                                                    </AlertDialogContent>
+                                                                                </AlertDialog>) : (
+                                                                                    <div className='w-[56px]'></div>
+                                                                                )}
                                                                     </div>
                                                                 ))}
-                                                            </ScrollArea>
+                                                            </div>
                                                         </SheetContent>
                                                         </Sheet>
                                                     {exercise.workout_exercise.exercise.video ? (
