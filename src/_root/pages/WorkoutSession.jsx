@@ -575,6 +575,10 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
             setNewExercise("")
             closeDrawer();
             await fetchSessionDetails();
+            toast({
+                title: "Exercise Added",
+                description: "The exercise has been successfully added."
+            });
             hasScrolledRef.current = false; // Reset the scroll flag here
             setTriggerScroll(prev => !prev);
         } catch (error) {
