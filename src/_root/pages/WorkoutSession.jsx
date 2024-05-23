@@ -92,7 +92,7 @@ import { useLocation } from 'react-router-dom';
 import { useRef } from 'react';
   
 
-const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}) => {
+const WorkoutSession = ({setCelebrate, fetchSessionDetails, sessionDetails, setSessionDetails}) => {
 
     const { toast } = useToast()
 
@@ -304,6 +304,7 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
             if (response.data.status === 'success') {
                 console.log('Session ended successfully');
                 fetchSessionDetails();
+                setCelebrate(true);
                 navigate('/');
                 // Additional logic to handle UI updates or redirections
             } else {

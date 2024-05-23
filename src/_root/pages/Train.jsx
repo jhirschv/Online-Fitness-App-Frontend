@@ -101,16 +101,28 @@ import { ScaleLoader } from 'react-spinners';
 import { Toaster } from "@/components/ui/toaster"
 import { ToastAction } from "@/components/ui/toast"
 import { useToast } from "@/components/ui/use-toast"
+import Confetti from 'react-confetti';
 
 
   
   
-const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWorkouts, sessionDetails, isActiveSession, fetchSessionDetails, loadingSessionDetails}) => {
+const Train = ({celebrate, setCelebrate, programLoading, activeProgram, setActiveProgram, workouts, setWorkouts, sessionDetails, isActiveSession, fetchSessionDetails, loadingSessionDetails}) => {
     let { user } = useContext(AuthContext);
     const { theme } = useTheme();
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
     const navigate = useNavigate();
     const { toast } = useToast()
+
+    useEffect(() => {
+        if (celebrate) {
+            toast({
+                title: "Workout Completed!",
+                description: "Your workout data has been logged successfully."
+            });
+            setCelebrate(false);  // Optionally reset the celebrate state in the App component
+        }
+      }, [celebrate, setCelebrate]);
+    
 
     const [editWorkoutName, setEditWorkoutName] = useState("")
     const [editProgramName, setEditProgramName] = useState("")
@@ -979,15 +991,15 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
 
     return (
         <div className={`${backgroundColorClass} overflow-hidden w-full md:p-4 md:border md:rounded-lg`}>
-                        {isLoading && (
-                            <AlertDialog open={true}>
-                                <AlertDialogContent>
-                                    <div className="flex flex-col justify-center items-center">
-                                        <ScaleLoader color="#2563eb" size={40} />
-                                        <h1 className='text-muted-foreground mt-2'>AI programs may take up to 2 minutes to create</h1>
-                                    </div>
-                                </AlertDialogContent>
-                            </AlertDialog>
+            {isLoading && (
+                <AlertDialog open={true}>
+                    <AlertDialogContent>
+                        <div className="flex flex-col justify-center items-center">
+                            <ScaleLoader color="#2563eb" size={40} />
+                            <h1 className='text-muted-foreground mt-2'>AI programs may take up to 2 minutes to create</h1>
+                        </div>
+                    </AlertDialogContent>
+                </AlertDialog>
             )}
             {programLoading && (
                 <div className="absolute inset-0 flex flex-col justify-center items-center z-10 rounded-lg">

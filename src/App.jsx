@@ -258,6 +258,7 @@ function App() {
     webSocket.send(JSON.stringify(messageObject));
   
   }
+  const [celebrate, setCelebrate] = useState(false);
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
@@ -265,11 +266,6 @@ function App() {
           <Route element={<RootLayout userInfo={userInfo}/>}>
             <Route element={<PrivateRoute />}>
               <Route path="account" element={<Account userInfo={userInfo} setUserInfo={setUserInfo}/>} />  
-              {/* <Route path="edit/:phaseId/:workoutId" element={<Edit />} />  
-              <Route path='workout/:workoutId' element={<Workout />} />
-              <Route path='programs' element={<Programs />} />       
-              <Route path="workouts" element={<Workouts />} />       
-              <Route path="/program_overview/:programId" element={<ProgramOverview />} /> */}
               <Route index element={<Train 
               activeProgram={activeProgram}
               setActiveProgram={setActiveProgram}
@@ -280,17 +276,21 @@ function App() {
               fetchSessionDetails={fetchSessionDetails}
               loadingSessionDetails={loadingSessionDetails}
               programLoading={programLoading}
+              celebrate={celebrate}
+              setCelebrate={setCelebrate}
               />} />
               <Route path="/workoutSession" element={<WorkoutSession
               sessionDetails={sessionDetails}
               setSessionDetails={setSessionDetails}
-              fetchSessionDetails={fetchSessionDetails}/>} />
+              fetchSessionDetails={fetchSessionDetails}
+              celebrate={celebrate}
+              setCelebrate={setCelebrate}/>} />
               <Route path="/Progress" element={<Progress userInfo={userInfo}/>} />
               <Route path="/ClientProgress/:clientId" element={<ClientProgress />} />
               <Route path="/chat" element={<Chat sendMessage={sendMessage} messages={messages} setMessages={setMessages} chatSessions={chatSessions}
               setChatSessions={setChatSessions} fetchUserChatSessions={fetchUserChatSessions} selectedChat={selectedChat} setSelectedChat={setSelectedChat}
               sendTrainerRequestMessage={sendTrainerRequestMessage} sendRequestAcceptionMessage={sendRequestAcceptionMessage} webSocket={webSocket}
-              receivedRequests={receivedRequests} setReceivedRequests={setReceivedRequests}/>} />
+              receivedRequests={receivedRequests} setReceivedRequests={setReceivedRequests} />} />
             </Route>
           </Route>
           <Route path="/login" element={<SigninForm fetchSessionDetails={fetchSessionDetails}/>} />
