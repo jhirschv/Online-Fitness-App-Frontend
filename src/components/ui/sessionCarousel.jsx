@@ -54,6 +54,7 @@ const Carousel = React.forwardRef((
     }
   }, [api, onApiChange]);
 
+
   const scrollPrev = React.useCallback(() => {
     api?.scrollPrev()
   }, [api])
@@ -79,6 +80,7 @@ const Carousel = React.forwardRef((
 
     setApi(api)
   }, [api, setApi])
+  
 
   React.useEffect(() => {
     if (!api) {
@@ -234,6 +236,7 @@ const CarouselTabs = ({ sessionDetails }) => {
           api.off("select", updateSelectedIndex);
       };
   }, [api]);
+
 
   
 

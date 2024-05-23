@@ -75,6 +75,7 @@ function App() {
           if (response.data.active) {
               setIsActiveSession(true);
               setSessionDetails(response.data);
+              console.log(response.data)
           } else {
               setIsActiveSession(false);
               setSessionDetails({}); // Clear session details as session is inactive

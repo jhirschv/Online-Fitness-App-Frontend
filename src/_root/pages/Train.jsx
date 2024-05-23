@@ -156,6 +156,7 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
     }
 
     const [userWorkoutSessions, setUserWorkoutSessions] = useState([])
+
     useEffect(() => {
         apiClient.get('/user_workout_sessions/')
             .then(response => {
@@ -279,8 +280,6 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
         });
     }
 
-    
-
     //fetch exercises
     const [exercises, setExercises] = useState([]);
     const [userExercises, setUserExercises] = useState([]);
@@ -307,21 +306,6 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
             setUserExercises(res.data);
         });
     }, [])
-
-    /* useEffect(() => {
-        if (activeProgram) { // Check if activeProgram is not null
-            const fetchData = async () => {
-                try {
-                    const programId = activeProgram.id; // Assuming activeProgram contains an id field
-                    const response = await apiClient.get(`phase_details/${programId}/`);
-                    setPhasesDetails(response.data);
-                } catch (error) {
-                    console.error('Error fetching phases and workouts:', error);
-                }
-            };
-            fetchData();
-        }
-    }, [activeProgram]);  */
 
     function fetchUserPrograms() {
         apiClient.get('/user_programs/')
@@ -371,7 +355,6 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                 }
                 return workout;
             }));
-            console.log(response)
             setNewExercise("")
             setNewExerciseSets("")
             setNewExerciseReps("")
@@ -1346,8 +1329,8 @@ const Train = ({programLoading, activeProgram, setActiveProgram, workouts, setWo
                                                     </div>
                                                 <div className='w-full flex flex-col gap-2 overflow-y-scroll scrollbar-custom' style={{ height: `calc(100vh - 275px)` }}>
                                                         {clickedWorkoutExercises && clickedWorkoutExercises.map((workout_exercise, index) => (
-                                                           <div key={workout_exercise.id} className='flex-shrink-0 py-6 pl-4 pr-8 w-full flex justify-between items-center border rounded-xs relative h-20 overflow-hidden'>
-                                                               <div className='w-3/5 break-all font-semibold text-lg'>{index + 1}. {workout_exercise.exercise.name}</div>
+                                                           <div key={workout_exercise.id} className='flex-shrink-0 py-6 pl-4 pr-10 w-full flex justify-between items-center border rounded-xs relative h-20 overflow-hidden'>
+                                                               <div className='w-3/5 break-word font-semibold text-lg'>{index + 1}. {workout_exercise.exercise.name}</div>
                                                                    <div className='font-semibold text-lg'>{workout_exercise.sets} x {workout_exercise.reps}</div>
                                                                    {workout_exercise.exercise.video ? (
                                                                        <div className='h-14 w-14'>

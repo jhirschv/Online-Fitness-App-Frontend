@@ -94,8 +94,6 @@ import { useRef } from 'react';
 
 const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}) => {
 
-    console.log(sessionDetails)
-
     const { toast } = useToast()
 
     const currentDate = new Date().toLocaleDateString('en-US', {
@@ -273,6 +271,8 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
     }, [sessionDetails]);
 
     const hasScrolledRef = useRef(false);
+    const [triggerScroll, setTriggerScroll] = useState(false);
+
 
     function determineTargetIndex(logs) {
         let lastLoggedIndex = -1;
@@ -296,7 +296,7 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                 hasScrolledRef.current = true; // Mark as scrolled
             }, 100); // Adjusted to 100ms as per your comment
         }
-    }, [carouselApi, sessionDetails]);
+    }, [carouselApi, sessionDetails, triggerScroll]);
 
     const endSession = async () => {
         try {
@@ -555,6 +555,59 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
         }
     };
 
+
+    const [newExercise, setNewExercise] = useState("")
+    const [exercises, setExercises] = useState([]);
+    const [userExercises, setUserExercises] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
+    const closeDrawer = () => setIsDrawerOpen(false);
+
+    const addNewExerciseLog = async () => {
+        const payload = {
+            workout_session: sessionDetails.id, // Assuming 'sessionDetails.id' holds a value like 269
+            exercise_name: newExercise
+        };
+    
+        try {
+            const response = await apiClient.post('create-exercise-log/', payload);
+            console.log('Successfully logged:', response.data);
+            setNewExercise("")
+            closeDrawer();
+            await fetchSessionDetails();
+            hasScrolledRef.current = false; // Reset the scroll flag here
+            setTriggerScroll(prev => !prev);
+        } catch (error) {
+            console.error('Failed to log exercise:', error);
+        }
+    };
+
+    useEffect(() => {
+        apiClient.get('exercises/').then((res) => {
+            setExercises(res.data)
+        })
+        apiClient.get('user_exercises/').then((res) => {
+            setUserExercises(res.data);
+        });
+    }, [])
+
+    const filteredExercises = exercises.filter((exercise) => {
+        return exercise.name.toLowerCase().includes(searchTerm.toLowerCase());
+    });
+
+    // Filter user exercises based on search term
+    const filteredUserExercises = userExercises.filter((userExercise) => {
+        return userExercise.name.toLowerCase().includes(searchTerm.toLowerCase());
+    });
+
+    const handleSearchChange = (event) => {
+        setSearchTerm(event.target.value);
+    };
+
+    const clickToAddExercise = (exerciseName) => {
+        setNewExercise(exerciseName)
+    }
+
     return (
         <div className={`w-full ${backgroundColorClass} lg:border lg:rounded-lg lg:p-4`}>
             <Toaster />
@@ -562,8 +615,8 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                 <FontAwesomeIcon className='absolute top-0 xl:top-4 left-4 z-20' onClick={goBack} size="lg" icon={faAngleLeft} />
 
                 <div className='w-full h-full flex justify-center'>
-                    
-                        <Carousel onApiChange={setCarouselApi} className="h-full flex flex-col w-full lg:mx-16 lg:mt-6 lg:max-w-md lg:max-w-2xl">
+                        {sessionDetails && 
+                        <Carousel key={sessionDetails.exercise_logs.length} onApiChange={setCarouselApi} className="h-full flex flex-col w-full lg:mx-16 lg:mt-6 lg:max-w-md lg:max-w-2xl">
                             <CarouselContent className='min-w-full'>
                                 {sessionDetails && sessionDetails.exercise_logs.map((exercise, index) => (
                                 <CarouselItem className='w-full' key={exercise.id}   >
@@ -830,13 +883,84 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                                     </div>
                                 </CarouselItem>
                                 ))}
-                                <CarouselItem className='basis-full h-full'>
-                                    <div className="p-1">
-                                        <Card className='h-[600px] w-full border-none md:border'>
+                                <CarouselItem className='basis-full'>
+                                    <div className="p-1 h-full">
+                                        <Card className='h-full w-full border-none md:border flex flex-col justify-between'>
                                             <CardContent className="flex flex-col h-full items-center justify-center p-6 gap-4">
                                                     <h1 className='text-2xl font-semibold'>Workout Finished!</h1>
                                                     <Button size='lg' className='text-lg' onClick={endSession}>End Workout</Button>
+                                                    <p className='text-sm text-muted-foreground'>or</p>
+                                                    <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+                                                        <DrawerTrigger asChild>
+                                                            <Button variant='secondary' size='lg' className='text-lg'>Add Exercise</Button>
+                                                        </DrawerTrigger>
+                                                        <DrawerContent className='h-5/6'>
+                                                                <div className='flex flex-col'>
+                                                                    <Card className='border-none m-0'>
+                                                                        <CardHeader className='pt-4 pb-0 px-4 '>
+                                                                            <CardTitle className='text-xl'>
+                                                                                Add New Exercise
+                                                                            </CardTitle>
+                                                                        </CardHeader>
+                                                                        <CardContent className='px-4 py-4 flex flex-col items-end'>
+                                                                            <div className='flex items-center gap-1 w-full'>
+                                                                                <Input maxLength={25} placeholder="Add or Create Exercise" onChange={(event) => setNewExercise(event.target.value)} value={newExercise}/>
+                                                                            </div>
+                                                                            <Button className='text-lg w-full mt-4' onClick={addNewExerciseLog}>Add</Button>
+                                                                        </CardContent>
+                                                                    </Card>
+                                                                    <Tabs  defaultValue='exerciseDatabase'>
+                                                                        <div className='flex justify-center items-center w-full pb-2'>
+                                                                        <TabsList className="mx-2 grid w-full grid-cols-2 gap-1 rounded-xs bg-muted">
+                                                                            <TabsTrigger className='rounded-xs' value="exerciseDatabase">Exercise Database</TabsTrigger>
+                                                                            <TabsTrigger className='rounded-xs' value="yourExercises">Your Exercises</TabsTrigger>
+                                                                        </TabsList>
+                                                                        </div>
+                                                                        <Card className='border-none'>
+                                                                        <div className="relative py-2 w-full flex justify-center items-center">
+                                                                            <Search className="absolute left-4 top-5 h-4 w-4 text-muted-foreground" />
+                                                                            <Input value={searchTerm} placeholder="Search" className="pl-8 w-full mx-2" onChange={handleSearchChange} />
+                                                                        </div>
+                                                                        <TabsContent className='m-0' value="exerciseDatabase">
+                                                                            <ScrollArea className="h-96 w-full rounded-md border-none bg-background">
+                                                                                <div className="p-4">
+                                                                                {filteredExercises.map((exercise) => (
+                                                                                    <div onClick={() => clickToAddExercise(exercise.name)} key={exercise.name}>
+                                                                                        <div className="p-2 text-sm">{exercise.name}</div>
+                                                                                        <Separator className="my-2" />
+                                                                                    </div>
+                                                                                ))}
+                                                                                </div>
+                                                                            </ScrollArea>
+                                                                        </TabsContent>
+                                                                        <TabsContent className='m-0' value="yourExercises">
+                                                                            <ScrollArea className="h-96 w-full rounded-md border-none bg-background">
+                                                                                    <div className="p-4">
+                                                                                    {filteredUserExercises.map((userExercise) => (
+                                                                                        <div onClick={() => clickToAddExercise(userExercise.name)} key={userExercise.name}>
+                                                                                            <div className="p-2 text-sm">{userExercise.name}</div>
+                                                                                            <Separator className="my-2" />
+                                                                                        </div>
+                                                                                    ))}
+                                                                                    </div>
+                                                                            </ScrollArea>
+                                                                        </TabsContent>
+                                                                        </Card>
+                                                                    </Tabs>
+                                                                </div>
+                                                            <DrawerFooter>
+                                                                
+                                                            <DrawerClose asChild>
+                                                                <Button className='text-lg' variant="secondary">Cancel</Button>
+                                                            </DrawerClose>
+                                                            </DrawerFooter>
+                                                        </DrawerContent>
+                                                    </Drawer>
+                                                    
                                             </CardContent>
+                                            <div className='w-full h-9'>
+                                                <CarouselTabs sessionDetails={sessionDetails} />
+                                            </div>
                                         </Card>
                                     </div>
                                     
@@ -844,7 +968,7 @@ const WorkoutSession = ({fetchSessionDetails, sessionDetails, setSessionDetails}
                             </CarouselContent>
                             <CarouselPrevious className='hidden md:flex'/>
                             <CarouselNext className='hidden md:flex'/>
-                        </Carousel>   
+                        </Carousel>} 
                     
                     <div className='hidden xl:block flex-1 h-full'>
                         <Card className='rounded-none h-full flex-2 p-6'>
