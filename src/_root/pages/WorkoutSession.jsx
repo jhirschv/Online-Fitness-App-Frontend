@@ -613,6 +613,36 @@ const WorkoutSession = ({setCelebrate, fetchSessionDetails, sessionDetails, setS
         setNewExercise(exerciseName)
     }
 
+    const [urlInput, setUrlInput] = useState("")
+
+    const handleUrl = (exerciseId) => {
+
+        const extractVideoID = () => {
+            const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\/\?]+)/;
+            const matches = urlInput.match(regex);
+            return matches ? matches[1] : null;
+        };
+    
+        const videoID = extractVideoID(urlInput);
+    
+        if (videoID) {
+
+        apiClient.patch(`/user_exercises/${exerciseId}/`, {video: videoID})
+            .then(response => {
+                const updatedVideo = response.data.video;
+                setUserExercises(currentExercises => currentExercises.map(exercise => {
+                    if (exercise.id === exerciseId) {
+                        return { ...exercise, video: updatedVideo };
+                    }
+                    return exercise;
+                }));
+                setUrlInput("")
+                console.log('Update successful');
+            })
+        .catch(error => console.log('Error', error))
+    }
+}
+
     return (
         <div className={`w-full ${backgroundColorClass} lg:border lg:rounded-lg lg:p-4`}>
             <Toaster />
@@ -928,11 +958,41 @@ const WorkoutSession = ({setCelebrate, fetchSessionDetails, sessionDetails, setS
                                                                         </div>
                                                                         <TabsContent className='m-0' value="exerciseDatabase">
                                                                             <ScrollArea className="h-96 w-full rounded-md border-none bg-background">
-                                                                                <div className="p-4">
+                                                                            <div className="px-4 py-0">
                                                                                 {filteredExercises.map((exercise) => (
                                                                                     <div onClick={() => clickToAddExercise(exercise.name)} key={exercise.name}>
-                                                                                        <div className="p-2 text-sm">{exercise.name}</div>
-                                                                                        <Separator className="my-2" />
+                                                                                        <div className='h-[68px] flex justify-between items-center pr-8'>
+                                                                                            <div className="p-2 text-base font-semibold">{exercise.name}</div>
+                                                                                            {exercise.video ? (
+                                                                                            <div className='mt-[6px]'>
+                                                                                                <AlertDialog>
+                                                                                                    <AlertDialogTrigger>
+                                                                                                        <img
+                                                                                                            src={`https://img.youtube.com/vi/${exercise.video}/maxresdefault.jpg`}
+                                                                                                            alt="Video Thumbnail"
+                                                                                                            className="object-cover rounded-full cursor-pointer w-14 h-14"
+                                                                                                        />
+                                                                                                    </AlertDialogTrigger>
+                                                                                                    <AlertDialogContent className='gap-0'>
+                                                                                                        <div className="aspect-w-16 aspect-h-9 w-full h-72">
+                                                                                                            <iframe
+                                                                                                                className="w-full h-full"
+                                                                                                                src={`https://www.youtube.com/embed/${exercise.video}`}
+                                                                                                                title="YouTube video player"
+                                                                                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                                                                                allowFullScreen>
+                                                                                                            </iframe>
+                                                                                                        </div>
+                                                                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                                                    </AlertDialogContent>
+                                                                                                    </AlertDialog>
+                                                                                                </div>
+                                                                                            ) : (
+                                                                                                <div className='h-12 w-12'></div>
+                                                                                            )
+                                                                                        }
+                                                                                        </div>
+                                                                                        <Separator />
                                                                                     </div>
                                                                                 ))}
                                                                                 </div>
@@ -940,11 +1000,57 @@ const WorkoutSession = ({setCelebrate, fetchSessionDetails, sessionDetails, setS
                                                                         </TabsContent>
                                                                         <TabsContent className='m-0' value="yourExercises">
                                                                             <ScrollArea className="h-96 w-full rounded-md border-none bg-background">
-                                                                                    <div className="p-4">
+                                                                            <div className="px-4 py-0">
                                                                                     {filteredUserExercises.map((userExercise) => (
                                                                                         <div onClick={() => clickToAddExercise(userExercise.name)} key={userExercise.name}>
-                                                                                            <div className="p-2 text-sm">{userExercise.name}</div>
-                                                                                            <Separator className="my-2" />
+                                                                                            <div className='h-[68px] flex justify-between items-center pr-8 relative'>
+                                                                                                <div className="p-2 text-base font-semibold">{userExercise.name}</div>
+                                                                                                {userExercise.video ? (
+                                                                                                <div className='mt-[6px]'>
+                                                                                                    <AlertDialog>
+                                                                                                        <AlertDialogTrigger>
+                                                                                                            <img
+                                                                                                                src={`https://img.youtube.com/vi/${userExercise.video}/maxresdefault.jpg`}
+                                                                                                                alt="Video Thumbnail"
+                                                                                                                className="object-cover rounded-full cursor-pointer w-14 h-14"
+                                                                                                            />
+                                                                                                        </AlertDialogTrigger>
+                                                                                                        <AlertDialogContent className='gap-0'>
+                                                                                                            <div className="aspect-w-16 aspect-h-9 w-full h-72">
+                                                                                                                <iframe
+                                                                                                                    className="w-full h-full"
+                                                                                                                    src={`https://www.youtube.com/embed/${userExercise.video}`}
+                                                                                                                    title="YouTube video player"
+                                                                                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                                                                                    allowFullScreen>
+                                                                                                                </iframe>
+                                                                                                            </div>
+                                                                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                                                        </AlertDialogContent>
+                                                                                                        </AlertDialog>
+                                                                                                    </div>
+                                                                                                ) : (
+                                                                                                    <div className='h-12 w-12'></div>
+                                                                                                )
+                                                                                            }
+                                                                                            <AlertDialog>
+                                                                                                    <AlertDialogTrigger className='absolute top-1 right-1'>
+                                                                                                        <FontAwesomeIcon icon={faEllipsis} />
+                                                                                                    </AlertDialogTrigger>
+                                                                                                    <AlertDialogContent>
+                                                                                                        <div className='flex items-center'>
+                                                                                                            <Label className='mr-2'>URL:</Label>
+                                                                                                            <Input value={urlInput} onChange={(e) => setUrlInput(e.target.value)}
+                                                                                                            className='w-full focus:outline-none focus:ring-0 ' placeholder="Youtube URL"/>
+                                                                                                        </div>
+                                                                                                        <AlertDialogFooter>
+                                                                                                            <AlertDialogCancel className='mt-0'>Cancel</AlertDialogCancel>
+                                                                                                            <AlertDialogAction onClick={() => handleUrl(userExercise.id)}>Upload</AlertDialogAction>
+                                                                                                        </AlertDialogFooter>
+                                                                                                    </AlertDialogContent>
+                                                                                                </AlertDialog>
+                                                                                            </div>
+                                                                                            <Separator />
                                                                                         </div>
                                                                                     ))}
                                                                                     </div>
