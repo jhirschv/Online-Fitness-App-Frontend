@@ -268,9 +268,7 @@ const Train = ({celebrate, setCelebrate, programLoading, activeProgram, setActiv
       });
     }
 
-    const [phasesDetails, setPhasesDetails] = useState([]);
     const [dayData, setDayData] = useState({});
-    const [displayCurrentWorkout, setDisplayCurrentWorkout] = useState(true);
     const [programName, setProgramName] = useState("");
 
     //drawer
@@ -316,6 +314,7 @@ const Train = ({celebrate, setCelebrate, programLoading, activeProgram, setActiv
         })
         apiClient.get('user_exercises/').then((res) => {
             setUserExercises(res.data);
+            console.log(res.data)
         });
     }, [])
 
@@ -927,68 +926,37 @@ const Train = ({celebrate, setCelebrate, programLoading, activeProgram, setActiv
         };
     };
 
-    const renderWorkoutSessionDetails = (workout) => {
+    const [urlInput, setUrlInput] = useState("")
 
-        const workoutDate = new Date(workout.date);
+    const handleUrl = (exerciseId) => {
 
-        // Format the date
-        const formattedDate = workoutDate.toLocaleDateString('en-US', {
-            year: 'numeric', // "2024"
-            month: 'long', // "March"
-            day: 'numeric', // "8"
-        });
-        
-        return (
-            <div className='h-full overflow-auto pt-4 pb-4'>
-                <div className='flex items-center justify-between pr-2'>
-                    <h1 className='font-semibold text-lg'>{workout.workout.name}</h1>
-                    <h1>{formattedDate}</h1>
-                </div>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className='pl-0'>Exercises</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {workout.exercise_logs && workout.exercise_logs.length > 0 ? (
-                            dayData.exercise_logs.map((exercise, index) => (
-                                <TableRow key={exercise.id}>
-                                    <Accordion type="single" collapsible>
-                                        <AccordionItem value="item-1">
-                                            <AccordionTrigger className='p-0 pr-4'>
-                                                <TableCell className="font-medium pl-0 flex gap-2">
-                                                    {index + 1}. {exercise.workout_exercise.exercise.name}
-                                                    <p className='text-sm text-muted-foreground'>{exercise.sets.length} sets</p>
-                                                </TableCell>
-                                            </AccordionTrigger>
-                                            <AccordionContent>
-                                                {exercise.sets.map((set) => (
-                                                    <div className='px-3'>
-                                                        <div className='p-4 w-full flex items-center'>
-                                                            <p className='w-2/5'>Set: {set.set_number}</p>
-                                                            <p className='w-2/5'>Reps: {set.reps}</p>
-                                                            <p className='w-1/2'>Weight: {set.weight_used ? set.weight_used : 0} lbs</p>
-                                                        </div>
-                                                        <Separator />
-                                                    </div>
-                                                ))}
-                                            </AccordionContent>
-                                        </AccordionItem>
-                                    </Accordion>
-                                </TableRow>
-                            ))
-                        ) : (
-                            <TableRow>
-                                <TableCell className="text-center" colSpan="100%">No exercises logged for this day.</TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </div>
-        )
+        const extractVideoID = () => {
+            const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\/\?]+)/;
+            const matches = urlInput.match(regex);
+            return matches ? matches[1] : null;
+        };
+    
+        const videoID = extractVideoID(urlInput);
+    
+        if (videoID) {
+
+        apiClient.patch(`/user_exercises/${exerciseId}/`, {video: videoID})
+            .then(response => {
+                const updatedVideo = response.data.video;
+                setUserExercises(currentExercises => currentExercises.map(exercise => {
+                    if (exercise.id === exerciseId) {
+                        return { ...exercise, video: updatedVideo };
+                    }
+                    return exercise;
+                }));
+                setUrlInput("")
+                console.log('Update successful');
+            })
+        .catch(error => console.log('Error', error))
     }
+}
 
+    
     return (
         <div className={`${backgroundColorClass} overflow-hidden w-full md:p-4 md:border md:rounded-lg`}>
             {isLoading && (
@@ -1470,9 +1438,9 @@ const Train = ({celebrate, setCelebrate, programLoading, activeProgram, setActiv
                                                                                 Add New Exercise
                                                                             </CardTitle>
                                                                         </CardHeader>
-                                                                        <CardContent className='px-4 py-4 flex flex-col items-end'>
+                                                                        <CardContent className='px-4 py-4 flex flex-col'>
                                                                             <div className='flex items-center gap-1'>
-                                                                                <Input maxLength={25} placeholder="Add or Create Exercise" onChange={(event) => setNewExercise(event.target.value)} value={newExercise}/>
+                                                                                <Input className='w-full' maxLength={25} placeholder="Add or Create Exercise" onChange={(event) => setNewExercise(event.target.value)} value={newExercise}/>
                                                                                 <Select value={newExerciseSets} onValueChange={(newValue) => setNewExerciseSets(newValue)}>
                                                                                     <SelectTrigger className="w-[80px] md:w-[80px] focus:ring-0 focus:ring-offset-0">
                                                                                         <SelectValue placeholder='sets' />
@@ -1564,11 +1532,41 @@ const Train = ({celebrate, setCelebrate, programLoading, activeProgram, setActiv
                                                                         </div>
                                                                         <TabsContent className='m-0' value="exerciseDatabase">
                                                                             <ScrollArea className="h-96 w-full rounded-md border-none bg-background">
-                                                                                <div className="p-4">
+                                                                                <div className="px-4 py-0">
                                                                                 {filteredExercises.map((exercise) => (
                                                                                     <div onClick={() => clickToAddExercise(exercise.name)} key={exercise.name}>
-                                                                                        <div className="p-2 text-sm">{exercise.name}</div>
-                                                                                        <Separator className="my-2" />
+                                                                                        <div className='h-[68px] flex justify-between items-center pr-8'>
+                                                                                            <div className="p-2 text-base font-semibold">{exercise.name}</div>
+                                                                                            {exercise.video ? (
+                                                                                            <div className='mt-[6px]'>
+                                                                                                <AlertDialog>
+                                                                                                    <AlertDialogTrigger>
+                                                                                                        <img
+                                                                                                            src={`https://img.youtube.com/vi/${exercise.video}/maxresdefault.jpg`}
+                                                                                                            alt="Video Thumbnail"
+                                                                                                            className="object-cover rounded-full cursor-pointer w-14 h-14"
+                                                                                                        />
+                                                                                                    </AlertDialogTrigger>
+                                                                                                    <AlertDialogContent className='gap-0'>
+                                                                                                        <div className="aspect-w-16 aspect-h-9 w-full h-72">
+                                                                                                            <iframe
+                                                                                                                className="w-full h-full"
+                                                                                                                src={`https://www.youtube.com/embed/${exercise.video}`}
+                                                                                                                title="YouTube video player"
+                                                                                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                                                                                allowFullScreen>
+                                                                                                            </iframe>
+                                                                                                        </div>
+                                                                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                                                    </AlertDialogContent>
+                                                                                                    </AlertDialog>
+                                                                                                </div>
+                                                                                            ) : (
+                                                                                                <div className='h-12 w-12'></div>
+                                                                                            )
+                                                                                        }
+                                                                                        </div>
+                                                                                        <Separator />
                                                                                     </div>
                                                                                 ))}
                                                                                 </div>
@@ -1576,11 +1574,57 @@ const Train = ({celebrate, setCelebrate, programLoading, activeProgram, setActiv
                                                                         </TabsContent>
                                                                         <TabsContent className='m-0' value="yourExercises">
                                                                             <ScrollArea className="h-96 w-full rounded-md border-none bg-background">
-                                                                                    <div className="p-4">
+                                                                                    <div className="px-4 py-0">
                                                                                     {filteredUserExercises.map((userExercise) => (
                                                                                         <div onClick={() => clickToAddExercise(userExercise.name)} key={userExercise.name}>
-                                                                                            <div className="p-2 text-sm">{userExercise.name}</div>
-                                                                                            <Separator className="my-2" />
+                                                                                            <div className='h-[68px] flex justify-between items-center pr-8 relative'>
+                                                                                                <div className="p-2 text-base font-semibold">{userExercise.name}</div>
+                                                                                                {userExercise.video ? (
+                                                                                                <div className='mt-[6px]'>
+                                                                                                    <AlertDialog>
+                                                                                                        <AlertDialogTrigger>
+                                                                                                            <img
+                                                                                                                src={`https://img.youtube.com/vi/${userExercise.video}/maxresdefault.jpg`}
+                                                                                                                alt="Video Thumbnail"
+                                                                                                                className="object-cover rounded-full cursor-pointer w-14 h-14"
+                                                                                                            />
+                                                                                                        </AlertDialogTrigger>
+                                                                                                        <AlertDialogContent className='gap-0'>
+                                                                                                            <div className="aspect-w-16 aspect-h-9 w-full h-72">
+                                                                                                                <iframe
+                                                                                                                    className="w-full h-full"
+                                                                                                                    src={`https://www.youtube.com/embed/${userExercise.video}`}
+                                                                                                                    title="YouTube video player"
+                                                                                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                                                                                    allowFullScreen>
+                                                                                                                </iframe>
+                                                                                                            </div>
+                                                                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                                                        </AlertDialogContent>
+                                                                                                        </AlertDialog>
+                                                                                                    </div>
+                                                                                                ) : (
+                                                                                                    <div className='h-12 w-12'></div>
+                                                                                                )
+                                                                                            }
+                                                                                            <AlertDialog>
+                                                                                                    <AlertDialogTrigger className='absolute top-1 right-1'>
+                                                                                                        <FontAwesomeIcon icon={faEllipsis} />
+                                                                                                    </AlertDialogTrigger>
+                                                                                                    <AlertDialogContent>
+                                                                                                        <div className='flex items-center'>
+                                                                                                            <Label className='mr-2'>URL:</Label>
+                                                                                                            <Input value={urlInput} onChange={(e) => setUrlInput(e.target.value)}
+                                                                                                            className='w-full focus:outline-none focus:ring-0 ' placeholder="Youtube URL"/>
+                                                                                                        </div>
+                                                                                                        <AlertDialogFooter>
+                                                                                                            <AlertDialogCancel className='mt-0'>Cancel</AlertDialogCancel>
+                                                                                                            <AlertDialogAction onClick={() => handleUrl(userExercise.id)}>Upload</AlertDialogAction>
+                                                                                                        </AlertDialogFooter>
+                                                                                                    </AlertDialogContent>
+                                                                                                </AlertDialog>
+                                                                                            </div>
+                                                                                            <Separator />
                                                                                         </div>
                                                                                     ))}
                                                                                     </div>
