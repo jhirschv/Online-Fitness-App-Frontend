@@ -1079,7 +1079,7 @@ const Train = ({celebrate, setCelebrate, programLoading, activeProgram, setActiv
                                             <div className="pt-2 h-full">
                                             <Card className='border-none rounded-none h-full'>
                                             
-                                                <CardContent className="p-0 pb-6 h-full items-center flex flex-col gap-2">
+                                                <CardContent className="p-0 h-full items-center flex flex-col gap-2">
                                                     <div className='w-full flex justify-between items-center'>
                                                         <h1 className='w-1/2 p-1 text-lg self-start font-semibold'>{activeProgram.name}</h1>
                                                         <p className='text-sm text-muted-foreground whitespace-nowrap'>{activeProgram?.workouts?.length ?? 0} workouts</p>
@@ -1157,7 +1157,7 @@ const Train = ({celebrate, setCelebrate, programLoading, activeProgram, setActiv
                                                             className="flex-shrink-0 w-full flex justify-between h-20 px-4 border rounded-xs relative" 
                                                             >
                                                                 <div className={`absolute left-0 top-0 bottom-0 w-1 ${clickedWorkout && clickedWorkout.id === workout.id ? 'bg-primary' : 'bg-transparent'}`} style={{width: '5px'}}></div>
-                                                                <div onClick={() => handleWorkoutClick(workout)} className='text-lg font-semibold py-2 break-all w-[98%]'>{index + 1}. {workout.name}</div>
+                                                                <div onClick={() => handleWorkoutClick(workout)} className='text-lg font-semibold py-2 break-word w-[98%]'>{index + 1}. {workout.name}</div>
                                                                 <div>
                                                                     <FontAwesomeIcon className='absolute top-8 right-10' icon={faChevronRight} />
                                                                     <FontAwesomeIcon onClick={(event) => handleDrawerTriggerClick(event, workout.id)} className='absolute top-2 right-3' icon={faEllipsis} />
@@ -1191,7 +1191,7 @@ const Train = ({celebrate, setCelebrate, programLoading, activeProgram, setActiv
                                                     </div>
                                                 <AlertDialog>
                                                     <AlertDialogTrigger className='w-full flex items-center' asChild>
-                                                        <div className='w-full py-4 px-2 text-lg text-primary font-semibold underline-offset-4 hover:underline text-x'><FontAwesomeIcon className='mr-2' icon={faPlus}/>Add Workout</div>
+                                                        <div className='w-full py-4 pb-6 px-2 text-lg text-primary font-semibold underline-offset-4 hover:underline text-x'><FontAwesomeIcon className='mr-2' icon={faPlus}/>Add Workout</div>
                                                     </AlertDialogTrigger>
                                                     <AlertDialogContent>
                                                         <Tabs defaultValue="create">
@@ -1265,9 +1265,9 @@ const Train = ({celebrate, setCelebrate, programLoading, activeProgram, setActiv
                                             </div>
                                         </CarouselItem>
                                         <CarouselItem value='details' className='flex flex-col'>
-                                            <div className="flex-grow mt-2">
+                                            <div className="h-full pt-2">
                                             <Card className='border-none rounded-none h-full'>
-                                                <CardContent className="p-0 justify-center flex flex-col gap-2">
+                                                <CardContent className="p-0 h-full justify-center flex flex-col gap-2">
                                                     <div className='flex justify-between items-center'>
                                                         <h1 className='p-1 font-semibold text-xl w-3/5'>{clickedWorkout && clickedWorkout.name}</h1>
                                                         <p className='text-sm text-muted-foreground'>{clickedWorkout && clickedWorkout.workout_exercises ? clickedWorkout.workout_exercises.length : 0} exercises</p>
@@ -1307,151 +1307,54 @@ const Train = ({celebrate, setCelebrate, programLoading, activeProgram, setActiv
                                                                 </SheetContent>
                                                             </Sheet>
                                                     </div>
-                                                <div className='w-full flex flex-col gap-2 overflow-y-scroll scrollbar-custom' style={{ height: `calc(100vh - 275px)` }}>
-                                                        {clickedWorkoutExercises && clickedWorkoutExercises.map((workout_exercise, index) => (
-                                                           <div key={workout_exercise.id} className='flex-shrink-0 py-6 pl-4 pr-10 w-full flex justify-between items-center border rounded-xs relative h-20 overflow-hidden'>
-                                                               <div className='w-3/5 break-word font-semibold text-lg'>{index + 1}. {workout_exercise.exercise.name}</div>
-                                                                   <div className='font-semibold text-lg'>{workout_exercise.sets} x {workout_exercise.reps}</div>
-                                                                   {workout_exercise.exercise.video ? (
-                                                                       <div className='h-14 w-14'>
-                                                                           <AlertDialog>
-                                                                               <AlertDialogTrigger>
-                                                                                   <img
-                                                                                       src={`https://img.youtube.com/vi/${workout_exercise.exercise.video}/maxresdefault.jpg`}
-                                                                                       alt="Video Thumbnail"
-                                                                                       className="object-cover rounded-full cursor-pointer w-14 h-14"
-                                                                                   />
-                                                                               </AlertDialogTrigger>
-                                                                               <AlertDialogContent className='gap-0'>
-                                                                                   <div className="aspect-w-16 aspect-h-9 w-full h-72">
-                                                                                       <iframe
-                                                                                           className="w-full h-full"
-                                                                                           src={`https://www.youtube.com/embed/${workout_exercise.exercise.video}`}
-                                                                                           title="YouTube video player"
-                                                                                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                                                           allowFullScreen>
-                                                                                       </iframe>
-                                                                                   </div>
-                                                                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                                               </AlertDialogContent>
-                                                                               </AlertDialog>
-                                                                           </div>
-                                                                       ) : (
-                                                                           <div className='h-12 w-12'></div>
-                                                                       )
-                                                                   }
-                                                                   <Drawer>
-                                                                       <DrawerTrigger className='absolute top-1 right-3'><FontAwesomeIcon icon={faEllipsis} /></DrawerTrigger>
-                                                                       <DrawerContent className='h-1/3'>
-                                                                           <DrawerHeader>
-                                                                           <DrawerTitle>Edit Exercise</DrawerTitle>
-                                                                           </DrawerHeader>
-                                                                           <div className='flex items-center p-6 border rounded-sm mx-4'>
-                                                                               <div className='w-1/3 font-semibold' >{workout_exercise.exercise.name}</div>
-                                                                               <Select  value={workout_exercise.sets > 0 ? workout_exercise.sets.toString() : ''}
-                                                                               onValueChange={(newValue) => handleEditSetsChange(workout_exercise.exercise.id, parseInt(newValue, 10))}
-                                                                               >
-                                                                                   <SelectTrigger className="w-[55px] md:w-[80px] focus:ring-0 focus:ring-offset-0">
-                                                                                       <SelectValue placeholder='sets' />
-                                                                                   </SelectTrigger>
-                                                                                   <SelectContent>
-                                                                                       <SelectGroup>
-                                                                                           <SelectLabel>sets</SelectLabel>
-                                                                                           <SelectItem value="1">1</SelectItem>
-                                                                                           <SelectItem value="2">2</SelectItem>
-                                                                                           <SelectItem value="3">3</SelectItem>
-                                                                                           <SelectItem value="4">4</SelectItem>
-                                                                                           <SelectItem value="5">5</SelectItem>
-                                                                                           <SelectItem value="6">6</SelectItem>
-                                                                                           <SelectItem value="7">7</SelectItem>
-                                                                                           <SelectItem value="8">8</SelectItem>
-                                                                                           <SelectItem value="9">9</SelectItem>
-                                                                                           <SelectItem value="10">10</SelectItem>
-                                                                                           <SelectItem value="11">11</SelectItem>
-                                                                                           <SelectItem value="12">12</SelectItem>
-                                                                                           <SelectItem value="13">13</SelectItem>
-                                                                                           <SelectItem value="14">14</SelectItem>
-                                                                                           <SelectItem value="15">15</SelectItem>
-                                                                                           <SelectItem value="16">16</SelectItem>
-                                                                                           <SelectItem value="17">17</SelectItem>
-                                                                                           <SelectItem value="18">18</SelectItem>
-                                                                                           <SelectItem value="19">19</SelectItem>
-                                                                                           <SelectItem value="20">20</SelectItem>
-                                                                                       </SelectGroup>
-                                                                                   </SelectContent>
-                                                                               </Select>
-                                                                               <FontAwesomeIcon className='m-2' icon={faXmark} />
-                                                                               <Select  value={workout_exercise.reps > 0 ? workout_exercise.reps.toString() : ''}
-                                                                               onValueChange={(newValue) => handleEditRepsChange(workout_exercise.exercise.id, parseInt(newValue, 10))}
-                                                                               >
-                                                                                   <SelectTrigger className="w-[55px] md:w-[80px] focus:ring-0 focus:ring-offset-0">
-                                                                                       <SelectValue placeholder='reps' />
-                                                                                   </SelectTrigger>
-                                                                                   <SelectContent>
-                                                                                       <SelectGroup>
-                                                                                           <SelectLabel>reps</SelectLabel>
-                                                                                           <SelectItem value="1">1</SelectItem>
-                                                                                           <SelectItem value="2">2</SelectItem>
-                                                                                           <SelectItem value="3">3</SelectItem>
-                                                                                           <SelectItem value="4">4</SelectItem>
-                                                                                           <SelectItem value="5">5</SelectItem>
-                                                                                           <SelectItem value="6">6</SelectItem>
-                                                                                           <SelectItem value="7">7</SelectItem>
-                                                                                           <SelectItem value="8">8</SelectItem>
-                                                                                           <SelectItem value="9">9</SelectItem>
-                                                                                           <SelectItem value="10">10</SelectItem>
-                                                                                           <SelectItem value="11">11</SelectItem>
-                                                                                           <SelectItem value="12">12</SelectItem>
-                                                                                           <SelectItem value="13">13</SelectItem>
-                                                                                           <SelectItem value="14">14</SelectItem>
-                                                                                           <SelectItem value="15">15</SelectItem>
-                                                                                           <SelectItem value="16">16</SelectItem>
-                                                                                           <SelectItem value="17">17</SelectItem>
-                                                                                           <SelectItem value="18">18</SelectItem>
-                                                                                           <SelectItem value="19">19</SelectItem>
-                                                                                           <SelectItem value="20">20</SelectItem>
-                                                                                       </SelectGroup>
-                                                                                   </SelectContent>
-                                                                               </Select>
-                                                                               <FontAwesomeIcon className='ml-auto' size='lg' onClick={() => deleteWorkoutExercise(workout_exercise.id)} icon={faTrashCan} />
-                                                                           </div>
-                                                                           <DrawerFooter>
-                                                                               <DrawerClose asChild>
-                                                                                   <Button onClick={() => updateWorkout()}>Save Changes</Button>
-                                                                               </DrawerClose>
-                                                                           </DrawerFooter>
-                                                                       </DrawerContent>
-                                                                   </Drawer>
-                                                       
-                                                           </div>
-                                                        ))}
-                                                    <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-                                                        <DrawerTrigger className='w-full flex items-center'>
-                                                        <div className='py-4 px-2 text-lg text-primary font-semibold underline-offset-4 hover:underline'><FontAwesomeIcon className='mr-2' icon={faPlus}/>
-                                                        Add Exercise</div>
-                                                        </DrawerTrigger>
-                                                        <DrawerContent className='h-5/6'>
-                                                                <div className='flex flex-col'>
-                                                                    <Card className='border-none m-0'>
-                                                                        <CardHeader className='pt-4 pb-0 px-4 '>
-                                                                            <CardTitle className='text-xl'>
-                                                                                Add New Exercise
-                                                                            </CardTitle>
-                                                                        </CardHeader>
-                                                                        <CardContent className='px-4 py-4 flex flex-col'>
-                                                                            <div className='flex items-center gap-1'>
-                                                                                <Input className='w-full' maxLength={25} placeholder="Add or Create Exercise" onChange={(event) => setNewExercise(event.target.value)} value={newExercise}/>
-                                                                                <Select value={newExerciseSets} onValueChange={(newValue) => setNewExerciseSets(newValue)}>
-                                                                                    <SelectTrigger className="w-[80px] md:w-[80px] focus:ring-0 focus:ring-offset-0">
+                                                    <div className='w-full flex flex-col gap-2 overflow-y-scroll scrollbar-custom' style={{ height: `calc(100vh - 150px)` }}>
+                                                            {clickedWorkoutExercises && clickedWorkoutExercises.map((workout_exercise, index) => (
+                                                            <div key={workout_exercise.id} className='flex-shrink-0 py-6 pl-4 pr-10 w-full flex justify-between items-center border rounded-xs relative h-20 overflow-hidden'>
+                                                                <div className='w-3/5 break-word font-semibold text-lg'>{index + 1}. {workout_exercise.exercise.name}</div>
+                                                                    <div className='font-semibold text-lg'>{workout_exercise.sets} x {workout_exercise.reps}</div>
+                                                                    {workout_exercise.exercise.video ? (
+                                                                        <div className='h-14 w-14'>
+                                                                            <AlertDialog>
+                                                                                <AlertDialogTrigger>
+                                                                                    <img
+                                                                                        src={`https://img.youtube.com/vi/${workout_exercise.exercise.video}/maxresdefault.jpg`}
+                                                                                        alt="Video Thumbnail"
+                                                                                        className="object-cover rounded-full cursor-pointer w-14 h-14"
+                                                                                    />
+                                                                                </AlertDialogTrigger>
+                                                                                <AlertDialogContent className='gap-0'>
+                                                                                    <div className="aspect-w-16 aspect-h-9 w-full h-72">
+                                                                                        <iframe
+                                                                                            className="w-full h-full"
+                                                                                            src={`https://www.youtube.com/embed/${workout_exercise.exercise.video}`}
+                                                                                            title="YouTube video player"
+                                                                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                                                            allowFullScreen>
+                                                                                        </iframe>
+                                                                                    </div>
+                                                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                                </AlertDialogContent>
+                                                                                </AlertDialog>
+                                                                            </div>
+                                                                        ) : (
+                                                                            <div className='h-12 w-12'></div>
+                                                                        )
+                                                                    }
+                                                                    <Drawer>
+                                                                        <DrawerTrigger className='absolute top-1 right-3'><FontAwesomeIcon icon={faEllipsis} /></DrawerTrigger>
+                                                                        <DrawerContent className='h-1/3'>
+                                                                            <DrawerHeader>
+                                                                            <DrawerTitle>Edit Exercise</DrawerTitle>
+                                                                            </DrawerHeader>
+                                                                            <div className='flex items-center p-6 border rounded-sm mx-4'>
+                                                                                <div className='w-1/3 font-semibold' >{workout_exercise.exercise.name}</div>
+                                                                                <Select  value={workout_exercise.sets > 0 ? workout_exercise.sets.toString() : ''}
+                                                                                onValueChange={(newValue) => handleEditSetsChange(workout_exercise.exercise.id, parseInt(newValue, 10))}
+                                                                                >
+                                                                                    <SelectTrigger className="w-[55px] md:w-[80px] focus:ring-0 focus:ring-offset-0">
                                                                                         <SelectValue placeholder='sets' />
                                                                                     </SelectTrigger>
-                                                                                    <SelectContent 
-                                                                                    ref={(ref) => {
-                                                                                        if (!ref) return;
-                                                                                        ref.ontouchstart = (e) => {
-                                                                                            e.preventDefault();
-                                                                                        };
-                                                                                    }}>
+                                                                                    <SelectContent>
                                                                                         <SelectGroup>
                                                                                             <SelectLabel>sets</SelectLabel>
                                                                                             <SelectItem value="1">1</SelectItem>
@@ -1477,18 +1380,14 @@ const Train = ({celebrate, setCelebrate, programLoading, activeProgram, setActiv
                                                                                         </SelectGroup>
                                                                                     </SelectContent>
                                                                                 </Select>
-                                                                                <FontAwesomeIcon className='m-1' icon={faXmark} />
-                                                                                <Select value={newExerciseReps} onValueChange={(newValue) => setNewExerciseReps(newValue)}>
-                                                                                    <SelectTrigger className="w-[80px] md:w-[80px] focus:ring-0 focus:ring-offset-0">
+                                                                                <FontAwesomeIcon className='m-2' icon={faXmark} />
+                                                                                <Select  value={workout_exercise.reps > 0 ? workout_exercise.reps.toString() : ''}
+                                                                                onValueChange={(newValue) => handleEditRepsChange(workout_exercise.exercise.id, parseInt(newValue, 10))}
+                                                                                >
+                                                                                    <SelectTrigger className="w-[55px] md:w-[80px] focus:ring-0 focus:ring-offset-0">
                                                                                         <SelectValue placeholder='reps' />
                                                                                     </SelectTrigger>
-                                                                                    <SelectContent
-                                                                                    ref={(ref) => {
-                                                                                        if (!ref) return;
-                                                                                        ref.ontouchstart = (e) => {
-                                                                                            e.preventDefault();
-                                                                                        };
-                                                                                    }}>
+                                                                                    <SelectContent>
                                                                                         <SelectGroup>
                                                                                             <SelectLabel>reps</SelectLabel>
                                                                                             <SelectItem value="1">1</SelectItem>
@@ -1514,77 +1413,136 @@ const Train = ({celebrate, setCelebrate, programLoading, activeProgram, setActiv
                                                                                         </SelectGroup>
                                                                                     </SelectContent>
                                                                                 </Select>
+                                                                                <FontAwesomeIcon className='ml-auto' size='lg' onClick={() => deleteWorkoutExercise(workout_exercise.id)} icon={faTrashCan} />
                                                                             </div>
-                                                                            <Button onClick={addNewExerciseToWorkout} className='text-lg w-full mt-4'>Add</Button>
-                                                                        </CardContent>
-                                                                    </Card>
-                                                                    <Tabs  defaultValue='exerciseDatabase'>
-                                                                        <div className='flex justify-center items-center w-full pb-2'>
-                                                                        <TabsList className="mx-2 grid w-full grid-cols-2 gap-1 rounded-xs bg-muted">
-                                                                            <TabsTrigger className='rounded-xs' value="exerciseDatabase">Exercise Database</TabsTrigger>
-                                                                            <TabsTrigger className='rounded-xs' value="yourExercises">Your Exercises</TabsTrigger>
-                                                                        </TabsList>
-                                                                        </div>
-                                                                        <Card className='border-none'>
-                                                                        <div className="relative py-2 w-full flex justify-center items-center">
-                                                                            <Search className="absolute left-4 top-5 h-4 w-4 text-muted-foreground" />
-                                                                            <Input placeholder="Search" className="pl-8 w-full mx-2" onChange={handleSearchChange} />
-                                                                        </div>
-                                                                        <TabsContent className='m-0' value="exerciseDatabase">
-                                                                            <ScrollArea className="h-96 w-full rounded-md border-none bg-background">
-                                                                                <div className="px-4 py-0">
-                                                                                {filteredExercises.map((exercise) => (
-                                                                                    <div onClick={() => clickToAddExercise(exercise.name)} key={exercise.name}>
-                                                                                        <div className='h-[68px] flex justify-between items-center pr-8'>
-                                                                                            <div className="p-2 text-base font-semibold">{exercise.name}</div>
-                                                                                            {exercise.video ? (
-                                                                                            <div className='mt-[6px]'>
-                                                                                                <AlertDialog>
-                                                                                                    <AlertDialogTrigger>
-                                                                                                        <img
-                                                                                                            src={`https://img.youtube.com/vi/${exercise.video}/maxresdefault.jpg`}
-                                                                                                            alt="Video Thumbnail"
-                                                                                                            className="object-cover rounded-full cursor-pointer w-14 h-14"
-                                                                                                        />
-                                                                                                    </AlertDialogTrigger>
-                                                                                                    <AlertDialogContent className='gap-0'>
-                                                                                                        <div className="aspect-w-16 aspect-h-9 w-full h-72">
-                                                                                                            <iframe
-                                                                                                                className="w-full h-full"
-                                                                                                                src={`https://www.youtube.com/embed/${exercise.video}`}
-                                                                                                                title="YouTube video player"
-                                                                                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                                                                                allowFullScreen>
-                                                                                                            </iframe>
-                                                                                                        </div>
-                                                                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                                                                    </AlertDialogContent>
-                                                                                                    </AlertDialog>
-                                                                                                </div>
-                                                                                            ) : (
-                                                                                                <div className='h-12 w-12'></div>
-                                                                                            )
-                                                                                        }
-                                                                                        </div>
-                                                                                        <Separator />
-                                                                                    </div>
-                                                                                ))}
+                                                                            <DrawerFooter>
+                                                                                <DrawerClose asChild>
+                                                                                    <Button onClick={() => updateWorkout()}>Save Changes</Button>
+                                                                                </DrawerClose>
+                                                                            </DrawerFooter>
+                                                                        </DrawerContent>
+                                                                    </Drawer>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                    <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+                                                            <DrawerTrigger className='w-full flex items-center'>
+                                                            <div className='py-4 pb-6 px-2 text-lg text-primary font-semibold underline-offset-4 hover:underline'><FontAwesomeIcon className='mr-2' icon={faPlus}/>
+                                                            Add Exercise</div>
+                                                            </DrawerTrigger>
+                                                            <DrawerContent className='h-5/6'>
+                                                                    <div className='flex flex-col'>
+                                                                        <Card className='border-none m-0'>
+                                                                            <CardHeader className='pt-4 pb-0 px-4 '>
+                                                                                <CardTitle className='text-xl'>
+                                                                                    Add New Exercise
+                                                                                </CardTitle>
+                                                                            </CardHeader>
+                                                                            <CardContent className='px-4 py-4 flex flex-col'>
+                                                                                <div className='flex items-center gap-1'>
+                                                                                    <Input className='w-full' maxLength={25} placeholder="Add or Create Exercise" onChange={(event) => setNewExercise(event.target.value)} value={newExercise}/>
+                                                                                    <Select value={newExerciseSets} onValueChange={(newValue) => setNewExerciseSets(newValue)}>
+                                                                                        <SelectTrigger className="w-[80px] md:w-[80px] focus:ring-0 focus:ring-offset-0">
+                                                                                            <SelectValue placeholder='sets' />
+                                                                                        </SelectTrigger>
+                                                                                        <SelectContent 
+                                                                                        ref={(ref) => {
+                                                                                            if (!ref) return;
+                                                                                            ref.ontouchstart = (e) => {
+                                                                                                e.preventDefault();
+                                                                                            };
+                                                                                        }}>
+                                                                                            <SelectGroup>
+                                                                                                <SelectLabel>sets</SelectLabel>
+                                                                                                <SelectItem value="1">1</SelectItem>
+                                                                                                <SelectItem value="2">2</SelectItem>
+                                                                                                <SelectItem value="3">3</SelectItem>
+                                                                                                <SelectItem value="4">4</SelectItem>
+                                                                                                <SelectItem value="5">5</SelectItem>
+                                                                                                <SelectItem value="6">6</SelectItem>
+                                                                                                <SelectItem value="7">7</SelectItem>
+                                                                                                <SelectItem value="8">8</SelectItem>
+                                                                                                <SelectItem value="9">9</SelectItem>
+                                                                                                <SelectItem value="10">10</SelectItem>
+                                                                                                <SelectItem value="11">11</SelectItem>
+                                                                                                <SelectItem value="12">12</SelectItem>
+                                                                                                <SelectItem value="13">13</SelectItem>
+                                                                                                <SelectItem value="14">14</SelectItem>
+                                                                                                <SelectItem value="15">15</SelectItem>
+                                                                                                <SelectItem value="16">16</SelectItem>
+                                                                                                <SelectItem value="17">17</SelectItem>
+                                                                                                <SelectItem value="18">18</SelectItem>
+                                                                                                <SelectItem value="19">19</SelectItem>
+                                                                                                <SelectItem value="20">20</SelectItem>
+                                                                                            </SelectGroup>
+                                                                                        </SelectContent>
+                                                                                    </Select>
+                                                                                    <FontAwesomeIcon className='m-1' icon={faXmark} />
+                                                                                    <Select value={newExerciseReps} onValueChange={(newValue) => setNewExerciseReps(newValue)}>
+                                                                                        <SelectTrigger className="w-[80px] md:w-[80px] focus:ring-0 focus:ring-offset-0">
+                                                                                            <SelectValue placeholder='reps' />
+                                                                                        </SelectTrigger>
+                                                                                        <SelectContent
+                                                                                        ref={(ref) => {
+                                                                                            if (!ref) return;
+                                                                                            ref.ontouchstart = (e) => {
+                                                                                                e.preventDefault();
+                                                                                            };
+                                                                                        }}>
+                                                                                            <SelectGroup>
+                                                                                                <SelectLabel>reps</SelectLabel>
+                                                                                                <SelectItem value="1">1</SelectItem>
+                                                                                                <SelectItem value="2">2</SelectItem>
+                                                                                                <SelectItem value="3">3</SelectItem>
+                                                                                                <SelectItem value="4">4</SelectItem>
+                                                                                                <SelectItem value="5">5</SelectItem>
+                                                                                                <SelectItem value="6">6</SelectItem>
+                                                                                                <SelectItem value="7">7</SelectItem>
+                                                                                                <SelectItem value="8">8</SelectItem>
+                                                                                                <SelectItem value="9">9</SelectItem>
+                                                                                                <SelectItem value="10">10</SelectItem>
+                                                                                                <SelectItem value="11">11</SelectItem>
+                                                                                                <SelectItem value="12">12</SelectItem>
+                                                                                                <SelectItem value="13">13</SelectItem>
+                                                                                                <SelectItem value="14">14</SelectItem>
+                                                                                                <SelectItem value="15">15</SelectItem>
+                                                                                                <SelectItem value="16">16</SelectItem>
+                                                                                                <SelectItem value="17">17</SelectItem>
+                                                                                                <SelectItem value="18">18</SelectItem>
+                                                                                                <SelectItem value="19">19</SelectItem>
+                                                                                                <SelectItem value="20">20</SelectItem>
+                                                                                            </SelectGroup>
+                                                                                        </SelectContent>
+                                                                                    </Select>
                                                                                 </div>
-                                                                            </ScrollArea>
-                                                                        </TabsContent>
-                                                                        <TabsContent className='m-0' value="yourExercises">
-                                                                            <ScrollArea className="h-96 w-full rounded-md border-none bg-background">
+                                                                                <Button onClick={addNewExerciseToWorkout} className='text-lg w-full mt-4'>Add</Button>
+                                                                            </CardContent>
+                                                                        </Card>
+                                                                        <Tabs  defaultValue='exerciseDatabase'>
+                                                                            <div className='flex justify-center items-center w-full pb-2'>
+                                                                            <TabsList className="mx-2 grid w-full grid-cols-2 gap-1 rounded-xs bg-muted">
+                                                                                <TabsTrigger className='rounded-xs' value="exerciseDatabase">Exercise Database</TabsTrigger>
+                                                                                <TabsTrigger className='rounded-xs' value="yourExercises">Your Exercises</TabsTrigger>
+                                                                            </TabsList>
+                                                                            </div>
+                                                                            <Card className='border-none'>
+                                                                            <div className="relative py-2 w-full flex justify-center items-center">
+                                                                                <Search className="absolute left-4 top-5 h-4 w-4 text-muted-foreground" />
+                                                                                <Input placeholder="Search" className="pl-8 w-full mx-2" onChange={handleSearchChange} />
+                                                                            </div>
+                                                                            <TabsContent className='m-0' value="exerciseDatabase">
+                                                                                <ScrollArea className="h-96 w-full rounded-md border-none bg-background">
                                                                                     <div className="px-4 py-0">
-                                                                                    {filteredUserExercises.map((userExercise) => (
-                                                                                        <div onClick={() => clickToAddExercise(userExercise.name)} key={userExercise.name}>
-                                                                                            <div className='h-[68px] flex justify-between items-center pr-8 relative'>
-                                                                                                <div className="p-2 text-base font-semibold">{userExercise.name}</div>
-                                                                                                {userExercise.video ? (
+                                                                                    {filteredExercises.map((exercise) => (
+                                                                                        <div onClick={() => clickToAddExercise(exercise.name)} key={exercise.name}>
+                                                                                            <div className='h-[68px] flex justify-between items-center pr-8'>
+                                                                                                <div className="p-2 text-base font-semibold">{exercise.name}</div>
+                                                                                                {exercise.video ? (
                                                                                                 <div className='mt-[6px]'>
                                                                                                     <AlertDialog>
                                                                                                         <AlertDialogTrigger>
                                                                                                             <img
-                                                                                                                src={`https://img.youtube.com/vi/${userExercise.video}/maxresdefault.jpg`}
+                                                                                                                src={`https://img.youtube.com/vi/${exercise.video}/maxresdefault.jpg`}
                                                                                                                 alt="Video Thumbnail"
                                                                                                                 className="object-cover rounded-full cursor-pointer w-14 h-14"
                                                                                                             />
@@ -1593,7 +1551,7 @@ const Train = ({celebrate, setCelebrate, programLoading, activeProgram, setActiv
                                                                                                             <div className="aspect-w-16 aspect-h-9 w-full h-72">
                                                                                                                 <iframe
                                                                                                                     className="w-full h-full"
-                                                                                                                    src={`https://www.youtube.com/embed/${userExercise.video}`}
+                                                                                                                    src={`https://www.youtube.com/embed/${exercise.video}`}
                                                                                                                     title="YouTube video player"
                                                                                                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                                                                                                     allowFullScreen>
@@ -1607,41 +1565,82 @@ const Train = ({celebrate, setCelebrate, programLoading, activeProgram, setActiv
                                                                                                     <div className='h-12 w-12'></div>
                                                                                                 )
                                                                                             }
-                                                                                            <AlertDialog>
-                                                                                                    <AlertDialogTrigger className='absolute top-1 right-1'>
-                                                                                                        <FontAwesomeIcon icon={faEllipsis} />
-                                                                                                    </AlertDialogTrigger>
-                                                                                                    <AlertDialogContent>
-                                                                                                        <div className='flex items-center'>
-                                                                                                            <Label className='mr-2'>URL:</Label>
-                                                                                                            <Input value={urlInput} onChange={(e) => setUrlInput(e.target.value)}
-                                                                                                            className='w-full focus:outline-none focus:ring-0 ' placeholder="Youtube URL"/>
-                                                                                                        </div>
-                                                                                                        <AlertDialogFooter>
-                                                                                                            <AlertDialogCancel className='mt-0'>Cancel</AlertDialogCancel>
-                                                                                                            <AlertDialogAction onClick={() => handleUrl(userExercise.id)}>Upload</AlertDialogAction>
-                                                                                                        </AlertDialogFooter>
-                                                                                                    </AlertDialogContent>
-                                                                                                </AlertDialog>
                                                                                             </div>
                                                                                             <Separator />
                                                                                         </div>
                                                                                     ))}
                                                                                     </div>
-                                                                            </ScrollArea>
-                                                                        </TabsContent>
-                                                                        </Card>
-                                                                    </Tabs>
-                                                                </div>
-                                                            <DrawerFooter>
-                                                                
-                                                            <DrawerClose asChild>
-                                                                <Button className='text-lg' variant="secondary">Cancel</Button>
-                                                            </DrawerClose>
-                                                            </DrawerFooter>
-                                                        </DrawerContent>
-                                                    </Drawer>
-                                                    </div>
+                                                                                </ScrollArea>
+                                                                            </TabsContent>
+                                                                            <TabsContent className='m-0' value="yourExercises">
+                                                                                <ScrollArea className="h-96 w-full rounded-md border-none bg-background">
+                                                                                        <div className="px-4 py-0">
+                                                                                        {filteredUserExercises.map((userExercise) => (
+                                                                                            <div onClick={() => clickToAddExercise(userExercise.name)} key={userExercise.name}>
+                                                                                                <div className='h-[68px] flex justify-between items-center pr-8 relative'>
+                                                                                                    <div className="p-2 text-base font-semibold">{userExercise.name}</div>
+                                                                                                    {userExercise.video ? (
+                                                                                                    <div className='mt-[6px]'>
+                                                                                                        <AlertDialog>
+                                                                                                            <AlertDialogTrigger>
+                                                                                                                <img
+                                                                                                                    src={`https://img.youtube.com/vi/${userExercise.video}/maxresdefault.jpg`}
+                                                                                                                    alt="Video Thumbnail"
+                                                                                                                    className="object-cover rounded-full cursor-pointer w-14 h-14"
+                                                                                                                />
+                                                                                                            </AlertDialogTrigger>
+                                                                                                            <AlertDialogContent className='gap-0'>
+                                                                                                                <div className="aspect-w-16 aspect-h-9 w-full h-72">
+                                                                                                                    <iframe
+                                                                                                                        className="w-full h-full"
+                                                                                                                        src={`https://www.youtube.com/embed/${userExercise.video}`}
+                                                                                                                        title="YouTube video player"
+                                                                                                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                                                                                        allowFullScreen>
+                                                                                                                    </iframe>
+                                                                                                                </div>
+                                                                                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                                                            </AlertDialogContent>
+                                                                                                            </AlertDialog>
+                                                                                                        </div>
+                                                                                                    ) : (
+                                                                                                        <div className='h-12 w-12'></div>
+                                                                                                    )
+                                                                                                }
+                                                                                                <AlertDialog>
+                                                                                                        <AlertDialogTrigger className='absolute top-1 right-1'>
+                                                                                                            <FontAwesomeIcon icon={faEllipsis} />
+                                                                                                        </AlertDialogTrigger>
+                                                                                                        <AlertDialogContent>
+                                                                                                            <div className='flex items-center'>
+                                                                                                                <Label className='mr-2'>URL:</Label>
+                                                                                                                <Input value={urlInput} onChange={(e) => setUrlInput(e.target.value)}
+                                                                                                                className='w-full focus:outline-none focus:ring-0 ' placeholder="Youtube URL"/>
+                                                                                                            </div>
+                                                                                                            <AlertDialogFooter>
+                                                                                                                <AlertDialogCancel className='mt-0'>Cancel</AlertDialogCancel>
+                                                                                                                <AlertDialogAction onClick={() => handleUrl(userExercise.id)}>Upload</AlertDialogAction>
+                                                                                                            </AlertDialogFooter>
+                                                                                                        </AlertDialogContent>
+                                                                                                    </AlertDialog>
+                                                                                                </div>
+                                                                                                <Separator />
+                                                                                            </div>
+                                                                                        ))}
+                                                                                        </div>
+                                                                                </ScrollArea>
+                                                                            </TabsContent>
+                                                                            </Card>
+                                                                        </Tabs>
+                                                                    </div>
+                                                                <DrawerFooter>
+                                                                    
+                                                                <DrawerClose asChild>
+                                                                    <Button className='text-lg' variant="secondary">Cancel</Button>
+                                                                </DrawerClose>
+                                                                </DrawerFooter>
+                                                            </DrawerContent>
+                                                        </Drawer>
                                                 </CardContent>
                                             </Card>
                                             </div>
@@ -1740,7 +1739,7 @@ const Train = ({celebrate, setCelebrate, programLoading, activeProgram, setActiv
                                                         className={`p-4 py-6 relative rounded border ${selectedProgram === program.id ? 'bg-secondary' : 'bg-background'}`}
                                                         onClick={() => handleProgramClick(program.id)}
                                                     >
-                                                        <h1>{program.name}</h1>
+                                                        <h1 className='text-xl'>{program.name}</h1>
                                                         <div className='absolute bottom-6 right-2' onClick={(event) => event.stopPropagation()}>
                                                             <Popover>
                                                                 <PopoverTrigger className='p-4'><FontAwesomeIcon size='lg' icon={faEllipsis} /></PopoverTrigger>
