@@ -213,7 +213,22 @@ const chatContainerRef = useRef(null);
     scrollToBottom();
   }, [messages]);
 
-  const handleBackClick = () => {
+  const handleBackClick = (otherUser) => {
+    console.log(otherUser.id)
+    let sessionToUpdate = findMatchingSessionId(chatSessions, user.user_id, otherUser.id);
+    console.log(sessionToUpdate)
+            if (sessionToUpdate && !sessionToUpdate.last_message.read) {
+                markMessageAsRead(sessionToUpdate.last_message.id);
+                const updatedSessions = chatSessions.map(session => {
+                    if (session.id === sessionToUpdate.id) {
+                        const newSession = { ...session, last_message: { ...session.last_message, read: true }};
+                        return newSession;
+                    }
+                    return session;
+                });
+                setChatSessions(updatedSessions);
+
+            }
     setSelectedChat(null);
     setInput('')
     setMessages([]);
@@ -659,7 +674,7 @@ function markMessageAsRead(messageId) {
           <>
             <CardHeader className="flex flex-row justify-between items-center pt-2 pb-2 pr-0">
                 <div className="flex items-center space-x-4">
-                    <FontAwesomeIcon onClick={handleBackClick} className='text-primary' size='xl' icon={faChevronLeft} />
+                    <FontAwesomeIcon onClick={() => handleBackClick(selectedChat)} className='text-primary' size='xl' icon={faChevronLeft} />
                     <Avatar>
                       <AvatarImage src={selectedChat.profile_picture || "https://github.com/shadcn.png"} />
                       <AvatarFallback>CN</AvatarFallback>

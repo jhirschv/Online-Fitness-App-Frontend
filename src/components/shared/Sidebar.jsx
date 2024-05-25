@@ -7,7 +7,12 @@ import { faSquarePlus, faFolder } from '@fortawesome/free-regular-svg-icons';
 import { faDumbbell, faPersonRunning, faChartLine, faWandMagicSparkles, faComments, faUserGroup, faGear } from '@fortawesome/free-solid-svg-icons';
 
 
-const SideBar = () => {
+const SideBar = ({chatSessions}) => {
+
+  const hasUnreadMessages = chatSessions.some(session => 
+    session.last_message && !session.last_message.read && session.last_message.sender == "other_user"
+  );
+
   return (
     <nav className="hidden bg-background xl:flex h-full w-1/6 pt-6 pl-4">
       <div className="w-5/6">
@@ -43,9 +48,14 @@ const SideBar = () => {
             </li>
           </NavLink>
 
-          <NavLink className={() => `${
+          <NavLink className={() => `relative ${
                 location.pathname === '/chat' || location.pathname.startsWith('/ClientProgress/') ? 'text-primary' : 'text-current'
                 }`} to='/chat'> 
+            {hasUnreadMessages && (
+                <div className="absolute top-5 left-8 transform -translate-y-1/2 h-2 w-2 rounded-full bg-primary">
+                {/* This div represents the blue ball */}
+                </div>
+            )}
             <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md transition duration-150 ease-in-out">
               <FontAwesomeIcon className="mr-3" icon={faComments} />
               Messages

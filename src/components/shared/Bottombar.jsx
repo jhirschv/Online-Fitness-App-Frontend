@@ -13,14 +13,6 @@ const Bottombar = ({chatSessions}) => {
         session.last_message && !session.last_message.read && session.last_message.sender == "other_user"
     );
 
-    useEffect(()=> {
-        if(hasUnreadMessages) {
-        console.log("woahhh", chatSessions)
-        } else{
-            console.log(chatSessions)
-        }
-    }, [chatSessions])
-
   return (
     <div className='fixed bottom-0 xl:hidden w-full border-t flex h-20 bg-background'>
         <ul className="flex w-full justify-evenly">
