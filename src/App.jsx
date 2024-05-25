@@ -164,16 +164,18 @@ function App() {
                 // Otherwise, the other user must be the sender
                 otherUserId = data.message.sender;
             }
-          // Handling standard chat messages
-          setMessages((prevMessages) => [...prevMessages, data.message]);
+
+          // Update messages by appending to the correct user's message array
+          setMessages(prevMessages => ({
+            ...prevMessages,
+            [otherUserId]: [
+                ...(prevMessages[otherUserId] || []), // Use existing messages or start a new array if none exist
+                data.message
+            ]
+          }));
           
           fetchUserChatSessions();
 
-          /* const sessionToUpdate = findMatchingSessionId(chatSessions, user.user_id, otherUserId);
-          
-          if (sessionToUpdate) {
-              updateLastMessageInChatSessions(data.message, sessionToUpdate.id);
-          } */
           break;
     
         case 'trainer-request-sent':

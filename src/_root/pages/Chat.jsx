@@ -115,25 +115,51 @@ const Chat = ({sendMessage, messages, setMessages, chatSessions, setChatSessions
 
   //const [webSocket, setWebSocket] = useState(null);
 
+  const findMatchingSessionId = (sessions, currentUserId, otherUserId) => {
+    return sessions.find(session => 
+        session.participants.some(participant => participant.id === currentUserId) &&
+        session.participants.some(participant => participant.id == otherUserId)
+    );
+  };
+
   const handleUserClick = (otherUser) => {
     setSelectedChat(otherUser);
-    setIsPopoverOpen(false)
-    setSearchTerm('')
-    setSessionSearchTerm('')
+    setIsPopoverOpen(false);
+    setSearchTerm('');
+    setSessionSearchTerm('');
+
+    let sessionToUpdate; // Defined outside to ensure it's accessible later
+
     apiClient.get(`/chat/${otherUser.id}/`)
         .then(response => {
-            setMessages(response.data);
-            fetchUserChatSessions();
+              setMessages(prevMessages => ({
+                ...prevMessages,
+                [otherUser.id]: response.data
+            }));
+            sessionToUpdate = findMatchingSessionId(chatSessions, user.user_id, otherUser.id);
+            if (sessionToUpdate && !sessionToUpdate.last_message.read) {
+                return markMessageAsRead(sessionToUpdate.last_message.id);
+            }
+        })
+        .then(() => {
+            // Ensure sessionToUpdate is defined before trying to update the state
+            if (sessionToUpdate) {
+                const updatedSessions = chatSessions.map(session => {
+                    if (session.id === sessionToUpdate.id) {
+                        const newSession = { ...session, last_message: { ...session.last_message, read: true }};
+                        return newSession;
+                    }
+                    return session;
+                });
+                setChatSessions(updatedSessions);
+            }
         })
         .catch(error => {
             console.error('Error:', error);
             setMessages([]);
         });
-  };
+};
 
-  useEffect(() => {
-    console.log("Chat sessions updated:", chatSessions);
-}, [chatSessions]);
 
   /* useEffect(() => {
     console.log(selectedChat)
@@ -513,6 +539,14 @@ const handleRemoveTrainer = () => {
   }
 };
 
+function markMessageAsRead(messageId) {
+  const data = {
+      read: true
+  };
+
+  // Return the Axios promise so that you can chain .then() and .catch() outside of this function.
+  return apiClient.patch(`messages/${messageId}/`, data);
+}
   return (
     <div className={`w-full ${backgroundColorClass} md:border rounded-lg lg:p-4`}>
       <Toaster />
@@ -552,10 +586,10 @@ const handleRemoveTrainer = () => {
               </PopoverContent>
             </Popover>
           </div>
-          <div className="h-full px-4 py-0">
+          <div className="h-full px-0 py-0">
           <div className="relative py-2 w-full flex justify-center items-center">
-              <Search className="absolute left-4 top-5 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search Chats" className="pl-8 w-full" value={sessionSearchTerm}
+              <Search className="absolute left-6 top-5 h-4 w-4 text-muted-foreground" />
+              <Input placeholder="Search Chats" className="pl-8 mx-4 w-full" value={sessionSearchTerm}
               onChange={e => setSessionSearchTerm(e.target.value)}/>
           </div>
           <div className="overflow-y-scroll scrollbar-custom" style={{ height: `calc(100vh - 265px)` }}>
@@ -569,7 +603,12 @@ const handleRemoveTrainer = () => {
             const lastMessage = session.last_message;
              
             return (
-                <div className="relative w-full flex items-center gap-4 p-3 py-2 hover:bg-muted transition duration-150 ease-in-out rounded-md" key={session.id} onClick={() => handleUserClick(otherParticipant)}>
+                <div className={`relative w-full h-20 flex items-center gap-4 pl-6 pr-3 py-2 hover:bg-muted transition duration-150 ease-in-out rounded-md`} key={session.id} onClick={() => handleUserClick(otherParticipant)}>
+                  {!lastMessage.read && lastMessage.sender != "user" && (
+                    <div className="absolute left-2 top-1/2 transform -translate-y-1/2 h-2.5 w-2.5 rounded-full bg-primary">
+                    {/* This div represents the blue ball */}
+                  </div>
+                  )}
                   <Popover >
                       <PopoverTrigger onClick={(event) => event.stopPropagation()} className='p-1 absolute top-1 right-2'><FontAwesomeIcon icon={faEllipsis} /></PopoverTrigger>
                       <PopoverContent className='w-full overflow-hidden rounded-md border bg-background p-0 text-popover-foreground shadow-md'>
@@ -593,7 +632,7 @@ const handleRemoveTrainer = () => {
                       </AlertDialog>
                       </PopoverContent>
                   </Popover>
-                  <Avatar className='h-14 w-14'>
+                  <Avatar className='h-11 w-11'>
                     <AvatarImage src={otherParticipant.profile_picture || "https://github.com/shadcn.png"} />
                     <AvatarFallback>CN</AvatarFallback>
                   </Avatar>
@@ -795,7 +834,8 @@ const handleRemoveTrainer = () => {
                 )}
             <CardContent className="w-full flex flex-col h-full overflow-y-auto overflow-x-hidden pb-1 px-0">
                 <div className="flex flex-col-reverse pb-2 px-2 h-full overflow-y-scroll px-1 scrollbar-custom" ref={chatContainerRef}>
-                {messages.slice().reverse().map((message, index) => (
+                {selectedChat && messages[selectedChat.id] && (
+                messages[selectedChat.id].slice().reverse().map((message, index) => (
                 <div
                     key={index}
                     className={cn(
@@ -807,7 +847,9 @@ const handleRemoveTrainer = () => {
                 >
                     <p>{message.content}</p>
                 </div>
-                ))}
+                ))
+              )}
+                
                 </div>
             </CardContent>
             <CardFooter className='mt-auto pt-2 px-2 pb-2'>
