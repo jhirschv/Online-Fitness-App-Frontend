@@ -101,6 +101,7 @@ function App() {
     try {
       const response = await apiClient.get('/user_chats/');
       const sessions = response.data;
+      console.log(sessions)
       setChatSessions(sessions);
   } catch (error) {
       console.error('Error fetching chat sessions:', error);
@@ -111,19 +112,22 @@ function App() {
     fetchUserChatSessions();
 }, []);
 
-  const findMatchingSessionId = (sessions, currentUserId, otherUser) => {
+  const findMatchingSessionId = (sessions, currentUserId, otherUserId) => {
+    console.log(sessions, currentUserId, otherUserId)
     return sessions.find(session => 
         session.participants.some(participant => participant.id === currentUserId) &&
-        session.participants.some(participant => participant.id === otherUser.id)
+        session.participants.some(participant => participant.id == otherUserId)
     );
   };
 
   const updateLastMessageInChatSessions = (message, sessionId) => {
     setChatSessions(prevSessions => prevSessions.map(session => {
         if (session.id === sessionId) {
+            const now = new Date();
             const formattedMessage = {
                 message: (message.sender === user.user_id ? "You: " : "") + message.content,
-                timestamp: "Just now"  // This will need to be updated based on actual time logic
+                timestamp: "Just now", 
+                exact_time: now.toISOString()  
             };
             return {...session, last_message: formattedMessage};
         }
@@ -148,17 +152,28 @@ function App() {
     ws.onopen = () => console.log("WebSocket connection established.");
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
-    
       // Handling different types of messages based on their 'type'
       switch (data.type) {
         case 'message':
-          
+
+          let otherUserId;
+            if (data.message.sender === user.user_id) {
+                // If the current user is the sender, then the other user is the recipient
+                otherUserId = data.message.recipient;
+            } else {
+                // Otherwise, the other user must be the sender
+                otherUserId = data.message.sender;
+            }
           // Handling standard chat messages
           setMessages((prevMessages) => [...prevMessages, data.message]);
-          const sessionToUpdate = findMatchingSessionId(chatSessions, user.user_id, selectedChat);
+          
+          fetchUserChatSessions();
+
+          /* const sessionToUpdate = findMatchingSessionId(chatSessions, user.user_id, otherUserId);
+          
           if (sessionToUpdate) {
               updateLastMessageInChatSessions(data.message, sessionToUpdate.id);
-          }
+          } */
           break;
     
         case 'trainer-request-sent':

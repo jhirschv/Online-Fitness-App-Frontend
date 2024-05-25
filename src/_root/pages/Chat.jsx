@@ -99,6 +99,10 @@ const Chat = ({sendMessage, messages, setMessages, chatSessions, setChatSessions
     fetchUserChatSessions();
   }, [])
 
+  useEffect(() => {
+    setInput("")
+  }, [selectedChat])
+
 
   useEffect(() => {
     apiClient.get(`/users/`)
@@ -126,6 +130,10 @@ const Chat = ({sendMessage, messages, setMessages, chatSessions, setChatSessions
             setMessages([]);
         });
   };
+
+  useEffect(() => {
+    console.log("Chat sessions updated:", chatSessions);
+}, [chatSessions]);
 
   /* useEffect(() => {
     console.log(selectedChat)
@@ -251,10 +259,15 @@ function deleteChatSession(chatSessionId) {
 }
 const [sessionSearchTerm, setSessionSearchTerm] = useState("");
 
-const filteredSessions = chatSessions.filter(session => {
-  const otherParticipant = session.participants.find(participant => participant.id !== user.user_id);
-  return otherParticipant ? otherParticipant.username.toLowerCase().includes(sessionSearchTerm.toLowerCase()) : false;
-});
+const filteredAndSortedSessions = chatSessions
+  .filter(session => {
+    const otherParticipant = session.participants.find(participant => participant.id !== user.user_id);
+    return otherParticipant ? otherParticipant.username.toLowerCase().includes(sessionSearchTerm.toLowerCase()) : false;
+  })
+  .sort((a, b) => {
+    // Now using the exact_time for sorting, which is in ISO 8601 format
+    return new Date(b.last_message.exact_time) - new Date(a.last_message.exact_time);
+  });
 
 const handleSendMessage = (input) => {
   sendMessage(input)
@@ -546,7 +559,7 @@ const handleRemoveTrainer = () => {
               onChange={e => setSessionSearchTerm(e.target.value)}/>
           </div>
           <div className="overflow-y-scroll scrollbar-custom" style={{ height: `calc(100vh - 265px)` }}>
-          {filteredSessions.map((session) => {
+          {filteredAndSortedSessions.map((session) => {
             // Find the other participant
             const otherParticipant = session.participants.find(participant => participant.id !== user.user_id);
 
