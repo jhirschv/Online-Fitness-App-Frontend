@@ -101,7 +101,6 @@ function App() {
     try {
       const response = await apiClient.get('/user_chats/');
       const sessions = response.data;
-      console.log(sessions)
       setChatSessions(sessions);
   } catch (error) {
       console.error('Error fetching chat sessions:', error);
@@ -280,7 +279,7 @@ function App() {
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         <Routes>
-          <Route element={<RootLayout userInfo={userInfo}/>}>
+          <Route element={<RootLayout userInfo={userInfo} chatSessions={chatSessions}/>}>
             <Route element={<PrivateRoute />}>
               <Route path="account" element={<Account userInfo={userInfo} setUserInfo={setUserInfo}/>} />  
               <Route index element={<Train 

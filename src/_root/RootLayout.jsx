@@ -5,7 +5,7 @@ import Topbar from '../components/shared/Topbar'
 import Bottombar from '../components/shared/Bottombar'
 import { useTheme } from '@/components/theme-provider';
 
-const RootLayout = ({userInfo}) => {
+const RootLayout = ({userInfo, chatSessions}) => {
   const { theme } = useTheme();
   const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
   
@@ -16,7 +16,7 @@ const RootLayout = ({userInfo}) => {
         <Sidebar />
         <Outlet />
       </div>
-      <Bottombar />
+      <Bottombar chatSessions={chatSessions}/>
     </div>
   )
 }
