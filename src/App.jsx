@@ -50,6 +50,7 @@ function App() {
   const [activeProgram, setActiveProgram] = useState(null)
   const [workouts, setWorkouts] = useState([])
   useEffect(() => {
+    if(user){
       setProgramLoading(true)
       apiClient.get('/get_active_program/') // Make sure the endpoint matches your Django URL configuration
       .then(response => {
@@ -63,12 +64,14 @@ function App() {
           setProgramLoading(false);
           setActiveProgram(null)
       });
+    }
   }, [user]);
 
     const [isActiveSession, setIsActiveSession] = useState(false);
     const [sessionDetails, setSessionDetails] = useState();
   
     const fetchSessionDetails = async () => {
+      if(user){
       setLoadingSessionDetails(true);
       try {
           const response = await apiClient.get('/check_active_session/');
@@ -87,17 +90,18 @@ function App() {
       } finally {
         setLoadingSessionDetails(false);  // End loading
       }
+    }
   };
 
   useEffect(() => {
     fetchSessionDetails();
-    console.log("fetching session details")
   }, []);
 
   //chat
   const [chatSessions, setChatSessions] = useState([]);
 
   const fetchUserChatSessions = async () => {
+    if(user){
     try {
       const response = await apiClient.get('/user_chats/');
       const sessions = response.data;
@@ -105,6 +109,7 @@ function App() {
   } catch (error) {
       console.error('Error fetching chat sessions:', error);
   }
+}
 };
 
   useEffect(() => {

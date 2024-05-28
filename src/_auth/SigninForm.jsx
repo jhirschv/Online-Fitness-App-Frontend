@@ -1,5 +1,8 @@
 import React from 'react'
+import apiClient from '../services/apiClient';
 import {useContext} from 'react'
+import { jwtDecode } from 'jwt-decode';
+import { useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContext'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -19,13 +22,37 @@ import { useTheme } from "@/components/theme-provider"
 
 export function SigninForm({fetchSessionDetails}) {
 
-  let {loginUser} = useContext(AuthContext)
+  let {loginUser, setUser, setAuthTokens} = useContext(AuthContext)
+  const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault(); // Prevent the default form submit action
     await loginUser(event); // Assuming loginUser is setup to handle the event correctly
     fetchSessionDetails(); // Call after loginUser has completed
   };
+
+  const handleGuestLogin = async () => {
+    try {
+        const response = await apiClient.post('api/guest/create/');
+        const data = response.data;
+        console.log(data)
+        if (data) {
+            localStorage.setItem('authTokens', JSON.stringify(data.tokens));
+            setAuthTokens(data.tokens);
+            const user = jwtDecode(data.tokens.access);
+            setUser(user);
+            console.log(user)
+            navigate('/');  // Redirect to the homepage or dashboard
+        } else {
+            console.error('Guest login failed');
+            alert('Failed to continue as guest.');
+        }
+    } catch (error) {
+        console.error('Error during guest login:', error);
+        alert('Guest login error!');
+    }
+};
+
   const { setTheme } = useTheme()
   const { theme } = useTheme();
   const fontColor = theme === 'dark' ? 'text-muted-foreground' : 'text-primary';
@@ -50,6 +77,7 @@ export function SigninForm({fetchSessionDetails}) {
                 <Input maxLength={30} type="password" name="password" placeholder="Enter password"/>
               </div>
               <Button type="submit">Sign in</Button>
+              <Button onClick={handleGuestLogin} type="button" variant="secondary">Continue as guest</Button>
             </div>
           </form>
           <div className="text-center mt-4">
