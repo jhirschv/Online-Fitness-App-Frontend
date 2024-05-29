@@ -764,11 +764,11 @@ const WorkoutSession = ({setCelebrate, fetchSessionDetails, sessionDetails, setS
                                                                     onKeyDown={preventInvalidInput}
                                                                     placeholder={String(exercise.workout_exercise.reps)}
                                                                     id="reps"
-                                                                    className="w-16 ml-1 mr-1 text-center font-semibold text-lg"
+                                                                    className="w-16 lg:w-20 ml-1 mr-1 text-center font-semibold text-lg"
                                                                 />
                                                                 <Label htmlFor="reps" className='mr-2'>Reps</Label>
 
-                                                                <Input id='weight' className='w-16 ml-1 mr-2 font-semibold text-lg'
+                                                                <Input id='weight' className='w-16 lg:w-20 ml-1 mr-2 font-semibold text-lg'
                                                                 inputMode='numeric'
                                                                 type='number'
                                                                 value={set.weight_used || ''} // Handle potential null or undefined values
