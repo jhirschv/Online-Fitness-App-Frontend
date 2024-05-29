@@ -184,6 +184,7 @@ const Train = ({celebrate, setCelebrate, programLoading, activeProgram, setActiv
     const [prompt, setPrompt] = useState('');
     const [programPrompt, setProgramPrompt] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [isWorkoutLoading, setIsWorkoutLoading] = useState(false);
 
     const handlePromptChange = (e) => {
         setPrompt(e.target.value);
@@ -198,7 +199,7 @@ const Train = ({celebrate, setCelebrate, programLoading, activeProgram, setActiv
             prompt: prompt,
             program_id: activeProgram.id // Assuming you have access to `activeProgram` here
         };
-        setIsLoading(true)
+        setIsWorkoutLoading(true)
         apiClient.post(`/api/openai/`, workoutData)
             .then(response => {
                 getActiveProgram()
@@ -215,7 +216,7 @@ const Train = ({celebrate, setCelebrate, programLoading, activeProgram, setActiv
                 });
             })
             .finally(() => {
-        setIsLoading(false); // Stop loading on completion
+        setIsWorkoutLoading(false); // Stop loading on completion
       });
     }
 
@@ -970,7 +971,17 @@ const Train = ({celebrate, setCelebrate, programLoading, activeProgram, setActiv
                     <AlertDialogContent>
                         <div className="flex flex-col justify-center items-center">
                             <ScaleLoader color="#2563eb" size={40} />
-                            <h1 className='text-muted-foreground mt-2'>AI programs may take up to 2 minutes to create</h1>
+                            <h1 className='text-muted-foreground mt-2'>AI programs may take up to one minute to create</h1>
+                        </div>
+                    </AlertDialogContent>
+                </AlertDialog>
+            )}
+            {isWorkoutLoading && (
+                <AlertDialog open={true}>
+                    <AlertDialogContent>
+                        <div className="flex flex-col justify-center items-center">
+                            <ScaleLoader color="#2563eb" size={40} />
+                            <h1 className='text-muted-foreground mt-2'>AI programs may take up to 30 seconds to create</h1>
                         </div>
                     </AlertDialogContent>
                 </AlertDialog>

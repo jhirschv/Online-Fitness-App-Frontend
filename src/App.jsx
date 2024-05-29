@@ -65,7 +65,7 @@ function App() {
           setActiveProgram(null)
       });
     }
-  }, [user]);
+  }, []);
 
     const [isActiveSession, setIsActiveSession] = useState(false);
     const [sessionDetails, setSessionDetails] = useState();
