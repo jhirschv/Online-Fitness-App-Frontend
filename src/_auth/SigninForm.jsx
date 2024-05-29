@@ -20,14 +20,15 @@ import {
 import { Link } from 'react-router-dom';
 import { useTheme } from "@/components/theme-provider"
 
-export function SigninForm({fetchSessionDetails}) {
+export function SigninForm({fetchSessionDetails, fetchActiveProgram}) {
 
   let {loginUser, setUser, setAuthTokens} = useContext(AuthContext)
   const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault(); // Prevent the default form submit action
-    await loginUser(event); // Assuming loginUser is setup to handle the event correctly
+    await loginUser(event);
+    fetchActiveProgram(); // Assuming loginUser is setup to handle the event correctly
     fetchSessionDetails(); // Call after loginUser has completed
   };
 
@@ -42,6 +43,7 @@ export function SigninForm({fetchSessionDetails}) {
             const user = jwtDecode(data.tokens.access);
             setUser(user);
             console.log(user)
+            fetchActiveProgram();
             navigate('/');  // Redirect to the homepage or dashboard
         } else {
             console.error('Guest login failed');

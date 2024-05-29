@@ -67,6 +67,22 @@ function App() {
     }
   }, []);
 
+  const fetchActiveProgram = () => {
+    setProgramLoading(true);
+    apiClient.get('/get_active_program/') // Make sure the endpoint matches your Django URL configuration
+        .then(response => {
+            setActiveProgram(response.data);
+            setProgramLoading(false);
+            const sortedWorkouts = response.data.workouts.sort((a, b) => a.order - b.order);
+            setWorkouts(sortedWorkouts);
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+            setProgramLoading(false);
+            setActiveProgram(null);
+        });
+};
+
     const [isActiveSession, setIsActiveSession] = useState(false);
     const [sessionDetails, setSessionDetails] = useState();
   
@@ -314,8 +330,8 @@ function App() {
               receivedRequests={receivedRequests} setReceivedRequests={setReceivedRequests} />} />
             </Route>
           </Route>
-          <Route path="/login" element={<SigninForm fetchSessionDetails={fetchSessionDetails}/>} />
-          <Route path="/signup" element={<SignupForm />} />
+          <Route path="/login" element={<SigninForm fetchSessionDetails={fetchSessionDetails} fetchActiveProgram={fetchActiveProgram}/>} />
+          <Route path="/signup" element={<SignupForm fetchActiveProgram={fetchActiveProgram}/>} />
         </Routes>
     </ThemeProvider>
   )
