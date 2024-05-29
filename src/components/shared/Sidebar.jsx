@@ -22,11 +22,10 @@ const SideBar = ({chatSessions, userInfo}) => {
                 `${isActive ? 'text-primary' : 'text-current'}`
               } to='/account'>
             <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md transition duration-300 ease-in-out">
-            {userInfo && 
               <Avatar className="mr-3">
-                <AvatarImage src={userInfo.profile_picture } />
+                <AvatarImage src={userInfo && userInfo.profile_picture && userInfo.profile_picture || "https://github.com/shadcn.png" } />
                 <AvatarFallback>CN</AvatarFallback>
-              </Avatar>}
+              </Avatar>
               <p className='md:hidden lg:block'>Account</p>
             </li>
           </NavLink>

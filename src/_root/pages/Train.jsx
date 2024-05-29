@@ -1994,7 +1994,6 @@ const Train = ({celebrate, setCelebrate, programLoading, activeProgram, setActiv
                                                                     </div>
                                                                 <AlertDialogFooter>
                                                                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                                    <Button onClick={() => updateWorkoutName(workout.id)}>Save Changes</Button>
                                                                 </AlertDialogFooter>
                                                             </AlertDialogContent>
                                                         </AlertDialog>
