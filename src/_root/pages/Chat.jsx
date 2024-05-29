@@ -306,7 +306,10 @@ const filteredAndSortedSessions = chatSessions
     return otherParticipant ? otherParticipant.username.toLowerCase().includes(sessionSearchTerm.toLowerCase()) : false;
   })
   .sort((a, b) => {
-    // Now using the exact_time for sorting, which is in ISO 8601 format
+    // Check if last_message exists before trying to access exact_time
+    if (!b.last_message || !a.last_message) {
+      return 0; // You can decide how to handle sorting when messages are missing, e.g., sort these at the end or start
+    }
     return new Date(b.last_message.exact_time) - new Date(a.last_message.exact_time);
   });
 
@@ -619,7 +622,7 @@ function markMessageAsRead(messageId) {
              
             return (
                 <div className={`relative w-full h-20 flex items-center gap-4 pl-6 pr-3 py-2 hover:bg-muted transition duration-150 ease-in-out rounded-md`} key={session.id} onClick={() => handleUserClick(otherParticipant)}>
-                  {!lastMessage.read && lastMessage.sender != "user" && (
+                  {lastMessage && !lastMessage.read && lastMessage.sender != "user" && (
                     <div className="absolute left-2 top-1/2 transform -translate-y-1/2 h-2.5 w-2.5 rounded-full bg-primary">
                     {/* This div represents the blue ball */}
                   </div>

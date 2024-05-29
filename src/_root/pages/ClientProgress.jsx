@@ -20,9 +20,20 @@ SheetHeader,
 SheetTitle,
 SheetTrigger,
 } from "@/components/ui/sheet"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+    } from "@/components/ui/alert-dialog"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPaperPlane, faChevronLeft } from '@fortawesome/free-solid-svg-icons';
-import { faFaceFrown } from '@fortawesome/free-regular-svg-icons';
+import { faFaceFrown, faTrashCan } from '@fortawesome/free-regular-svg-icons';
 import { Bar, BarChart, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { format, parseISO } from 'date-fns';
 import { Calendar as CalendarIcon } from "lucide-react"
@@ -78,9 +89,11 @@ import {
   } from "@/components/ui/drawer"
   import { useNavigate } from 'react-router-dom';
   import { useParams } from 'react-router-dom';
+  import { useMediaQuery } from '@mui/material';
 
 
 const ClientProgress = () => {
+    const isSmallScreen = useMediaQuery('(max-width: 767px)');
     const [date, setDate] = React.useState()
     const { theme } = useTheme();
     const backgroundColorClass = theme === 'dark' ? 'bg-popover' : 'bg-secondary';
@@ -240,6 +253,18 @@ const ClientProgress = () => {
         navigate('/chat')
     }
 
+    function transformVideoURL(originalURL) {
+        const backendBaseURL = 'http://127.0.0.1:8000'; // URL where Django serves media files
+        
+        // Check if the original URL is already a full URL or just a relative path
+        if (originalURL.startsWith('http')) {
+            return originalURL; // It's a full URL, no transformation needed
+        } else {
+            // It's a relative path, prepend the backend base URL
+            const newURL = backendBaseURL + originalURL;
+            return newURL;
+        }
+    }
 
     return (
         <div className={`w-full md:border rounded-lg overflow-y-auto ${backgroundColorClass} md:p-4 pb-24`}>
@@ -338,55 +363,81 @@ const ClientProgress = () => {
                             selected={date}
                             className="h-[100%] w-full pt-4 px-1"
                             />
+                        {isSmallScreen ? (
                         <Drawer open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                             <DrawerContent className='h-full pt-2'>
                                 {dayData.workout ? 
                                 <div className='h-full overflow-y-scroll scrollbar-custom px-4 pt-8 pb-4'>
                                     <div className='flex items-center justify-between pr-2'>
                                     <h1 className='font-semibold text-lg'>{dayData.workout.name}</h1>
-                                    <h1>{formattedDate}</h1>
+                                    <h1 className='font-semibold text-base'>{formattedDate}</h1>
                                     </div>
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead className='pl-0'>Exercises</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
+                                        <div>
                                             {dayData.exercise_logs && dayData.exercise_logs.length > 0 ? (
                                                 dayData.exercise_logs.map((exercise, index) => (
-                                                    <TableRow key={exercise.id}>
-                                                        <Accordion type="single" collapsible>
+                                                    <div key={exercise.id} >
+                                                        <Accordion  type="single" collapsible>
                                                             <AccordionItem value="item-1">
-                                                                <AccordionTrigger className='p-0 pr-4'>
-                                                                    <TableCell className="font-medium pl-0 flex gap-2">
+                                                                <AccordionTrigger className='py-4 pr-4'>
+                                                                    <div className="font-medium pl-0 flex gap-2">
                                                                         {index + 1}. {exercise.workout_exercise.exercise.name}
                                                                         <p className='text-sm text-muted-foreground'>{exercise.sets.length} sets</p>
-                                                                    </TableCell>
+                                                                    </div>
                                                                 </AccordionTrigger>
-                                                                <AccordionContent>
-                                                                    {exercise.sets.map((set) => (
-                                                                        <div className='px-3'>
-                                                                            <div className='p-4 w-full flex justify-between items-center'>
-                                                                                <p className='w-2/5'>Set: {set.set_number}</p>
-                                                                                <p className='w-2/5'>Reps: {set.reps}</p>
-                                                                                <p className='w-1/2'>Weight: {set.weight_used ? set.weight_used : 0} lbs</p>
-                                                                            </div>
-                                                                            <Separator />
+                                                                <AccordionContent className='pb-0'>
+                                                                {exercise.sets.map((set) => 
+                                                                    <div key={set.id} className='px-3'>
+                                                                        <div className='p-4 h-20 w-full flex justify-between items-center'>
+                                                                            <p className='w-1/12 font-medium text-base'>{set.set_number}.</p>
+                                                                            <p className='w-1/4 font-medium text-base'>{set.reps} {set.reps === 1 ? "rep" : "reps"}</p>
+                                                                            <p className='w-1/4 font-medium text-base'>{set.weight_used ? set.weight_used : 0} lbs</p>
+                                                                            {set.video && (
+                                                                                <AlertDialog>
+                                                                                    <AlertDialogTrigger as="div" className="cursor-pointer w-1/4">
+                                                                                        <video
+                                                                                            style={{
+                                                                                                width: '56px',
+                                                                                                height: '56px',
+                                                                                                borderRadius: '25%',
+                                                                                                objectFit: 'cover',
+                                                                                                pointerEvents: 'none'
+                                                                                            }}
+                                                                                            src={transformVideoURL(set.video)}
+                                                                                            loop
+                                                                                            muted
+                                                                                            playsInline
+                                                                                            preload="metadata"
+                                                                                            onError={(e) => console.error('Video trigger error:', e)}
+                                                                                        >
+                                                                                            <source src={transformVideoURL(set.video)} type="video/mp4" />
+                                                                                            Your browser does not support the video tag.
+                                                                                        </video>
+                                                                                    </AlertDialogTrigger>
+                                                                                    <AlertDialogContent>
+                                                                                        <div className="aspect-w-16 aspect-h-9 w-full h-72 relative">
+                                                                                            <video controls autoPlay className="w-full h-full" src={transformVideoURL(set.video)} onError={(e) => console.error('Video error:', e)}>
+                                                                                                Your browser does not support the video tag.
+                                                                                            </video>
+                                                                                        </div>
+                                                                                        <AlertDialogCancel as="button">Close</AlertDialogCancel>
+                                                                                    </AlertDialogContent>
+                                                                                </AlertDialog>
+                                                                            )}
                                                                         </div>
-                                                                    ))}
+                                                                        <Separator />
+                                                                    </div>
+                                                                )}
                                                                 </AccordionContent>
                                                             </AccordionItem>
                                                         </Accordion>
-                                                    </TableRow>
+                                                    </div>
                                                 ))
                                             ) : (
-                                                <TableRow>
-                                                    <TableCell className="text-center pt-8 text-xl font-semibold" colSpan="100%">No exercises logged for this day.</TableCell>
-                                                </TableRow>
+                                                <div>
+                                                    <div className="text-center pt-8 text-xl font-semibold" colSpan="100%">No exercises logged for this day.</div>
+                                                </div>
                                             )}
-                                        </TableBody>
-                                    </Table>
+                                        </div>
                                 </div>
                             : <div className='h-full flex flex items-center justify-center gap-1'>
                                 <h1 className='font-semibold text-xl'>No data available for this day</h1>
@@ -394,7 +445,91 @@ const ClientProgress = () => {
                               </div>
                                 }
                             </DrawerContent>
-                        </Drawer>
+                        </Drawer>) : (
+                        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+                        <SheetContent className='p-4 pr-0'>
+                        {dayData.workout ? 
+                            <div className='h-full mt-8 overflow-y-scroll scrollbar-custom pt-4 pb-4'>
+                                <div className='flex items-center justify-between pr-2'>
+                                    <h1 className='font-semibold text-lg'>{dayData.workout.name}</h1>
+                                    <h1 className='font-semibold text-base'>{formattedDate}</h1>
+                                </div>
+                                    <div className='pr-2'>
+                                        {dayData.exercise_logs && dayData.exercise_logs.length > 0 ? (
+                                            dayData.exercise_logs.map((exercise, index) => (
+                                                <div key={exercise.id} >
+                                                    <Accordion  type="single" collapsible>
+                                                        <AccordionItem value="item-1">
+                                                            <AccordionTrigger className='py-4'>
+                                                                <div className="font-medium pl-0 flex gap-2">
+                                                                    {index + 1}. {exercise.workout_exercise.exercise.name}
+                                                                    <p className='text-sm text-muted-foreground'>{exercise.sets.length} sets</p>
+                                                                </div>
+                                                            </AccordionTrigger>
+                                                            <AccordionContent className='pb-0'>
+                                                            {exercise.sets.map((set) =>
+                                                                <div key={set.id} className='px-3'>
+                                                                    <div className='p-4 h-20 w-full flex justify-between items-center'>
+                                                                        <p className='w-1/12 font-medium text-base'>{set.set_number}.</p>
+                                                                        <p className='w-1/4 font-medium text-base'>{set.reps} {set.reps === 1 ? "rep" : "reps"}</p>
+                                                                        <p className='w-1/4 font-medium text-base'>{set.weight_used ? set.weight_used : 0} lbs</p>
+                                                                        {set.video && (
+                                                                            <AlertDialog>
+                                                                                <AlertDialogTrigger as="div" className="cursor-pointer w-1/4">
+                                                                                    <video
+                                                                                        style={{
+                                                                                            width: '56px',
+                                                                                            height: '56px',
+                                                                                            borderRadius: '25%',
+                                                                                            objectFit: 'cover',
+                                                                                            pointerEvents: 'none'
+                                                                                        }}
+                                                                                        src={transformVideoURL(set.video)}
+                                                                                        loop
+                                                                                        muted
+                                                                                        playsInline
+                                                                                        preload="metadata"
+                                                                                        onError={(e) => console.error('Video trigger error:', e)}
+                                                                                    >
+                                                                                        <source src={transformVideoURL(set.video)} type="video/mp4" />
+                                                                                        Your browser does not support the video tag.
+                                                                                    </video>
+                                                                                </AlertDialogTrigger>
+                                                                                <AlertDialogContent>
+                                                                                    <div className="aspect-w-16 aspect-h-9 w-full h-72 relative">
+                                                                                        <video controls autoPlay className="w-full h-full" src={transformVideoURL(set.video)} onError={(e) => console.error('Video error:', e)}>
+                                                                                            Your browser does not support the video tag.
+                                                                                        </video>
+                                                                                    </div>
+                                                                                    <AlertDialogCancel as="button">Close</AlertDialogCancel>
+                                                                                </AlertDialogContent>
+                                                                            </AlertDialog>
+                                                                        )}
+                                                                    </div>
+                                                                    <Separator />
+                                                                </div>
+                                                            )}
+                                                            </AccordionContent>
+                                                        </AccordionItem>
+                                                    </Accordion>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div>
+                                                <div className="text-center pt-8 text-xl font-semibold" colSpan="100%">No exercises logged for this day.</div>
+                                            </div>
+                                        )}
+                                    </div>
+                            </div>
+                        : <div className='h-full flex flex items-center justify-center gap-1'>
+                            <h1 className='font-semibold text-xl'>No data available for this day</h1>
+                            <FontAwesomeIcon size='xl' className='mt-1' icon={faFaceFrown} />
+                          </div>
+                            }
+                        </SheetContent>
+                    </Sheet>
+                        )
+                    }       
                     </Card>
                 </div>
                 <div className="row-span-2 col-span-2 lg:col-span-1 xl:col-span-2 h-[400px]">

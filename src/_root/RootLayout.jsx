@@ -13,7 +13,7 @@ const RootLayout = ({userInfo, chatSessions}) => {
     <div  className={`flex flex-col justify-between pb-20 pt-16 xl:pb-0 h-screen`}>
       <Topbar userInfo={userInfo}/>
       <div className="overflow-hidden flex flex-1">
-        <Sidebar chatSessions={chatSessions}/>
+        <Sidebar chatSessions={chatSessions} userInfo={userInfo}/>
         <Outlet />
       </div>
       <Bottombar chatSessions={chatSessions}/>

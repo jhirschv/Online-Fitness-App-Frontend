@@ -7,7 +7,7 @@ import { faSquarePlus, faFolder } from '@fortawesome/free-regular-svg-icons';
 import { faDumbbell, faPersonRunning, faChartLine, faWandMagicSparkles, faComments, faUserGroup, faGear } from '@fortawesome/free-solid-svg-icons';
 
 
-const SideBar = ({chatSessions}) => {
+const SideBar = ({chatSessions, userInfo}) => {
 
   const hasUnreadMessages = chatSessions.some(session => 
     session.last_message && !session.last_message.read && session.last_message.sender == "other_user"
@@ -22,10 +22,11 @@ const SideBar = ({chatSessions}) => {
                 `${isActive ? 'text-primary' : 'text-current'}`
               } to='/account'>
             <li className="flex items-center text-lg hover:bg-muted w-full h-16 pl-4 rounded-md transition duration-300 ease-in-out">
+            {userInfo && 
               <Avatar className="mr-3">
-                <AvatarImage src="https://github.com/shadcn.png" />
+                <AvatarImage src={userInfo.profile_picture } />
                 <AvatarFallback>CN</AvatarFallback>
-              </Avatar>
+              </Avatar>}
               <p className='md:hidden lg:block'>Account</p>
             </li>
           </NavLink>
