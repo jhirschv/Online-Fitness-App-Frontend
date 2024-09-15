@@ -165,7 +165,7 @@ function App() {
     if (!user) return;
 
     const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
-    const wsURL = `${wsScheme}://localhost:8000/ws/user/${user.user_id}/`;
+    const wsURL = `${wsScheme}://train-io-9b748a5f64b5.herokuapp.com/ws/user/${user.user_id}/`;
 
     const ws = new WebSocket(wsURL);
 
