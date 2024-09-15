@@ -123,7 +123,7 @@ export function SignupForm() {
             // Handle specific error response from backend if needed
             console.error('Registration Error:', error.response.data);
             // Populate the errors state with backend validation messages if any
-            setErrors(error.response.data.errors);
+            setErrors(error.response.data);
         }
     }
 };
